@@ -1,10 +1,36 @@
 # git-conventions
 
-[English](README.md) | 한국어
+[English](README.md) | [한국어](README.ko.md)
 
-Git commit, PR, review convention을 강제하는 Claude Code skill입니다.
+Git commit, PR, review convention을 강제하는 [Agent Skill](https://agentskills.io)입니다.
+
+Claude Code, Codex CLI, Gemini CLI, Cursor, GitHub Copilot, Amp 등 [40개 이상의 agent](https://skills.sh)에서 사용할 수 있습니다.
 
 ## 설치
+
+### 방법 1: Skills CLI (모든 Agent 공용)
+
+```bash
+npx skills add chanmuzi/git-conventions
+```
+
+대화형 설치가 진행됩니다:
+
+1. **Select skills to install** — `space`로 설치할 skill 선택
+   - `commit` — 프로젝트 convention에 맞는 git commit 생성
+   - `pr` — 프로젝트 convention에 맞는 pull request 생성
+   - `review` — AI PR 리뷰 코멘트 분석
+2. **Which agents do you want to install to?** — 사용할 agent 선택 (예: Codex, Cursor, Gemini CLI, GitHub Copilot, …)
+3. **Installation scope** — `Project` (현재 repo만) 또는 `Global` (모든 프로젝트에서 사용)
+4. **Installation method** — `Symlink` (권장) 또는 `Copy`
+5. **확인** 후 설치 완료
+
+> 프롬프트 없이 한번에 설치하려면:
+> ```bash
+> npx skills add chanmuzi/git-conventions --skill commit --skill pr --skill review -g
+> ```
+
+### 방법 2: Claude Code Plugin
 
 ```bash
 # marketplace 추가

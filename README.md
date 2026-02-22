@@ -1,10 +1,36 @@
 # git-conventions
 
-English | [한국어](README.ko.md)
+[English](README.md) | [한국어](README.ko.md)
 
-A Claude Code skill that enforces consistent Git commit messages, PR templates, and AI review analysis across projects.
+An [Agent Skill](https://agentskills.io) that enforces consistent Git commit messages, PR templates, and AI review analysis across projects.
+
+Works with Claude Code, Codex CLI, Gemini CLI, Cursor, GitHub Copilot, Amp, and [40+ agents](https://skills.sh).
 
 ## Installation
+
+### Option 1: Skills CLI (All Agents)
+
+```bash
+npx skills add chanmuzi/git-conventions
+```
+
+The interactive installer will guide you through:
+
+1. **Select skills to install** — use `space` to toggle each skill
+   - `commit` — Create a git commit following project conventions
+   - `pr` — Create a pull request following project conventions
+   - `review` — Review AI-generated PR review comments
+2. **Which agents do you want to install to?** — select your agents (e.g. Codex, Cursor, Gemini CLI, GitHub Copilot, …)
+3. **Installation scope** — `Project` (current repo only) or `Global` (available across all projects)
+4. **Installation method** — `Symlink` (recommended) or `Copy`
+5. **Confirm** and done
+
+> To install all skills at once without prompts:
+> ```bash
+> npx skills add chanmuzi/git-conventions --skill commit --skill pr --skill review -g
+> ```
+
+### Option 2: Claude Code Plugin
 
 ```bash
 # Add marketplace
