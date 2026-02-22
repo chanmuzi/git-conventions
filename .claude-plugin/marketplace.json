@@ -8,7 +8,7 @@
   "plugins": [
     {
       "name": "git-conventions",
-      "description": "Enforce consistent commit messages, PR templates, and AI review analysis",
+      "description": "Enforce consistent commit messages, PR templates, and review triage & reply",
       "source": "./",
       "skills": [
         "./skills/commit",
