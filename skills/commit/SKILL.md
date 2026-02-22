@@ -6,10 +6,8 @@ description: Create a git commit following project conventions
 ## Gather Context
 
 Run the following commands to understand the current state:
-1. `git status` — check current git status
-2. `git diff HEAD` — check staged/unstaged changes
-3. `git branch --show-current` — check current branch
-4. `git log --oneline -10` — reference recent commit style
+1. `git status` — check current status and untracked files
+2. `git diff HEAD` — review all changes
 
 ## Commit Message Convention
 
@@ -61,11 +59,9 @@ hotfix: uv lock synced
 
 ## Task
 
-1. Analyze the diff to understand the nature and purpose of the changes.
-2. Determine the appropriate type prefix (and scope, if applicable).
-3. Draft a commit message following the convention above.
-4. Present the proposed commit message and **wait for user approval**.
-5. Once approved, stage the relevant files individually and create the commit.
+1. Analyze the diff and draft a commit message following the convention above.
+2. Present the proposed commit message and **wait for user approval**.
+3. Once approved, stage the relevant files individually and create the commit.
 
 **Important:**
 - Do NOT commit without explicit user approval.

@@ -3,11 +3,6 @@ name: review
 description: Review PR comments, discuss improvements, and reply with resolution status
 ---
 
-## Gather Context
-
-Run the following command to check the current branch:
-1. `git branch --show-current` — check current branch
-
 ## Identify Target PR
 
 Parse `$ARGUMENTS` to extract a PR number or URL.
@@ -45,10 +40,9 @@ For each review comment:
 
 | Category | Criteria |
 |----------|----------|
-| **Valid** | Identifies a real bug, security issue, or meaningful improvement |
+| **Valid** | Real bug, security issue, or meaningful improvement |
 | **Debatable** | Stylistic preference or trade-off that could go either way |
-| **Incorrect** | Misunderstands the code, context, or project conventions |
-| **Already handled** | The concern is addressed elsewhere in the codebase |
+| **Can Safely Ignore** | Misunderstands the code, already handled elsewhere, or not applicable |
 
 ## Step 3: Present Findings
 
@@ -94,7 +88,9 @@ For each comment that was discussed (Valid, Debatable, or Ignored):
 gh api repos/{owner}/{repo}/pulls/{number}/comments/{comment_id}/replies -f body="{reply_body}"
 ```
 
-### Reply format (concise, bulleted):
+### Reply format (concise, bulleted)
+
+Write the reply body in the language configured in the project's CLAUDE.md. If no language is configured, follow the user's conversational language. Examples below are in Korean:
 
 **If applied:**
 ```

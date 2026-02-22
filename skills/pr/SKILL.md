@@ -6,11 +6,10 @@ description: Create a pull request following project conventions
 ## Gather Context
 
 Run the following commands to understand the current state:
-1. `git branch --show-current` — check current branch
-2. `git remote show origin 2>/dev/null | grep 'HEAD branch' | awk '{print $NF}' || echo main` — detect default branch
-3. `git log --oneline main..HEAD 2>/dev/null || git log --oneline -10` — list commits on this branch
-4. `git diff main...HEAD --stat 2>/dev/null || echo "Could not determine diff"` — list changed files
-5. `gh pr list --state merged --limit 5 --json number,title,headRefName --jq '.[] | "#\(.number) \(.title) (\(.headRefName))"' 2>/dev/null || echo "Could not fetch PR history"` — reference recent PR title style
+1. `git log --oneline main..HEAD 2>/dev/null || git log --oneline -10` — list commits on this branch
+2. `git diff main...HEAD --stat 2>/dev/null || echo "Could not determine diff"` — list changed files
+
+If the base branch is not `main`, adjust the commands to use the correct base branch.
 
 ## Determine PR Type
 
@@ -143,11 +142,10 @@ Title format: `Release: dev → main 통합 (vX.Y.Z)`
 
 ## Task
 
-1. Analyze all commits on the current branch (vs. base branch) to understand the full scope.
-2. Determine PR type: Release (if `$ARGUMENTS` contains "release") or Individual.
-3. Draft the PR title and body using the appropriate template above.
-4. Present the proposed title and body to the user and **wait for approval**.
-5. Once approved:
+1. Determine PR type: Release (if `$ARGUMENTS` contains "release") or Individual.
+2. Draft the PR title and body using the appropriate template above.
+3. Present the proposed title and body to the user and **wait for approval**.
+4. Once approved:
    - Push the branch if not already pushed: `git push -u origin {branch-name}`
    - Create the PR: `gh pr create --title "..." --body "$(cat <<'EOF' ... EOF)"`
 6. Return the PR URL.
