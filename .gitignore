@@ -1,0 +1,5 @@
+CLAUDE.md
+IMPLEMENTATION_GUIDE.md
+.DS_Store
+__pycache__/
+*.pyc

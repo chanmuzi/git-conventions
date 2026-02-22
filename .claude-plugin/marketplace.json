@@ -1,0 +1,20 @@
+{
+  "name": "git-conventions",
+  "owner": { "name": "chanmuzi" },
+  "metadata": {
+    "description": "Git commit, PR, review conventions for consistent workflows",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "git-conventions",
+      "description": "Enforce consistent commit messages, PR templates, and AI review analysis",
+      "source": "./",
+      "skills": [
+        "./skills/commit",
+        "./skills/pr",
+        "./skills/review"
+      ]
+    }
+  ]
+}
