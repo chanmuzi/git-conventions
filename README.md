@@ -40,6 +40,31 @@ The interactive installer will guide you through:
 /plugin install git-conventions@git-conventions
 ```
 
+## Update
+
+### Skills CLI
+
+```bash
+# Check for available updates
+npx skills check
+
+# Update all installed skills
+npx skills update
+```
+
+> If you installed with Symlink (recommended), a single update applies to all agents at once. Copy installs require updating each copy individually.
+
+### Claude Code Plugin
+
+```bash
+# Update the plugin
+/plugin update git-conventions@git-conventions
+```
+
+Or enable auto-update for hands-free upgrades:
+
+`/plugin` → **Marketplaces** tab → select marketplace → **Enable auto-update**
+
 ## Skills
 
 ### `/commit` — Create a Git Commit

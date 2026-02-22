@@ -40,6 +40,31 @@ npx skills add chanmuzi/git-conventions
 /plugin install git-conventions@git-conventions
 ```
 
+## 업데이트
+
+### Skills CLI
+
+```bash
+# 업데이트 가능 여부 확인
+npx skills check
+
+# 설치된 모든 skill 업데이트
+npx skills update
+```
+
+> Symlink(권장)으로 설치한 경우 한 번의 업데이트로 모든 agent에 즉시 반영됩니다. Copy로 설치한 경우 각 복사본을 개별 업데이트해야 합니다.
+
+### Claude Code Plugin
+
+```bash
+# plugin 업데이트
+/plugin update git-conventions@git-conventions
+```
+
+또는 auto-update를 활성화하면 자동으로 최신 버전이 적용됩니다:
+
+`/plugin` → **Marketplaces** 탭 → marketplace 선택 → **Enable auto-update**
+
 ## 스킬
 
 ### `/commit` — Git 커밋 생성
