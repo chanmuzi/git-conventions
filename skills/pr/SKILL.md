@@ -1,6 +1,7 @@
 ---
 name: pr
 description: Create a pull request following project conventions
+version: "1.1.0"
 ---
 
 ## Gather Context
@@ -144,14 +145,12 @@ Title format: `Release: dev → main 통합 (vX.Y.Z)`
 
 1. Determine PR type: Release (if `$ARGUMENTS` contains "release") or Individual.
 2. Draft the PR title and body using the appropriate template above.
-3. Present the proposed title and body to the user and **wait for approval**.
-4. Once approved:
-   - Push the branch if not already pushed: `git push -u origin {branch-name}`
-   - Create the PR: `gh pr create --title "..." --body "$(cat <<'EOF' ... EOF)"`
+3. Present the proposed title and body to the user.
+4. Push the branch if not already pushed: `git push -u origin {branch-name}`
+5. Create the PR: `gh pr create --title "..." --body "$(cat <<'EOF' ... EOF)"`
 6. Return the PR URL.
 
 **Important:**
-- Do NOT push or create a PR without explicit user approval.
 - For Release PRs, automatically collect all included PRs from the merge history.
 - Adapt section headers and content language to the project's CLAUDE.md language setting.
 - The file change table should be generated from the actual diff, not guessed.

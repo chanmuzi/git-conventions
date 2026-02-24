@@ -1,6 +1,7 @@
 ---
 name: commit
 description: Create a git commit following project conventions
+version: "1.1.0"
 ---
 
 ## Gather Context
@@ -90,11 +91,10 @@ refactor: Gather Context 불필요한 명령 및 중복 step 제거
 ## Task
 
 1. Analyze the diff and draft a commit message following the convention above.
-2. Present the proposed commit message and **wait for user approval**.
-3. Once approved, stage the relevant files individually and create the commit.
+2. Present the proposed commit message to the user.
+3. Stage the relevant files individually and create the commit.
 
 **Important:**
-- Do NOT commit without explicit user approval.
 - Do NOT use `git add -A` or `git add .` — stage specific files by name.
 - Do NOT include files that may contain secrets (`.env`, credentials, tokens, etc.).
 - If there are multiple logical units of change, suggest splitting into separate commits.
