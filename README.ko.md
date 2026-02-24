@@ -42,6 +42,9 @@ npx skills add chanmuzi/git-conventions
 
 ## 업데이트
 
+> **권장:** auto-update를 활성화하면 새로운 기능과 수정 사항을 자동으로 받을 수 있습니다.
+> 아래 플랫폼별 안내를 참고하세요.
+
 ### Skills CLI
 
 ```bash
@@ -53,6 +56,8 @@ npx skills update
 ```
 
 > Symlink(권장)으로 설치한 경우 한 번의 업데이트로 모든 agent에 즉시 반영됩니다. Copy로 설치한 경우 각 복사본을 개별 업데이트해야 합니다.
+>
+> Skills CLI는 auto-update를 지원하지 않습니다. `npx skills check`를 주기적으로 실행하거나, [changelog](CHANGELOG.md)에 공지된 주요 릴리스 후 업데이트하세요.
 
 ### Claude Code Plugin
 
@@ -61,7 +66,7 @@ npx skills update
 /plugin update git-conventions@git-conventions
 ```
 
-또는 auto-update를 활성화하면 자동으로 최신 버전이 적용됩니다:
+또는 auto-update를 활성화하면 자동으로 최신 버전이 적용됩니다 (권장):
 
 `/plugin` → **Marketplaces** 탭 → marketplace 선택 → **Enable auto-update**
 

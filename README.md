@@ -42,6 +42,9 @@ The interactive installer will guide you through:
 
 ## Update
 
+> **Recommended:** Enable auto-update to receive new features and fixes automatically.
+> See platform-specific instructions below.
+
 ### Skills CLI
 
 ```bash
@@ -53,6 +56,8 @@ npx skills update
 ```
 
 > If you installed with Symlink (recommended), a single update applies to all agents at once. Copy installs require updating each copy individually.
+>
+> Skills CLI does not auto-update. Run `npx skills check` periodically, or after major releases announced in the [changelog](CHANGELOG.md).
 
 ### Claude Code Plugin
 
@@ -61,7 +66,7 @@ npx skills update
 /plugin update git-conventions@git-conventions
 ```
 
-Or enable auto-update for hands-free upgrades:
+Or enable auto-update for hands-free upgrades (recommended):
 
 `/plugin` → **Marketplaces** tab → select marketplace → **Enable auto-update**
 
