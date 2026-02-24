@@ -96,6 +96,9 @@ SKILL.md 내용은 Claude가 읽는 지시문이므로 영어로 작성.
 **릴리스 프로세스 문서화**
 - CLAUDE.md에 릴리스 시 업데이트 항목 가이드 추가
 
+**PR 동기화 개선**
+- `/pr` push 전 `git fetch` + base branch 동기화 확인 단계 추가
+
 **README 업데이트 섹션 보강**
 - auto-update 설정 권장, Skills CLI 주기적 체크 안내
 
