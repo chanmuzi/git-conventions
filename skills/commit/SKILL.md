@@ -6,7 +6,8 @@ version: "1.1.0"
 
 ## Gather Context
 
-Run the following commands to understand the current state:
+If the current changes are already known from the conversation context (e.g., you just edited the files), skip these commands.
+Otherwise, run them to understand the current state:
 1. `git status` — check current status and untracked files
 2. `git diff HEAD` — review all changes
 
