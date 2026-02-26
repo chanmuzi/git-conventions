@@ -144,14 +144,13 @@ Title format: `Release: dev → main 통합 (vX.Y.Z)`
 ## Task
 
 1. Determine PR type: Release (if `$ARGUMENTS` contains "release") or Individual.
-2. Draft the PR title and body using the appropriate template above.
-3. Present the proposed title and body to the user.
-4. Sync check before pushing:
+2. Draft the PR title and body using the appropriate template above, and show it to the user.
+3. Sync check before pushing:
    - `git fetch origin {base-branch}`
    - If the local branch is behind, inform the user and suggest an appropriate action (rebase, merge, or proceed as-is).
-5. Push the branch if not already pushed: `git push -u origin {branch-name}`
-6. Create the PR: `gh pr create --title "..." --body "$(cat <<'EOF' ... EOF)"`
-7. Return the PR URL.
+4. Push the branch if not already pushed: `git push -u origin {branch-name}`
+5. Create the PR: `gh pr create --title "..." --body "$(cat <<'EOF' ... EOF)"`
+6. Return the PR URL.
 
 **Important:**
 - For Release PRs, automatically collect all included PRs from the merge history.

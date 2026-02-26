@@ -91,8 +91,7 @@ refactor: Gather Context 불필요한 명령 및 중복 step 제거
 ## Task
 
 1. Analyze the diff and draft a commit message following the convention above.
-2. Present the proposed commit message to the user.
-3. Stage the relevant files individually and create the commit.
+2. Stage the relevant files individually, show the proposed commit message, and create the commit. Follow the session's tool permission settings for approval.
 
 **Important:**
 - Do NOT use `git add -A` or `git add .` — stage specific files by name.
