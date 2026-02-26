@@ -64,7 +64,7 @@ npx skills add ./  # 로컬 경로에서 설치
 - Commit: `{type}: {한글 설명}` (소문자 prefix)
 - Type: feat, fix, refactor, style, docs, test, perf, chore, hotfix
 - 파일 staging 시 `git add -A` 금지, 개별 파일 지정
-- 커밋 전 반드시 사용자 승인 필요
+- 커밋 승인은 세션의 tool permission 설정에 따름
 
 ## 릴리스 프로세스
 
@@ -81,6 +81,15 @@ npx skills add ./  # 로컬 경로에서 설치
 SKILL.md 내용은 Claude가 읽는 지시문이므로 영어로 작성.
 
 ## Change Log
+
+### 2026-02-26: 승인 flow 세션 권한 위임 및 Gather Context 조건부 실행
+
+**승인 flow 세션 권한 위임 (commit, pr)**
+- Task 단계에서 "present → 승인 대기" 분리 제거, 한 단계로 통합
+- 세션의 tool permission 설정에 자연스럽게 위임
+
+**Gather Context 조건부 실행 (commit)**
+- 대화 컨텍스트에서 변경 사항을 이미 알고 있으면 `git status`/`git diff HEAD` 생략
 
 ### 2026-02-25: 승인 flow 개선 및 version 메타데이터 도입 (v1.1.0)
 
