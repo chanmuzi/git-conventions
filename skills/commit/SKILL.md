@@ -1,7 +1,7 @@
 ---
 name: commit
 description: Create a git commit following project conventions
-version: "1.1.0"
+version: "1.1.1"
 ---
 
 ## Gather Context

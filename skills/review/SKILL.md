@@ -1,7 +1,7 @@
 ---
 name: review
 description: Review PR comments, discuss improvements, and reply with resolution status
-version: "1.1.0"
+version: "1.1.1"
 ---
 
 ## Identify Target PR
