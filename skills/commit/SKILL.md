@@ -1,7 +1,10 @@
 ---
 name: commit
-description: Create a git commit following project conventions
-version: "1.1.1"
+description: |
+  Create a git commit following project conventions.
+  TRIGGER when: user asks to commit, create a commit, stage and commit, save changes, or any workflow that includes committing (e.g., "commit and push", "commit and create PR", "커밋해줘", "커밋하고 푸시").
+  DO NOT TRIGGER when: user is only checking git status/diff without intent to commit.
+version: "1.1.2"
 ---
 
 ## Gather Context
@@ -91,10 +94,13 @@ refactor: Gather Context 불필요한 명령 및 중복 step 제거
 
 ## Task
 
-1. Analyze the diff and draft a commit message following the convention above.
-2. Stage the relevant files individually, show the proposed commit message, and create the commit. Follow the session's tool permission settings for approval.
+1. Analyze the diff and identify logical units of change. If there are multiple units, plan separate commits for each.
+2. For each commit unit:
+   - Stage the relevant files individually.
+   - Show the proposed commit message.
+   - Create the commit. Follow the session's tool permission settings for approval.
+3. Repeat step 2 until all logical units are committed. Do NOT stop after the first commit — handle all units within this single skill invocation.
 
 **Important:**
 - Do NOT use `git add -A` or `git add .` — stage specific files by name.
 - Do NOT include files that may contain secrets (`.env`, credentials, tokens, etc.).
-- If there are multiple logical units of change, suggest splitting into separate commits.

@@ -1,5 +1,18 @@
 # Change Log
 
+### 2026-03-03: 스킬 자동 트리거 및 복수 커밋 지원 (v1.1.2)
+
+**TRIGGER 조건 추가 (commit, pr, review)**
+- description에 TRIGGER/DO NOT TRIGGER 조건 명시
+- 자연어 요청("커밋해줘", "PR 올려줘" 등)에서 스킬 자동 트리거 개선
+
+**복수 커밋 처리 (commit)**
+- 여러 논리 단위가 있을 때 한 번의 스킬 호출 안에서 전부 커밋하도록 Task 변경
+- 기존: "분리를 제안하라" → 변경: "각 단위별로 stage → commit을 반복하라"
+
+**PR assignee 자동 지정 (pr)**
+- `gh pr create`에 `--assignee @me` 추가
+
 ### 2026-03-03: PR 스킬 이중 승인 제거 (v1.1.1)
 
 **PR Task 단계 통합 (pr)**

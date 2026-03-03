@@ -1,7 +1,10 @@
 ---
 name: pr
-description: Create a pull request following project conventions
-version: "1.1.1"
+description: |
+  Create a pull request following project conventions.
+  TRIGGER when: user asks to create/open a PR, push and create PR, or any workflow that includes PR creation (e.g., "PR 올려줘", "푸시하고 PR 만들어줘", "commit, push, and create PR").
+  DO NOT TRIGGER when: user is viewing or listing existing PRs, or performing git operations without PR intent.
+version: "1.1.2"
 ---
 
 ## Gather Context
@@ -148,7 +151,7 @@ Title format: `Release: dev → main 통합 (vX.Y.Z)`
    - `git fetch origin {base-branch}`
    - If the local branch is behind, inform the user and suggest an appropriate action (rebase, merge, or proceed as-is).
 3. Push the branch if not already pushed: `git push -u origin {branch-name}`
-4. Draft the PR title and body using the appropriate template above, and create the PR: `gh pr create --title "..." --body "$(cat <<'EOF' ... EOF)"`. Follow the session's tool permission settings for approval.
+4. Draft the PR title and body using the appropriate template above, and create the PR: `gh pr create --assignee @me --title "..." --body "$(cat <<'EOF' ... EOF)"`. Follow the session's tool permission settings for approval.
 5. Return the PR URL.
 
 **Important:**
