@@ -150,11 +150,46 @@ Title format: `Release: dev → main 통합 (vX.Y.Z)`
 2. Sync check before pushing:
    - `git fetch origin {base-branch}`
    - If the local branch is behind, inform the user and suggest an appropriate action (rebase, merge, or proceed as-is).
+
+### If Individual PR:
+
 3. Push the branch if not already pushed: `git push -u origin {branch-name}`
-4. Draft the PR title and body using the appropriate template above, and create the PR: `gh pr create --assignee @me --title "..." --body "$(cat <<'EOF' ... EOF)"`. Follow the session's tool permission settings for approval.
+4. Draft the PR title and body using the Individual PR Template, and create the PR: `gh pr create --assignee @me --title "..." --body "$(cat <<'EOF' ... EOF)"`. Follow the session's tool permission settings for approval.
 5. Return the PR URL.
+
+### If Release PR:
+
+3. **Determine version:**
+   a. Check `$ARGUMENTS` for an explicit version (e.g., `/pr release v1.2.0`).
+   b. If not provided, detect the current version from the project:
+      - Read the project's CLAUDE.md for release process instructions or version conventions.
+      - Search for version sources: `package.json`, `pyproject.toml`, `Cargo.toml`, `marketplace.json`, or similar files that already exist in the project.
+      - Check recent git tags: `git tag --sort=-v:refname | head -5`
+   c. Analyze included changes (via merged PR titles or commit messages) and recommend a semver bump:
+      - Breaking changes → major
+      - New features (`Feat:`, `feat:`) → minor
+      - Fixes, refactors, docs, etc. → patch
+   d. Present the detected current version, the recommended next version, and the reasoning to the user. Confirm before proceeding.
+
+4. **Pre-release file updates (conditional):**
+   a. If the project's CLAUDE.md defines a release process → follow it exactly.
+   b. Otherwise, scan for files that commonly hold version or release info and propose updates for **only files that already exist in the project**. Do NOT create new files.
+      - Version files (`package.json`, `pyproject.toml`, `marketplace.json`, etc.) → bump version
+      - `CHANGELOG.md` or similar → add release entry based on included changes
+   c. After making changes, show the user a summary of what was updated (files changed, old → new values).
+   d. Commit the changes using the project's commit convention (fall back to `chore: release vX.Y.Z` if no convention is found).
+
+5. Push the branch: `git push -u origin {branch-name}`
+6. Draft the PR title and body using the Release PR Template, and create the PR: `gh pr create --assignee @me --title "..." --body "$(cat <<'EOF' ... EOF)"`. Follow the session's tool permission settings for approval.
+7. Return the PR URL and provide **post-merge guidance** — list the following as next steps the user should perform after merging:
+   - Create and push a git tag: `git tag vX.Y.Z && git push origin vX.Y.Z`
+   - Create a GitHub Release: `gh release create vX.Y.Z --generate-notes`
+   - Sync the source branch back with the base branch (e.g., `git checkout dev && git merge main && git push origin dev`)
+   - Any project-specific deployment steps described in the project's CLAUDE.md
 
 **Important:**
 - For Release PRs, automatically collect all included PRs from the merge history.
 - Adapt section headers and content language to the project's CLAUDE.md language setting.
 - The file change table should be generated from the actual diff, not guessed.
+- Do NOT create files that don't already exist in the project. Only update existing files.
+- Always prioritize the project's own conventions and release process over the defaults above.
