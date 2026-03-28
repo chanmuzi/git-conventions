@@ -72,6 +72,8 @@ Or enable auto-update for hands-free upgrades (recommended):
 
 ## Skills
 
+> **Skill prefix by agent:** Claude Code uses `/` (e.g., `/commit`), Codex CLI uses `$` (e.g., `$commit`).
+
 ### `/commit` — Create a Git Commit
 
 Analyzes your staged/unstaged changes and proposes a commit message following the conventional commit format.

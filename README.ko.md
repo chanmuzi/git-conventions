@@ -72,6 +72,8 @@ npx skills update
 
 ## 스킬
 
+> **Agent별 호출 prefix:** Claude Code는 `/` (예: `/commit`), Codex CLI는 `$` (예: `$commit`)를 사용합니다.
+
 ### `/commit` — Git 커밋 생성
 
 staged/unstaged 변경 사항을 분석하고, conventional commit 형식에 맞는 커밋 메시지를 제안합니다.

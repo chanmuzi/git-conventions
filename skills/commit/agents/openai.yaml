@@ -1,0 +1,4 @@
+interface:
+  display_name: "commit"
+  short_description: "Create a git commit following project conventions"
+  default_prompt: "Analyze staged changes and create a commit following project conventions."

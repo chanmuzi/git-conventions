@@ -1,0 +1,4 @@
+interface:
+  display_name: "pr"
+  short_description: "Create a pull request following project conventions"
+  default_prompt: "Create a pull request following project conventions with a structured template."
