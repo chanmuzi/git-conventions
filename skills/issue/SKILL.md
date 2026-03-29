@@ -165,3 +165,4 @@ Examples below are in Korean.
 - Do NOT assign priority labels unless the user specifies priority or urgency is clearly implied.
 - Adapt section headers and content language to the project's CLAUDE.md language setting.
 - Always prioritize the project's own issue conventions over the defaults above.
+- **Commit references**: Never wrap commit SHAs in backticks (e.g., `` `abc1234` ``). Backtick-wrapped SHAs render as inline code and are not clickable on GitHub. Use plain text (GitHub auto-links SHAs) or explicit markdown links: `[{short_sha}](https://github.com/{owner}/{repo}/commit/{sha})`.

@@ -113,10 +113,17 @@ gh label create "{label}" --color "{hex}" 2>/dev/null || true
 
 Apply this template for feature, fix, refactor, and other non-release PRs.
 
+### Formatting guidance
+
+- Prefer bullet points over prose paragraphs. Each bullet should be one clear, concise statement.
+- Keep "개요" to 1-2 sentences.
+- For single-concern PRs, use a flat bullet list under "변경 사항" without sub-headings.
+- Do NOT put commit SHAs, PR numbers, or other references in heading lines (`###`). Place them as body text below the heading — headings should contain only descriptive titles.
+
 ```markdown
 ## 개요
 
-{Background → motivation/problem → approach, in 2-4 sentences. Focus on WHY this change was needed and WHAT approach was taken.}
+{1-2 sentence summary: what this PR does and why}
 
 > ⚠️ **Breaking Change**: {only if applicable — describe migration needed}
 
@@ -124,11 +131,12 @@ Apply this template for feature, fix, refactor, and other non-release PRs.
 
 ### 1. {Change category title}
 
-{Detailed description. Include before/after comparisons, code snippets, or diagrams where helpful.}
+- {Specific change and its purpose}
+- {Specific change and its purpose}
 
 ### 2. {Change category title}
 
-{...}
+- {Specific change and its purpose}
 
 ## 참고 사항
 
@@ -165,13 +173,16 @@ Title format: `Release: {default-base} → {release-base} 통합 (vX.Y.Z)`
 
 ## 주요 변경사항
 
-### 1. {Feature/Fix name} (#{PR number})
+### 1. {Feature/Fix name}
 
-{Brief summary of this PR's changes}
+- {Key change}
+- {Key change}
+- 관련: #{PR number}
 
-### 2. {Feature/Fix name} (#{PR number})
+### 2. {Feature/Fix name}
 
-{...}
+- {Key change}
+- 관련: #{PR number}
 
 ## 참고 사항
 
@@ -240,3 +251,4 @@ Title format: `Release: {default-base} → {release-base} 통합 (vX.Y.Z)`
 - Adapt section headers and content language to the project's CLAUDE.md language setting.
 - Do NOT create files that don't already exist in the project. Only update existing files.
 - Always prioritize the project's own conventions and release process over the defaults above.
+- **Commit references**: Never wrap commit SHAs in backticks (e.g., `` `abc1234` ``). Backtick-wrapped SHAs render as inline code and are not clickable on GitHub. Use plain text (GitHub auto-links SHAs) or explicit markdown links: `[{short_sha}](https://github.com/{owner}/{repo}/commit/{sha})`.
