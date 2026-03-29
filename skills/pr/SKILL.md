@@ -141,8 +141,6 @@ Apply this template for feature, fix, refactor, and other non-release PRs.
 ## 관련 이슈/PR
 
 - #{number}
-
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
 ```
 
 ---
@@ -186,8 +184,6 @@ Title format: `Release: {default-base} → {release-base} 통합 (vX.Y.Z)`
 
 - #{number1}
 - #{number2}
-
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
 ```
 
 ---
