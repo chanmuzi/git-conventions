@@ -4,7 +4,7 @@ description: |
   Create a pull request following project conventions.
   TRIGGER when: user asks to create/open a PR, push and create PR, or any workflow that includes PR creation (e.g., "PR 올려줘", "푸시하고 PR 만들어줘", "commit, push, and create PR").
   DO NOT TRIGGER when: user is viewing or listing existing PRs, or performing git operations without PR intent.
-version: "1.1.6"
+version: "1.2.0"
 ---
 
 ## Determine Base Branch
@@ -72,6 +72,40 @@ Format: `{Type}: {description}`
 
 Write the description in the language configured in the project's CLAUDE.md.
 If no language is configured, follow the user's conversational language.
+
+---
+
+## Label System
+
+Assign a type label to the PR based on its title prefix. This label scheme is shared with the `/issue` skill for project-wide consistency.
+
+### Type Labels
+
+| Label | Color (hex) | PR type prefix |
+|-------|-------------|----------------|
+| `type: feature` | `#0075ca` | `Feat:` |
+| `type: bug` | `#d73a4a` | `Fix:` |
+| `type: refactor` | `#d4c5f9` | `Refactor:` |
+| `type: perf` | `#f9d0c4` | `Perf:` |
+| `type: docs` | `#5319e7` | `Docs:` |
+| `type: test` | `#bfd4f2` | `Test:` |
+| `type: chore` | `#e4e669` | `Chore:` |
+| `type: hotfix` | `#b60205` | `Hotfix:` |
+| `type: release` | `#1d76db` | `Release:` |
+
+### Priority Labels (optional — assign only if the user specifies)
+
+| Label | Color (hex) |
+|-------|-------------|
+| `priority: critical` | `#b60205` |
+| `priority: high` | `#d93f0b` |
+| `priority: medium` | `#fbca04` |
+| `priority: low` | `#0e8a16` |
+
+Before assigning a label, ensure it exists in the repository:
+```
+gh label create "{label}" --color "{hex}" 2>/dev/null || true
+```
 
 ---
 
@@ -169,8 +203,9 @@ Title format: `Release: {default-base} → {release-base} 통합 (vX.Y.Z)`
 ### If Individual PR:
 
 4. Push the branch if not already pushed: `git push -u origin {branch-name}`
-5. Draft the PR title and body using the Individual PR Template, and create the PR: `gh pr create --base {base-branch} --assignee @me --title "..." --body "$(cat <<'EOF' ... EOF)"`. Follow the session's tool permission settings for approval.
-6. Return the PR URL. Include a one-line note: **Base branch: `{base-branch}`** — {reason} (e.g., "CLAUDE.md Branch Strategy 설정에 따라 결정" or "origin/dev에서 분기한 브랜치로 감지").
+5. Ensure the type label exists: `gh label create "{type_label}" --color "{hex}" 2>/dev/null || true`
+6. Draft the PR title and body using the Individual PR Template, and create the PR: `gh pr create --base {base-branch} --assignee @me --label "{type_label}" --title "..." --body "$(cat <<'EOF' ... EOF)"`. Follow the session's tool permission settings for approval.
+7. Return the PR URL. Include a one-line note: **Base branch: `{base-branch}`** — {reason} (e.g., "CLAUDE.md Branch Strategy 설정에 따라 결정" or "origin/dev에서 분기한 브랜치로 감지").
 
 ### If Release PR:
 
@@ -195,14 +230,16 @@ Title format: `Release: {default-base} → {release-base} 통합 (vX.Y.Z)`
    d. Commit the changes using the project's commit convention (fall back to `chore: release vX.Y.Z` if no convention is found).
 
 6. Push the branch: `git push -u origin {branch-name}`
-7. Draft the PR title and body using the Release PR Template, and create the PR: `gh pr create --base {base-branch} --assignee @me --title "..." --body "$(cat <<'EOF' ... EOF)"`. Follow the session's tool permission settings for approval.
-8. Return the PR URL. Include a one-line note: **Base branch: `{base-branch}`** — {reason}. Also provide **post-merge guidance** — list the following as next steps the user should perform after merging:
+7. Ensure the type label exists: `gh label create "type: release" --color "1d76db" 2>/dev/null || true`
+8. Draft the PR title and body using the Release PR Template, and create the PR: `gh pr create --base {base-branch} --assignee @me --label "type: release" --title "..." --body "$(cat <<'EOF' ... EOF)"`. Follow the session's tool permission settings for approval.
+9. Return the PR URL. Include a one-line note: **Base branch: `{base-branch}`** — {reason}. Also provide **post-merge guidance** — list the following as next steps the user should perform after merging:
    - Create and push a git tag: `git tag vX.Y.Z && git push origin vX.Y.Z`
    - Create a GitHub Release: `gh release create vX.Y.Z --generate-notes`
    - Sync the source branch back with the base branch (e.g., `git checkout {default-base} && git merge {release-base} && git push origin {default-base}`)
    - Any project-specific deployment steps described in the project's CLAUDE.md
 
 **Important:**
+- Do NOT modify commit history (squash, rebase, amend, reorder) before pushing unless the user explicitly requests it. Preserve all commits to maintain traceable context for agents and reviewers.
 - For Release PRs, automatically collect all included PRs from the merge history.
 - Adapt section headers and content language to the project's CLAUDE.md language setting.
 - Do NOT create files that don't already exist in the project. Only update existing files.

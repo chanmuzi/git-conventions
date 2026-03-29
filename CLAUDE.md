@@ -22,6 +22,9 @@ git-conventions/
 │   ├── pr/
 │   │   ├── SKILL.md                  # /pr, /pr release
 │   │   └── LICENSE.txt
+│   ├── issue/
+│   │   ├── SKILL.md                  # /issue [bug|feature|...]
+│   │   └── LICENSE.txt
 │   └── review/
 │       ├── SKILL.md                  # /review [PR번호]
 │       └── LICENSE.txt

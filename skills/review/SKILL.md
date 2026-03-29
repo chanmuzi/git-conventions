@@ -4,7 +4,7 @@ description: |
   Review PR comments, discuss improvements, and reply with resolution status.
   TRIGGER when: user asks to review PR feedback, check review comments, address reviewer suggestions, or handle code review (e.g., "리뷰 확인해줘", "review comments", "피드백 반영해줘").
   DO NOT TRIGGER when: user is creating PRs, committing, or performing git operations without review intent.
-version: "1.1.6"
+version: "1.2.0"
 ---
 
 ## Identify Target PR
@@ -133,43 +133,57 @@ gh api repos/{owner}/{repo}/issues/{number}/comments -f body="{reply_body}"
 ```
 Prefix the reply body with a quote referencing the original comment: `> Re: @{user} [{comment_url}]`
 
-### Reply format (concise, bulleted)
+### Reply format
+
+Replies MUST follow the exact structured format below. Do NOT use free-form prose or unstructured sentences.
 
 Write the reply body in the language configured in the project's CLAUDE.md. If no language is configured, follow the user's conversational language. Examples below are in Korean:
 
 **If applied:**
 ```
-- ✅ 반영 완료
-- 커밋: {short_sha}
-- 변경: {1-line summary of what was changed}
+✅ **반영 완료**
+
+- **커밋**: `{short_sha}`
+- **변경**: {1-line summary of what was changed}
 ```
 
 **If Won't Fix:**
 ```
-- ⏭️ 미반영 (Won't Fix)
-- 사유: {concise reason — e.g., 프로젝트 컨벤션과 상충, 이미 다른 방식으로 처리됨}
+⏭️ **미반영 (Won't Fix)**
+
+- **사유**: {concise reason — e.g., 프로젝트 컨벤션과 상충, 이미 다른 방식으로 처리됨}
 ```
 
 **If Follow-up:**
 ```
-- 🔜 후속 작업 예정
-- 사유: {concise reason — e.g., 현재 PR 범위 밖, 별도 작업으로 진행 예정}
-- 이슈: #{issue_number}
+🔜 **후속 작업 예정**
+
+- **사유**: {concise reason — e.g., 현재 PR 범위 밖, 별도 작업으로 진행 예정}
+- **이슈**: #{issue_number}
 ```
 
 Present all planned replies to the user for approval before posting.
 
-### Resolve applied threads
+### Resolve concluded threads
 
-After posting replies, resolve the conversation thread for each **applied** review comment:
+After posting replies, resolve the conversation thread using the GraphQL API:
 
 ```
 gh api graphql -f query='mutation($id: ID!) { resolveReviewThread(input: {threadId: $id}) { thread { isResolved } } }' -f id='{thread_id}'
 ```
 
-Use the `databaseId → threadId` mapping collected in Step 1. Resolve threads for **applied** and **Won't Fix** comments — both represent concluded decisions.
-Do NOT resolve **Follow-up** items — they remain unresolved to signal open work.
-Issue comments (CodeRabbit, etc.) do not have resolvable threads — skip this step for those.
+Use the `databaseId → threadId` mapping collected in Step 1.
+
+#### Resolve rules
+
+| Disposition | Resolve? | Reason |
+|-------------|:--------:|--------|
+| ✅ Applied | Yes | Work is complete |
+| ⏭️ Won't Fix | Yes | Decision is final, no further action |
+| 🔜 Follow-up | No | Open work remains — issue tracks it |
+
+Resolve MUST happen immediately after posting the reply for each concluded thread. Do NOT skip this step.
+Issue comments (CodeRabbit, etc.) do not have resolvable threads — skip the resolve step for those.
 
 ### Create follow-up issue for deferred items
 
