@@ -77,32 +77,32 @@ If no language is configured, follow the user's conversational language.
 
 ## Label System
 
-Assign a type label to the PR based on its title prefix. This label scheme is shared with the `/issue` skill for project-wide consistency.
+Assign a type label to the PR based on its title prefix. This label scheme is shared with the `/issue` skill for project-wide consistency. The core labels are identical; `/issue` additionally defines `type: enhancement` for improvement requests.
 
 ### Type Labels
 
-| Label | Color (hex) | PR type prefix |
-|-------|-------------|----------------|
-| `type: feature` | `#0075ca` | `Feat:` |
-| `type: bug` | `#d73a4a` | `Fix:` |
-| `type: refactor` | `#d4c5f9` | `Refactor:` |
-| `type: perf` | `#f9d0c4` | `Perf:` |
-| `type: docs` | `#5319e7` | `Docs:` |
-| `type: test` | `#bfd4f2` | `Test:` |
-| `type: chore` | `#e4e669` | `Chore:` |
-| `type: hotfix` | `#b60205` | `Hotfix:` |
-| `type: release` | `#1d76db` | `Release:` |
+| Label | Color | PR type prefix |
+|-------|-------|----------------|
+| `type: feature` | `0075ca` | `Feat:` |
+| `type: bug` | `d73a4a` | `Fix:` |
+| `type: refactor` | `d4c5f9` | `Refactor:` |
+| `type: perf` | `f9d0c4` | `Perf:` |
+| `type: docs` | `5319e7` | `Docs:` |
+| `type: test` | `bfd4f2` | `Test:` |
+| `type: chore` | `e4e669` | `Chore:` |
+| `type: hotfix` | `b60205` | `Hotfix:` |
+| `type: release` | `1d76db` | `Release:` |
 
 ### Priority Labels (optional — assign only if the user specifies)
 
-| Label | Color (hex) |
-|-------|-------------|
-| `priority: critical` | `#b60205` |
-| `priority: high` | `#d93f0b` |
-| `priority: medium` | `#fbca04` |
-| `priority: low` | `#0e8a16` |
+| Label | Color |
+|-------|-------|
+| `priority: critical` | `b60205` |
+| `priority: high` | `d93f0b` |
+| `priority: medium` | `fbca04` |
+| `priority: low` | `0e8a16` |
 
-Before assigning a label, ensure it exists in the repository:
+Before assigning a label, ensure it exists in the repository. Color values are 6-character hex without `#`:
 ```
 gh label create "{label}" --color "{hex}" 2>/dev/null || true
 ```

@@ -9,8 +9,9 @@ version: "1.2.0"
 
 ## Label System
 
-This label scheme is shared with the `/pr` skill for project-wide consistency.
-Before assigning a label, ensure it exists in the repository:
+This label scheme is shared with the `/pr` skill for project-wide consistency. The core labels are identical; `/pr` additionally defines `type: release` for release PRs.
+
+Before assigning a label, ensure it exists in the repository. Color values are 6-character hex without `#`:
 
 ```
 gh label create "{label}" --color "{hex}" 2>/dev/null || true
@@ -18,26 +19,26 @@ gh label create "{label}" --color "{hex}" 2>/dev/null || true
 
 ### Type Labels
 
-| Label | Color (hex) | Usage |
-|-------|-------------|-------|
-| `type: bug` | `#d73a4a` | Bug, defect, error |
-| `type: feature` | `#0075ca` | New feature request |
-| `type: enhancement` | `#a2eeef` | Improvement to existing feature |
-| `type: docs` | `#5319e7` | Documentation |
-| `type: chore` | `#e4e669` | Maintenance, config, dependencies |
-| `type: refactor` | `#d4c5f9` | Code restructuring |
-| `type: test` | `#bfd4f2` | Test-related |
-| `type: perf` | `#f9d0c4` | Performance improvement |
-| `type: hotfix` | `#b60205` | Urgent production fix |
+| Label | Color | Usage |
+|-------|-------|-------|
+| `type: bug` | `d73a4a` | Bug, defect, error |
+| `type: feature` | `0075ca` | New feature request |
+| `type: enhancement` | `a2eeef` | Improvement to existing feature |
+| `type: docs` | `5319e7` | Documentation |
+| `type: chore` | `e4e669` | Maintenance, config, dependencies |
+| `type: refactor` | `d4c5f9` | Code restructuring |
+| `type: test` | `bfd4f2` | Test-related |
+| `type: perf` | `f9d0c4` | Performance improvement |
+| `type: hotfix` | `b60205` | Urgent production fix |
 
 ### Priority Labels (assign when user specifies or urgency is clear)
 
-| Label | Color (hex) |
-|-------|-------------|
-| `priority: critical` | `#b60205` |
-| `priority: high` | `#d93f0b` |
-| `priority: medium` | `#fbca04` |
-| `priority: low` | `#0e8a16` |
+| Label | Color |
+|-------|-------|
+| `priority: critical` | `b60205` |
+| `priority: high` | `d93f0b` |
+| `priority: medium` | `fbca04` |
+| `priority: low` | `0e8a16` |
 
 ## Determine Issue Type
 
@@ -149,14 +150,14 @@ Examples below are in Korean.
    ```
    gh label create "{label}" --color "{hex}" 2>/dev/null || true
    ```
-7. Create the issue:
+7. Create the issue (use one `--label` flag per label):
    ```
-   gh issue create --assignee @me --label "{labels}" --title "..." --body "$(cat <<'EOF'
+   gh issue create --assignee @me --label "{type_label}" --label "{priority_label}" --title "..." --body "$(cat <<'EOF'
    ...
    EOF
    )"
    ```
-   Follow the session's tool permission settings for approval.
+   Omit `--label "{priority_label}"` if no priority was assigned. Follow the session's tool permission settings for approval.
 8. Return the issue URL.
 
 **Important:**

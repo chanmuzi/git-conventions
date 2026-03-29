@@ -131,7 +131,8 @@ gh api repos/{owner}/{repo}/pulls/{number}/comments/{comment_id}/replies -f body
 ```
 gh api repos/{owner}/{repo}/issues/{number}/comments -f body="{reply_body}"
 ```
-Prefix the reply body with a quote referencing the original comment: `> Re: @{user} [{comment_url}]`
+For issue comments only, prepend a quote line before the structured format: `> Re: @{user} [{comment_url}]`
+This quote line is part of the format for issue comments — it does not apply to review comments.
 
 ### Reply format
 

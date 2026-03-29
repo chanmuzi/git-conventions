@@ -19,6 +19,7 @@ The interactive installer will guide you through:
 1. **Select skills to install** — use `space` to toggle each skill
    - `commit` — Create a git commit following project conventions
    - `pr` — Create a pull request following project conventions
+   - `issue` — Create a GitHub issue with templates and auto-labeling
    - `review` — Review AI-generated PR review comments
 2. **Which agents do you want to install to?** — select your agents (e.g. Codex, Cursor, Gemini CLI, GitHub Copilot, …)
 3. **Installation scope** — `Project` (current repo only) or `Global` (available across all projects)
@@ -27,7 +28,7 @@ The interactive installer will guide you through:
 
 > To install all skills at once without prompts:
 > ```bash
-> npx skills add chanmuzi/git-conventions --skill commit --skill pr --skill review -g
+> npx skills add chanmuzi/git-conventions --skill commit --skill pr --skill issue --skill review -g
 > ```
 
 ### Option 2: Claude Code Plugin
@@ -105,6 +106,19 @@ Creates a PR with a structured template. Automatically detects whether to use th
 Release: dev → main 통합 (vX.Y.Z)  # Release
 ```
 
+### `/issue` — Create a GitHub Issue
+
+Creates a structured issue with the appropriate template and auto-assigns type/priority labels.
+
+```
+/issue             # General issue (type inferred from context)
+/issue bug         # Bug report
+/issue feature     # Feature request
+```
+
+**Templates:** Bug Report, Feature Request, General
+**Auto-labeling:** `type: bug`, `type: feature`, `type: enhancement`, `priority: critical/high/medium/low`, etc.
+
 ### `/review` — Review AI PR Comments
 
 Collects AI-generated review comments (CodeRabbit, Copilot, etc.) from a PR, analyzes their validity against the actual code, and discusses findings with you.
@@ -139,7 +153,7 @@ Add the following to your global `~/.claude/CLAUDE.md` to reference these conven
 - Branch: `{type}/{english-kebab-case}` (feat/, fix/, refactor/, docs/, hotfix/)
 - PR title: `{Type}: {description}` (capitalized prefix: Feat, Fix, Refactor, Perf, etc.)
 - Release PR: `Release: dev → main 통합 (vX.Y.Z)`
-- Use `/commit`, `/pr`, `/pr release`, `/review` commands for full workflows
+- Use `/commit`, `/pr`, `/pr release`, `/issue`, `/review` commands for full workflows
 ```
 
 ## License
