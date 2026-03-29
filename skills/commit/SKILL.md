@@ -4,7 +4,7 @@ description: |
   Create a git commit following project conventions.
   TRIGGER when: user asks to commit, create a commit, stage and commit, save changes, or any workflow that includes committing (e.g., "commit and push", "commit and create PR", "커밋해줘", "커밋하고 푸시").
   DO NOT TRIGGER when: user is only checking git status/diff without intent to commit.
-version: "1.1.3"
+version: "1.1.4"
 ---
 
 ## Gather Context

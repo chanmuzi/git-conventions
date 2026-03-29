@@ -1,5 +1,12 @@
 # Change Log
 
+### 2026-03-29: issue comment 수집 및 답글 지원 (v1.1.4)
+
+**Review 스킬 개선 (review)**
+- issue comment 수집 추가: CodeRabbit 등 AI 리뷰어가 issue comment로 포스팅하는 경우 대응
+- 답글 API 분기: review comment(reply API) vs. issue comment(새 comment + 원본 인용) 구분 처리
+- comment source type 추적 지시 추가
+
 ### 2026-03-29: PR 템플릿 경량화 및 의도 중심 구조 개편 (v1.1.3)
 
 **PR 템플릿 개선 (pr)**

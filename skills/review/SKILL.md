@@ -4,7 +4,7 @@ description: |
   Review PR comments, discuss improvements, and reply with resolution status.
   TRIGGER when: user asks to review PR feedback, check review comments, address reviewer suggestions, or handle code review (e.g., "리뷰 확인해줘", "review comments", "피드백 반영해줘").
   DO NOT TRIGGER when: user is creating PRs, committing, or performing git operations without review intent.
-version: "1.1.3"
+version: "1.1.4"
 ---
 
 ## Identify Target PR
@@ -32,7 +32,14 @@ Also fetch PR-level review summaries:
 gh api repos/{owner}/{repo}/pulls/{number}/reviews --jq '.[] | {id: .id, user: .user.login, state: .state, body: .body}'
 ```
 
+Also fetch issue-level comments (used by AI reviewers like CodeRabbit):
+
+```
+gh api repos/{owner}/{repo}/issues/{number}/comments --jq '.[] | {id: .id, body: .body, user: .user.login, html_url: .html_url, created_at: .created_at}'
+```
+
 Include all reviewers — human teammates and AI bots alike. Do NOT filter by user type.
+Track each comment's source type (review comment vs. issue comment) for the reply step.
 
 ## Step 2: Analyze Each Suggestion
 
@@ -86,11 +93,18 @@ For each Valid or Debatable suggestion:
 
 After the commit is created, reply to each review comment on GitHub to record the resolution.
 
-For each comment that was discussed (Valid, Debatable, or Ignored):
+For each comment that was discussed (Valid, Debatable, or Ignored), reply using the appropriate API based on the comment's source type:
 
+**For review comments (inline file comments):**
 ```
 gh api repos/{owner}/{repo}/pulls/{number}/comments/{comment_id}/replies -f body="{reply_body}"
 ```
+
+**For issue comments (CodeRabbit, etc.):**
+```
+gh api repos/{owner}/{repo}/issues/{number}/comments -f body="{reply_body}"
+```
+Prefix the reply body with a quote referencing the original comment: `> Re: @{user} [{comment_url}]`
 
 ### Reply format (concise, bulleted)
 
