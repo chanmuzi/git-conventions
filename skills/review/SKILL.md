@@ -144,7 +144,7 @@ Write the reply body in the language configured in the project's CLAUDE.md. If n
 ```
 ✅ **반영 완료**
 
-- **커밋**: `{short_sha}`
+- **커밋**: [{short_sha}](https://github.com/{owner}/{repo}/commit/{short_sha})
 - **변경**: {1-line summary of what was changed}
 ```
 
@@ -163,7 +163,8 @@ Write the reply body in the language configured in the project's CLAUDE.md. If n
 - **이슈**: #{issue_number}
 ```
 
-Present all planned replies to the user for approval before posting.
+If no blanket approval was given, present all planned replies for approval before posting.
+A blanket instruction (e.g., "모두 반영", "다 적용해", "apply all") covers all remaining steps — code changes, replies, and thread resolution — so do not re-ask per step.
 
 ### Resolve concluded threads
 
@@ -214,6 +215,7 @@ EOF
 **Important:**
 - Do NOT apply any code changes without explicit user approval for each item.
 - Do NOT post reply comments without explicit user approval.
+- A blanket instruction (e.g., "모두 반영해줘", "apply all") counts as explicit approval for all steps. Do not ask again per-step.
 - Read the actual code context before judging — do not rely solely on the review comment.
 - Consider the project's existing patterns, conventions, and CLAUDE.md instructions.
 - Be honest when a review catches a genuine issue — do not dismiss valid feedback.
