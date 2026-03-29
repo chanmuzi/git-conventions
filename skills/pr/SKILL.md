@@ -4,7 +4,7 @@ description: |
   Create a pull request following project conventions.
   TRIGGER when: user asks to create/open a PR, push and create PR, or any workflow that includes PR creation (e.g., "PR 올려줘", "푸시하고 PR 만들어줘", "commit, push, and create PR").
   DO NOT TRIGGER when: user is viewing or listing existing PRs, or performing git operations without PR intent.
-version: "1.1.2"
+version: "1.1.3"
 ---
 
 ## Determine Base Branch
@@ -80,13 +80,13 @@ If no language is configured, follow the user's conversational language.
 Apply this template for feature, fix, refactor, and other non-release PRs.
 
 ```markdown
-## 📌 개요
+## 개요
 
-{1-3 sentences: background, problem, and solution}
+{Background → motivation/problem → approach, in 2-4 sentences. Focus on WHY this change was needed and WHAT approach was taken.}
 
 > ⚠️ **Breaking Change**: {only if applicable — describe migration needed}
 
-## ✅ 변경 사항
+## 변경 사항
 
 ### 1. {Change category title}
 
@@ -96,20 +96,15 @@ Apply this template for feature, fix, refactor, and other non-release PRs.
 
 {...}
 
-## 📁 파일 변경 요약
+## 참고 사항
 
-| 구분 | 파일 |
-|------|------|
-| 추가 | `path/to/new/file.py` |
-| 수정 | `path/to/modified/file.py` |
-| 삭제 | `path/to/deleted/file.py` |
+- {Points reviewers should focus on}
+- {Intentional omissions and reasons}
+- {Follow-up work if any}
 
-## 🧪 테스트
+(Omit this section entirely if nothing noteworthy.)
 
-- [ ] {Test item 1}
-- [ ] {Test item 2}
-
-## 📌 관련 이슈/PR
+## 관련 이슈/PR
 
 - #{number}
 
@@ -130,13 +125,13 @@ gh pr list --state merged --base {default-base} --limit 30 --json number,title -
 Title format: `Release: {default-base} → {release-base} 통합 (vX.Y.Z)`
 
 ```markdown
-## 📝 개요
+## 개요
 
 {Release summary — what this release includes}
 
-> ⚠️ **배포 공지**: {Deployment impact notice — which servers are affected, migration steps if any}
+> ⚠️ **배포 공지**: {Deployment impact notice — migration steps if any}
 
-## ✨ 주요 변경사항
+## 주요 변경사항
 
 ### 1. {Feature/Fix name} (#{PR number})
 
@@ -146,27 +141,17 @@ Title format: `Release: {default-base} → {release-base} 통합 (vX.Y.Z)`
 
 {...}
 
-## 📁 변경된 파일
+## 참고 사항
 
-| 파일 | 변경 내용 |
-|------|----------|
-| `file.py` | {description} |
+- {Deployment considerations}
+- {Follow-up work if any}
 
-## 🔍 테스트
+(Omit this section entirely if nothing noteworthy.)
 
-- [ ] {Test checklist item}
-
-## 📌 관련 PR
+## 관련 PR
 
 - #{number1}
 - #{number2}
-
-## 🚀 배포 정보
-
-| 환경 | 서버 | 브랜치 |
-|------|------|--------|
-| 개발 | {dev server} | {default-base} |
-| 운영 | {prod server} | {release-base} |
 
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
 ```
@@ -220,6 +205,5 @@ Title format: `Release: {default-base} → {release-base} 통합 (vX.Y.Z)`
 **Important:**
 - For Release PRs, automatically collect all included PRs from the merge history.
 - Adapt section headers and content language to the project's CLAUDE.md language setting.
-- The file change table should be generated from the actual diff, not guessed.
 - Do NOT create files that don't already exist in the project. Only update existing files.
 - Always prioritize the project's own conventions and release process over the defaults above.

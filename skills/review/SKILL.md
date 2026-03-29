@@ -4,7 +4,7 @@ description: |
   Review PR comments, discuss improvements, and reply with resolution status.
   TRIGGER when: user asks to review PR feedback, check review comments, address reviewer suggestions, or handle code review (e.g., "리뷰 확인해줘", "review comments", "피드백 반영해줘").
   DO NOT TRIGGER when: user is creating PRs, committing, or performing git operations without review intent.
-version: "1.1.2"
+version: "1.1.3"
 ---
 
 ## Identify Target PR
