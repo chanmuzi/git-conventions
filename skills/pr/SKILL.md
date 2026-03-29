@@ -119,6 +119,8 @@ Apply this template for feature, fix, refactor, and other non-release PRs.
 - Keep "개요" to 1-2 sentences.
 - For single-concern PRs, use a flat bullet list under "변경 사항" without sub-headings.
 - Do NOT put commit SHAs, PR numbers, or other references in heading lines (`###`). Place them as body text below the heading — headings should contain only descriptive titles.
+- **Bullet management**: When a category exceeds 5 bullets, consolidate related items into fewer, broader bullets. Combine closely related changes with commas (e.g., "해커톤 필터 개선, 검색 위치 조정, 캘린더 네비게이션 수정"). Aim for ≤5 bullets per category.
+- **Reference labeling**: Always qualify per-category references with the type — use `관련 커밋:` for commit SHAs, `관련 PR:` for PR numbers. Never use bare `관련:`.
 
 ```markdown
 ## 개요
@@ -133,10 +135,12 @@ Apply this template for feature, fix, refactor, and other non-release PRs.
 
 - {Specific change and its purpose}
 - {Specific change and its purpose}
+- 관련 커밋: {sha1}, {sha2}
 
 ### 2. {Change category title}
 
 - {Specific change and its purpose}
+- 관련 PR: #{number}
 
 ## 참고 사항
 
@@ -177,12 +181,12 @@ Title format: `Release: {default-base} → {release-base} 통합 (vX.Y.Z)`
 
 - {Key change}
 - {Key change}
-- 관련: #{PR number}
+- 관련 PR: #{PR number}
 
 ### 2. {Feature/Fix name}
 
 - {Key change}
-- 관련: #{PR number}
+- 관련 PR: #{PR number}
 
 ## 참고 사항
 
@@ -251,4 +255,5 @@ Title format: `Release: {default-base} → {release-base} 통합 (vX.Y.Z)`
 - Adapt section headers and content language to the project's CLAUDE.md language setting.
 - Do NOT create files that don't already exist in the project. Only update existing files.
 - Always prioritize the project's own conventions and release process over the defaults above.
+- **Assignee**: Always include `--assignee @me` in `gh pr create`. Never omit it.
 - **Commit references**: Never wrap commit SHAs in backticks (e.g., `` `abc1234` ``). Backtick-wrapped SHAs render as inline code and are not clickable on GitHub. Use plain text (GitHub auto-links SHAs) or explicit markdown links: `[{short_sha}](https://github.com/{owner}/{repo}/commit/{sha})`.

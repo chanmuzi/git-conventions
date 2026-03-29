@@ -71,6 +71,15 @@ npx skills add ./  # 로컬 경로에서 설치
 - 파일 staging 시 `git add -A` 금지, 개별 파일 지정
 - 커밋 승인은 세션의 tool permission 설정에 따름
 
+## 스킬 공통 규칙
+
+모든 스킬(pr, issue, review)에 적용되는 공통 원칙:
+
+- **Assignee**: `gh pr create`, `gh issue create` 시 반드시 `--assignee @me` 포함
+- **참조 라벨 구분**: "관련" 표기 시 유형을 명시 — `관련 커밋:` (SHA), `관련 PR:` (#번호). 단독 `관련:`은 사용 금지
+- **Bullet 관리**: 카테고리당 bullet 5개 초과 시 관련 항목을 통합하여 가독성 유지
+- **Commit SHA 표기**: backtick 금지 (GitHub 링크화 방지됨). plain text 또는 markdown link 사용
+
 ## 릴리스 프로세스
 
 새 버전 배포 시 다음 항목을 업데이트한다:

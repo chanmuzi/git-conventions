@@ -1,5 +1,19 @@
 # Change Log
 
+### 2026-03-30: PR 참조 라벨 명확화 및 bullet 관리 가이드라인 추가
+
+**PR 템플릿 개선 (pr)**
+- "관련:" → "관련 커밋:" / "관련 PR:"로 유형 명시 강제
+- 카테고리당 bullet 5개 초과 시 통합 가이드라인 추가
+- Individual PR 템플릿에 per-category 참조 패턴 추가 (커밋/PR 예시)
+- Assignee 누락 방지를 위한 Important 섹션 강조 추가
+
+**Issue 스킬 개선 (issue)**
+- Assignee 누락 방지를 위한 Important 섹션 강조 추가
+
+**CLAUDE.md**
+- "스킬 공통 규칙" 섹션 신규 추가: assignee, 참조 라벨, bullet 관리, SHA 표기 규칙 문서화
+
 ### 2026-03-29: issue skill 추가, label 체계 도입, review reply 개선 (v1.2.0)
 
 **Issue 스킬 신규 추가 (issue)**
