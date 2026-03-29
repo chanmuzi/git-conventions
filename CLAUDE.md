@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## 프로젝트 개요
 
 Git commit, PR, review 관련 convention을 강제하는 Agent Skill.
-`/commit`, `/pr`, `/pr release`, `/review` 세 가지 slash command를 제공한다.
+`/commit`, `/pr`, `/pr release`, `/issue`, `/review` 네 가지 slash command를 제공한다.
 Agent Skills 오픈 표준(agentskills.io)을 따르며, Claude Code 외에도 Codex CLI, Gemini CLI, Cursor 등 40+ agent에서 사용 가능.
 
 ## 아키텍처
@@ -21,6 +21,9 @@ git-conventions/
 │   │   └── LICENSE.txt
 │   ├── pr/
 │   │   ├── SKILL.md                  # /pr, /pr release
+│   │   └── LICENSE.txt
+│   ├── issue/
+│   │   ├── SKILL.md                  # /issue [bug|feature|...]
 │   │   └── LICENSE.txt
 │   └── review/
 │       ├── SKILL.md                  # /review [PR번호]
@@ -55,6 +58,8 @@ npx skills add ./  # 로컬 경로에서 설치
 /commit        → diff 분석 후 conventional commit 메시지 제안 확인
 /pr            → Individual PR 템플릿 생성 확인
 /pr release    → Release PR 템플릿 생성 확인
+/issue         → 이슈 템플릿 생성 및 label 자동 부여 확인
+/issue bug     → Bug Report 템플릿 확인
 /review        → AI 리뷰 코멘트 수집/분석 확인
 /review 42     → 특정 PR 번호로 리뷰 확인
 ```

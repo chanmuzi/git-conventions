@@ -1,5 +1,28 @@
 # Change Log
 
+### 2026-03-29: issue skill 추가, label 체계 도입, review reply 개선 (v1.2.0)
+
+**Issue 스킬 신규 추가 (issue)**
+- `/issue` slash command 신규 생성
+- Bug Report / Feature Request / General 3종 템플릿 제공
+- 이슈 유형에 따른 type label 자동 부여
+- priority label 지원 (사용자 지정 시)
+
+**Label 체계 도입 (pr, issue 공통)**
+- type label 9종 + priority label 4종, 색상 코드 통일
+- PR은 title prefix에서, issue는 내용/인자에서 label 자동 매핑
+- label 미존재 시 자동 생성 (`gh label create`)
+
+**PR 스킬 개선 (pr)**
+- Commit history 보존 원칙 추가: 사용자 요청 없이 squash/rebase/amend 금지
+- `gh pr create`에 `--label` 플래그 추가
+
+**Review 스킬 개선 (review)**
+- Reply 포맷 구조화: bold status headline + bullet points 강제
+- "Resolve applied threads" → "Resolve concluded threads"로 명확화
+- Resolve rules 테이블 추가 (Applied/Won't Fix → resolve, Follow-up → 유지)
+- resolve 즉시 실행 강제 지시 추가
+
 ### 2026-03-29: review 미반영 항목 Won't Fix / Follow-up 분기 (v1.1.6)
 
 **Review 스킬 개선 (review)**

@@ -1,0 +1,4 @@
+interface:
+  display_name: "issue"
+  short_description: "Create a GitHub issue with templates and auto-labeling"
+  default_prompt: "Create a GitHub issue following project conventions with appropriate template and labels."
