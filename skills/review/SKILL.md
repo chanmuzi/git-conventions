@@ -4,7 +4,7 @@ description: |
   Review PR comments, discuss improvements, and reply with resolution status.
   TRIGGER when: user asks to review PR feedback, check review comments, address reviewer suggestions, or handle code review (e.g., "리뷰 확인해줘", "review comments", "피드백 반영해줘").
   DO NOT TRIGGER when: user is creating PRs, committing, or performing git operations without review intent.
-version: "1.1.5"
+version: "1.1.6"
 ---
 
 ## Identify Target PR
@@ -111,7 +111,9 @@ Group findings by category and present to the user:
 For each Valid or Debatable suggestion:
 1. Ask the user whether to apply the change.
 2. If approved, make the code change using Edit.
-3. For items NOT applied, ask whether they should be tracked as follow-up. Mark these as **deferred**.
+3. For items NOT applied, determine the disposition:
+   - **Won't Fix**: Not applicable, intentionally not addressing, or disagree with the suggestion. Record reason in reply only.
+   - **Follow-up**: Valid but out of scope for this PR. Will be tracked as an issue.
 4. After all approved changes are applied, suggest a commit message following the project's commit convention (e.g., `fix: 리뷰 피드백 반영`).
 
 ## Step 5: Reply to Review Comments
@@ -142,10 +144,17 @@ Write the reply body in the language configured in the project's CLAUDE.md. If n
 - 변경: {1-line summary of what was changed}
 ```
 
-**If not applied (with reason):**
+**If Won't Fix:**
 ```
-- ⏭️ 미반영
+- ⏭️ 미반영 (Won't Fix)
 - 사유: {concise reason — e.g., 프로젝트 컨벤션과 상충, 이미 다른 방식으로 처리됨}
+```
+
+**If Follow-up:**
+```
+- 🔜 후속 작업 예정
+- 사유: {concise reason — e.g., 현재 PR 범위 밖, 별도 작업으로 진행 예정}
+- 이슈: #{issue_number}
 ```
 
 Present all planned replies to the user for approval before posting.
@@ -158,18 +167,18 @@ After posting replies, resolve the conversation thread for each **applied** revi
 gh api graphql -f query='mutation($id: ID!) { resolveReviewThread(input: {threadId: $id}) { thread { isResolved } } }' -f id='{thread_id}'
 ```
 
-Use the `databaseId → threadId` mapping collected in Step 1. Only resolve threads for comments that were applied — do NOT resolve ignored or deferred items.
+Use the `databaseId → threadId` mapping collected in Step 1. Resolve threads for **applied** and **Won't Fix** comments — both represent concluded decisions.
+Do NOT resolve **Follow-up** items — they remain unresolved to signal open work.
 Issue comments (CodeRabbit, etc.) do not have resolvable threads — skip this step for those.
 
 ### Create follow-up issue for deferred items
 
-If there are **deferred** items from Step 4, group related ones and create a single consolidated issue:
+If there are **Follow-up** items from Step 4, group related ones and create a consolidated issue.
+Do NOT create issues for Won't Fix items — their reasons are already recorded in the PR reply.
 
 ```
-gh issue create --title "[Review] PR #{number} 미반영 피드백 정리" --body "$(cat <<'EOF'
-PR #{number}에서 확인된 리뷰 피드백 중 미반영 항목 정리.
-
-## 항목
+gh issue create --title "[Review] PR #{number} 후속 작업" --body "$(cat <<'EOF'
+PR #{number} 리뷰에서 확인된 후속 작업 항목.
 
 ### 1. {summary}
 - 원본: {comment_url}
@@ -183,9 +192,9 @@ EOF
 ```
 
 - Group by relevance — do NOT create one issue per comment.
-- If all deferred items are closely related, create a single issue.
+- If all follow-up items are closely related, create a single issue.
 - If there are clearly distinct groups, create one issue per group (max 2-3).
-- Skip issue creation if there are no deferred items.
+- Skip issue creation if there are no follow-up items.
 
 **Important:**
 - Do NOT apply any code changes without explicit user approval for each item.

@@ -1,5 +1,14 @@
 # Change Log
 
+### 2026-03-29: review 미반영 항목 Won't Fix / Follow-up 분기 (v1.1.6)
+
+**Review 스킬 개선 (review)**
+- 미반영 항목을 Won't Fix / Follow-up 두 유형으로 분기
+  - Won't Fix: reply에 사유 기록 + thread resolve (issue 생성 안 함)
+  - Follow-up: reply에 사유 + 이슈 번호 기록 + issue 생성 (thread는 unresolved 유지)
+- Reply 포맷 3종 분리: ✅ 반영 / ⏭️ Won't Fix / 🔜 Follow-up
+- 후속 이슈 제목 변경: "미반영 피드백 정리" → "후속 작업"
+
 ### 2026-03-29: review thread resolve 및 후속 이슈 생성 지원 (v1.1.5)
 
 **Review 스킬 개선 (review)**
