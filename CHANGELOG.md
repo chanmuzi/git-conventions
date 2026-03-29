@@ -1,5 +1,13 @@
 # Change Log
 
+### 2026-03-29: review thread resolve 및 후속 이슈 생성 지원 (v1.1.5)
+
+**Review 스킬 개선 (review)**
+- 반영 완료 thread 자동 resolve: GraphQL API로 conversation 닫기
+- 미반영 항목 후속 이슈 생성: 관련 항목끼리 묶어서 consolidated issue 생성 (1건당 1이슈 금지)
+- Step 4에 deferred 마킹 단계 추가
+- Step 1에 review thread ID 수집 (GraphQL) 추가
+
 ### 2026-03-29: issue comment 수집 및 답글 지원 (v1.1.4)
 
 **Review 스킬 개선 (review)**

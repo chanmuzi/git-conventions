@@ -4,7 +4,7 @@ description: |
   Create a pull request following project conventions.
   TRIGGER when: user asks to create/open a PR, push and create PR, or any workflow that includes PR creation (e.g., "PR 올려줘", "푸시하고 PR 만들어줘", "commit, push, and create PR").
   DO NOT TRIGGER when: user is viewing or listing existing PRs, or performing git operations without PR intent.
-version: "1.1.4"
+version: "1.1.5"
 ---
 
 ## Determine Base Branch
