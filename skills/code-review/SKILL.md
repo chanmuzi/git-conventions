@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: |
+description: >-
   Review code changes using context-aware multi-agent pipeline with severity-based findings.
   TRIGGER when: user asks to review code, analyze PR quality, check for issues, run code review, or audit changes (e.g., "코드 리뷰해줘", "review this PR", "코드 분석해줘", "리뷰 돌려줘").
   DO NOT TRIGGER when: user is replying to review comments (use review-reply), creating PRs, committing, or performing git operations without review intent.
