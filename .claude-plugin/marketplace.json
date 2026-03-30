@@ -14,7 +14,7 @@
         "./skills/commit",
         "./skills/pr",
         "./skills/issue",
-        "./skills/review"
+        "./skills/review-reply"
       ]
     }
   ]

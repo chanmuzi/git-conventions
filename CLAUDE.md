@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## 프로젝트 개요
 
 Git commit, PR, review 관련 convention을 강제하는 Agent Skill.
-`/commit`, `/pr`, `/pr release`, `/issue`, `/review` 네 가지 slash command를 제공한다.
+`/commit`, `/pr`, `/pr release`, `/issue`, `/review-reply` 네 가지 slash command를 제공한다.
 Agent Skills 오픈 표준(agentskills.io)을 따르며, Claude Code 외에도 Codex CLI, Gemini CLI, Cursor 등 40+ agent에서 사용 가능.
 
 ## 아키텍처
@@ -25,8 +25,8 @@ git-conventions/
 │   ├── issue/
 │   │   ├── SKILL.md                  # /issue [bug|feature|...]
 │   │   └── LICENSE.txt
-│   └── review/
-│       ├── SKILL.md                  # /review [PR번호]
+│   └── review-reply/
+│       ├── SKILL.md                  # /review-reply
 │       └── LICENSE.txt
 ├── .gitignore
 ├── README.md
@@ -60,8 +60,8 @@ npx skills add ./  # 로컬 경로에서 설치
 /pr release    → Release PR 템플릿 생성 확인
 /issue         → 이슈 템플릿 생성 및 label 자동 부여 확인
 /issue bug     → Bug Report 템플릿 확인
-/review        → AI 리뷰 코멘트 수집/분석 확인
-/review 42     → 특정 PR 번호로 리뷰 확인
+/review-reply        → AI 리뷰 코멘트 수집/분석 확인
+/review-reply 42     → 특정 PR 번호로 리뷰 확인
 ```
 
 ## Git Convention (이 프로젝트 자체에 적용)
@@ -73,7 +73,7 @@ npx skills add ./  # 로컬 경로에서 설치
 
 ## 스킬 공통 규칙
 
-모든 스킬(pr, issue, review)에 적용되는 공통 원칙:
+모든 스킬(pr, issue, review-reply)에 적용되는 공통 원칙:
 
 - **Assignee**: `gh pr create`, `gh issue create` 시 반드시 `--assignee @me` 포함
 - **참조 라벨 구분**: "관련" 표기 시 유형을 명시 — `관련 커밋:` (SHA), `관련 PR:` (#번호). 단독 `관련:`은 사용 금지

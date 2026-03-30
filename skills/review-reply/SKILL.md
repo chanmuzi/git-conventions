@@ -1,12 +1,11 @@
 ---
-name: review
+name: review-reply
 description: |
   Review PR comments, discuss improvements, and reply with resolution status.
   TRIGGER when: user asks to review PR feedback, check review comments, address reviewer suggestions, or handle code review (e.g., "리뷰 확인해줘", "review comments", "피드백 반영해줘").
   DO NOT TRIGGER when: user is creating PRs, committing, or performing git operations without review intent.
 version: "1.3.0"
 allowed-tools: Bash(gh *), Bash(git *), Read, Grep, Glob
-argument-hint: "[PR번호]"
 ---
 
 ## Identify Target PR
@@ -43,23 +42,9 @@ gh api repos/{owner}/{repo}/issues/{number}/comments --jq '.[] | {id: .id, body:
 Fetch review thread IDs for resolving conversations later (GraphQL):
 
 ```
-gh api graphql -f query='
-  query($owner: String!, $repo: String!, $number: Int!) {
-    repository(owner: $owner, name: $repo) {
-      pullRequest(number: $number) {
-        reviewThreads(first: 100) {
-          nodes {
-            id
-            isResolved
-            comments(first: 1) {
-              nodes { databaseId }
-            }
-          }
-        }
-      }
-    }
-  }
-' -f owner='{owner}' -f repo='{repo}' -F number={number}
+cat <<'GRAPHQL' | gh api graphql --input -
+{"query": "query($owner: String!, $repo: String!, $number: Int!) { repository(owner: $owner, name: $repo) { pullRequest(number: $number) { reviewThreads(first: 100) { nodes { id isResolved comments(first: 1) { nodes { databaseId } } } } } } }", "variables": {"owner": "{owner}", "repo": "{repo}", "number": {number}}}
+GRAPHQL
 ```
 
 Map each `databaseId` (= REST comment ID) to its GraphQL `threadId` for the resolve step.
@@ -173,7 +158,9 @@ A blanket instruction (e.g., "모두 반영", "다 적용해", "apply all") cove
 After posting replies, resolve the conversation thread using the GraphQL API:
 
 ```
-gh api graphql -f query='mutation($id: ID!) { resolveReviewThread(input: {threadId: $id}) { thread { isResolved } } }' -f id='{thread_id}'
+cat <<'GRAPHQL' | gh api graphql --input -
+{"query": "mutation($id: ID!) { resolveReviewThread(input: {threadId: $id}) { thread { isResolved } } }", "variables": {"id": "{thread_id}"}}
+GRAPHQL
 ```
 
 Use the `databaseId → threadId` mapping collected in Step 1.

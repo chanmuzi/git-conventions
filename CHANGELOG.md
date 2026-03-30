@@ -1,5 +1,20 @@
 # Change Log
 
+### 2026-03-30: argument-hint 제거, review → review-reply 리네임, GraphQL shell-safe 패턴 적용
+
+**전체 스킬 공통**
+- `argument-hint` frontmatter 제거 (pr, issue, review-reply): 불필요한 입력 안내가 오히려 혼란을 주어 삭제
+
+**Review 스킬 리네임 (review → review-reply)**
+- skill name `review` → `review-reply`로 변경: "코드 리뷰 수행"이 아닌 "리뷰 코멘트에 답글" 역할을 명확히 반영
+- 디렉토리 `skills/review/` → `skills/review-reply/`로 이동
+- marketplace.json, CLAUDE.md, README.md, README.ko.md 참조 일괄 업데이트
+
+**GraphQL shell-safe 패턴 적용 (review-reply)**
+- `gh api graphql -f query='...'` → heredoc + `--input -` 패턴으로 변경
+- GraphQL 변수의 `$`가 shell에서 치환되어 빈 문자열이 되는 문제 해결
+- review thread ID 수집(query)과 thread resolve(mutation) 두 곳 모두 적용
+
 ### 2026-03-30: Skills 2.0 frontmatter 확장 (v1.3.0)
 
 **전체 스킬 공통**

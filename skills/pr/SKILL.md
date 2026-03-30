@@ -6,7 +6,6 @@ description: |
   DO NOT TRIGGER when: user is viewing or listing existing PRs, or performing git operations without PR intent.
 version: "1.3.0"
 allowed-tools: Bash(git *), Bash(gh pr *), Bash(gh label *), Read, Grep, Glob
-argument-hint: "[release] [--base <branch>]"
 ---
 
 ## Determine Base Branch

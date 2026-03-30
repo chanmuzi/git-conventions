@@ -6,7 +6,6 @@ description: |
   DO NOT TRIGGER when: user is viewing, listing, or commenting on existing issues without intent to create a new one.
 version: "1.3.0"
 allowed-tools: Bash(gh issue *), Bash(gh label *), Read, Grep, Glob
-argument-hint: "[bug|feature|enhancement|chore|docs|...]"
 ---
 
 ## Label System
