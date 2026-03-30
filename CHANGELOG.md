@@ -1,5 +1,16 @@
 # Change Log
 
+### 2026-03-30: Skills 2.0 frontmatter 확장 (v1.3.0)
+
+**전체 스킬 공통**
+- `allowed-tools` frontmatter 추가: 스킬별 사용 가능 도구를 명시적으로 제한
+  - commit: `Bash(git *)`, Read, Grep, Glob
+  - pr: `Bash(git *)`, `Bash(gh pr *)`, `Bash(gh label *)`, Read, Grep, Glob
+  - issue: `Bash(gh issue *)`, `Bash(gh label *)`, Read, Grep, Glob
+  - review: `Bash(gh *)`, `Bash(git *)`, Read, Grep, Glob
+- `argument-hint` frontmatter 추가 (pr, issue, review): 슬래시 커맨드 자동완성 힌트 제공
+- version 1.2.0 → 1.3.0
+
 ### 2026-03-30: PR 참조 라벨 명확화 및 bullet 관리 가이드라인 추가
 
 **PR 템플릿 개선 (pr)**
