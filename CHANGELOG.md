@@ -1,5 +1,22 @@
 # Change Log
 
+### 2026-03-31: /code-review 스킬 추가 — context-aware multi-agent 코드 리뷰
+
+**Code Review 스킬 신규 추가 (code-review)**
+- `/code-review` slash command 신규 생성
+- 3가지 모드 지원: PR Review (`/code-review 42`), Working Dir (`/code-review`), Path Review (`/code-review src/`)
+- 4개 도메인 agent 병렬 실행: Security, Performance, Architecture, Domain Logic
+- 파일 타입 기반 도메인 자동 활성화 (override: `--domain`)
+- Cross-validation 단계로 false positive 필터링 (git history, 주석, PR description 대조)
+- Severity-first 구조화 출력 포맷 (🔴 Critical / 🟡 Warning / 🟢 Info)
+- 플래그: `--inline` (PR inline comment), `-y`/`-f` (즉시 게시), `-g` (코드 그래프)
+- Agent tool 미지원 runner에서 sequential fallback 제공
+
+**문서 업데이트**
+- CLAUDE.md: 아키텍처 트리, 테스트 예시, 스킬 공통 규칙에 code-review 반영
+- marketplace.json: skills 배열 및 description 업데이트
+- README.md, README.ko.md: 스킬 소개, 설치 명령어, CLAUDE.md 연동 섹션 업데이트
+
 ### 2026-03-30: argument-hint 제거, review → review-reply 리네임, GraphQL shell-safe 패턴 적용
 
 **전체 스킬 공통**

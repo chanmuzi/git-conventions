@@ -21,6 +21,7 @@ The interactive installer will guide you through:
    - `pr` — Create a pull request following project conventions
    - `issue` — Create a GitHub issue with templates and auto-labeling
    - `review-reply` — Review AI-generated PR review comments and reply
+   - `code-review` — Context-aware multi-agent code review with severity-based findings
 2. **Which agents do you want to install to?** — select your agents (e.g. Codex, Cursor, Gemini CLI, GitHub Copilot, …)
 3. **Installation scope** — `Project` (current repo only) or `Global` (available across all projects)
 4. **Installation method** — `Symlink` (recommended) or `Copy`
@@ -28,7 +29,7 @@ The interactive installer will guide you through:
 
 > To install all skills at once without prompts:
 > ```bash
-> npx skills add chanmuzi/git-conventions --skill commit --skill pr --skill issue --skill review-reply -g
+> npx skills add chanmuzi/git-conventions --skill commit --skill pr --skill issue --skill review-reply --skill code-review -g
 > ```
 
 ### Option 2: Claude Code Plugin
@@ -128,6 +129,24 @@ Collects review comments (CodeRabbit, Copilot, teammates, etc.) from a PR, analy
 /review-reply 42       # Review PR #42
 ```
 
+### `/code-review` — Context-Aware Code Review
+
+Analyzes PR or local code changes using a multi-agent pipeline with domain-specific agents (Security, Performance, Architecture, Domain Logic). Cross-validates findings against code context to filter false positives, then produces severity-based structured output.
+
+```
+/code-review           # Review working directory changes
+/code-review 42        # Review PR #42
+/code-review src/auth/ # Review specific path
+```
+
+**Flags:**
+- `--domain security,perf` — Override auto-detected domains
+- `--inline` — Add inline comments on PR (PR mode only)
+- `-y` / `-f` — Publish without approval
+- `-g` — Enable code graph analysis
+
+**Severity levels:** 🔴 Critical, 🟡 Warning, 🟢 Info
+
 ## Language Behavior
 
 All commands write output (commit messages, PR titles/body) in the language configured in your project's `CLAUDE.md`. If no language is set, the user's conversational language is used.
@@ -153,7 +172,7 @@ Add the following to your global `~/.claude/CLAUDE.md` to reference these conven
 - Branch: `{type}/{english-kebab-case}` (feat/, fix/, refactor/, docs/, hotfix/)
 - PR title: `{Type}: {description}` (capitalized prefix: Feat, Fix, Refactor, Perf, etc.)
 - Release PR: `Release: dev → main 통합 (vX.Y.Z)`
-- Use `/commit`, `/pr`, `/pr release`, `/issue`, `/review-reply` commands for full workflows
+- Use `/commit`, `/pr`, `/pr release`, `/issue`, `/review-reply`, `/code-review` commands for full workflows
 ```
 
 ## License

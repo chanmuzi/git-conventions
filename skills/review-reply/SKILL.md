@@ -82,10 +82,11 @@ Group findings by category and present to the user:
 
 ### 🤔 Debatable
 
-1. **[file.py:78]** {summary}
+1. **[file.py:78]** {summary} **(추천: {Apply | Won't Fix | Follow-up})**
    - Reviewer said: {brief quote}
    - Pros: {benefits of applying}
    - Cons: {reasons to skip}
+   - Recommendation: {1-line reasoning for the recommendation}
 
 ### ❌ Can Safely Ignore
 

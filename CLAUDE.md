@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## 프로젝트 개요
 
 Git commit, PR, review 관련 convention을 강제하는 Agent Skill.
-`/commit`, `/pr`, `/pr release`, `/issue`, `/review-reply` 네 가지 slash command를 제공한다.
+`/commit`, `/pr`, `/pr release`, `/issue`, `/review-reply`, `/code-review` 여섯 가지 slash command를 제공한다.
 Agent Skills 오픈 표준(agentskills.io)을 따르며, Claude Code 외에도 Codex CLI, Gemini CLI, Cursor 등 40+ agent에서 사용 가능.
 
 ## 아키텍처
@@ -25,8 +25,11 @@ git-conventions/
 │   ├── issue/
 │   │   ├── SKILL.md                  # /issue [bug|feature|...]
 │   │   └── LICENSE.txt
-│   └── review-reply/
-│       ├── SKILL.md                  # /review-reply
+│   ├── review-reply/
+│   │   ├── SKILL.md                  # /review-reply
+│   │   └── LICENSE.txt
+│   └── code-review/
+│       ├── SKILL.md                  # /code-review
 │       └── LICENSE.txt
 ├── .gitignore
 ├── README.md
@@ -62,6 +65,9 @@ npx skills add ./  # 로컬 경로에서 설치
 /issue bug     → Bug Report 템플릿 확인
 /review-reply        → AI 리뷰 코멘트 수집/분석 확인
 /review-reply 42     → 특정 PR 번호로 리뷰 확인
+/code-review         → working directory 변경사항 리뷰
+/code-review 42      → 특정 PR 코드 리뷰
+/code-review src/    → 특정 경로 코드 리뷰
 ```
 
 ## Git Convention (이 프로젝트 자체에 적용)
@@ -73,12 +79,26 @@ npx skills add ./  # 로컬 경로에서 설치
 
 ## 스킬 공통 규칙
 
-모든 스킬(pr, issue, review-reply)에 적용되는 공통 원칙:
+모든 스킬(pr, issue, review-reply, code-review)에 적용되는 공통 원칙:
 
 - **Assignee**: `gh pr create`, `gh issue create` 시 반드시 `--assignee @me` 포함
 - **참조 라벨 구분**: "관련" 표기 시 유형을 명시 — `관련 커밋:` (SHA), `관련 PR:` (#번호). 단독 `관련:`은 사용 금지
 - **Bullet 관리**: 카테고리당 bullet 5개 초과 시 관련 항목을 통합하여 가독성 유지
 - **Commit SHA 표기**: backtick 금지 (GitHub 링크화 방지됨). plain text 또는 markdown link 사용
+
+## 새 스킬 추가 체크리스트
+
+새 스킬 디렉토리(`skills/{name}/`) 생성 시 아래 파일을 반드시 함께 업데이트한다:
+
+1. `skills/{name}/SKILL.md` — 스킬 본문 (frontmatter 포함)
+2. `skills/{name}/LICENSE.txt` — 라이선스 파일
+3. `.claude-plugin/marketplace.json` — `skills` 배열에 경로 추가, `description` 반영
+4. `CLAUDE.md` — 프로젝트 개요(slash command 목록), 아키텍처 트리, 로컬 테스트, 스킬 공통 규칙
+5. `README.md` — 스킬 소개 섹션, 설치 명령어(`--skill`), CLAUDE.md 연동 예시
+6. `README.ko.md` — README.md와 동일 항목 한국어 반영
+7. `CHANGELOG.md` — 변경 항목 추가
+
+위 목록 반영 후, 기존 스킬 이름(예: `review-reply`)으로 Grep하여 참조가 있는 파일을 추가 확인한다. 누락된 파일이 있으면 함께 업데이트한다.
 
 ## 릴리스 프로세스
 
