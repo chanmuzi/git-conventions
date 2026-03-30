@@ -186,7 +186,7 @@ Focus areas:
 - Race conditions
 - Type safety gaps
 
-Each finding must include: title, file:line, description, and suggested fix.
+Each finding must include: title, file path, occurrence count, description, and suggested fix. Reference locations by section heading, function name, or code pattern — not by line number.
 
 ### Fallback (non-Claude Code runners)
 
@@ -245,6 +245,8 @@ There are two output formats depending on the rendering medium:
 #### Terminal Format
 
 Optimized for CLI readability. No HTML tags, no tables, flat structure.
+Each finding is separated by `---` for clear visual boundaries.
+Finding title comes first (renders as bold/bright in terminal), file path second.
 
 ```markdown
 ## Code Review: {target}
@@ -253,32 +255,47 @@ Domains: {activated domains joined by " • "} | Findings: {critical_count} crit
 
 ---
 
-### 🔴 Critical ({n})
-
-`{file}` ({location summary, e.g., "3곳: L42, L58, L103"})
-**{finding title}** — {domain}
-
-{description}
-
-> **Fix**: {suggestion in natural language}
+🔴 **Critical** ({n})
 
 ---
 
-### 🟡 Warning ({n})
-
-`{file}` ({location summary})
 **{finding title}** — {domain}
+`{file}` ({N}곳)
 
 {description}
 
-> **Fix**: {suggestion in natural language}
+> **Fix**: {suggestion}
 
 ---
 
-### 🟢 Info ({n})
-
-`{file}` ({location summary})
 **{finding title}** — {domain}
+`{file}` ({N}곳)
+
+{description}
+
+> **Fix**: {suggestion}
+
+---
+
+🟡 **Warning** ({n})
+
+---
+
+**{finding title}** — {domain}
+`{file}` ({N}곳)
+
+{description}
+
+> **Fix**: {suggestion}
+
+---
+
+🟢 **Info** ({n})
+
+---
+
+**{finding title}** — {domain}
+`{file}` ({N}곳)
 
 {description}
 ```
@@ -303,7 +320,7 @@ Optimized for GitHub PR comment rendering. Uses tables, `<details>` collapsibles
 ### 🔴 Critical
 
 #### {finding title} — {domain}
-`{file}` {location summary}
+`{file}` ({N}곳)
 
 {description}
 
@@ -318,7 +335,7 @@ Optimized for GitHub PR comment rendering. Uses tables, `<details>` collapsibles
 <summary><h3>🟡 Warning ({n})</h3></summary>
 
 #### {finding title} — {domain}
-`{file}` {location summary}
+`{file}` ({N}곳)
 
 {description}
 
@@ -333,7 +350,7 @@ Optimized for GitHub PR comment rendering. Uses tables, `<details>` collapsibles
 <summary><h3>🟢 Info ({n})</h3></summary>
 
 #### {finding title} — {domain}
-`{file}` {location summary}
+`{file}` ({N}곳)
 
 {description}
 
@@ -346,7 +363,7 @@ Optimized for GitHub PR comment rendering. Uses tables, `<details>` collapsibles
 ### Formatting Rules
 
 **Common rules (both formats)**:
-- Location: file path on its own line, line numbers as `L42, L58` with count prefix (e.g., "3곳: L42, L58, L103").
+- Location: file path on its own line, occurrence count only (e.g., "(3곳)", "(1곳)"). No line numbers (`L42`, `L58` 등) anywhere — descriptions and Fix suggestions reference locations by section heading, function name, or searchable code pattern instead.
 - Finding title must NOT repeat the file name (location is already on its own line).
 - Omit severity sections that have 0 findings.
 - **Bullet management**: If a single finding has more than 5 sub-points, consolidate.
@@ -355,7 +372,9 @@ Optimized for GitHub PR comment rendering. Uses tables, `<details>` collapsibles
 **Terminal-specific rules**:
 - No `<details>` or HTML tags — they don't render in CLI.
 - Summary line (not table) at the top: `Findings: 1 critical, 3 warnings, 1 info`.
-- Fix is always natural language in a blockquote (`> **Fix**: ...`).
+- Each finding is separated by `---`. Severity headers also followed by `---` before the first finding.
+- Finding title first (bold — renders bright in CLI), file path second.
+- Fix is always natural language in a blockquote (`> **Fix**: ...`), referencing by section/pattern.
 - Domains with no findings: omit entirely (no "✅ ... No issues found" line).
 
 **GitHub-specific rules**:
