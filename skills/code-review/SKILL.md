@@ -4,7 +4,7 @@ description: |
   Review code changes using context-aware multi-agent pipeline with severity-based findings.
   TRIGGER when: user asks to review code, analyze PR quality, check for issues, run code review, or audit changes (e.g., "코드 리뷰해줘", "review this PR", "코드 분석해줘", "리뷰 돌려줘").
   DO NOT TRIGGER when: user is replying to review comments (use review-reply), creating PRs, committing, or performing git operations without review intent.
-argument-hint: "[PR번호|경로] [--domain security,perf] [--inline] [-y] [-g]"
+argument-hint: "[PR번호|경로] [-d|--domain security,perf] [--inline] [-y|--yes] [-g|--graph] [-s|--sub]"
 version: "1.3.0"
 allowed-tools: Bash(git *), Bash(gh *), Read, Grep, Glob, Agent
 ---
@@ -23,13 +23,13 @@ Parse `$ARGUMENTS` to determine the review mode and flags.
 
 ### Flag Detection
 
-| Flag | Short | Default | Description |
-|------|-------|---------|-------------|
-| `--yes` | `-y` | off | Publish without approval |
-| `--force` | `-f` | off | Same as `-y` |
-| `--graph` | `-g` | off | Enable code graph analysis (dependency map) |
-| `--inline` | — | off | Add inline comments on PR (PR mode only) |
-| `--domain` | `-d` | auto | Override domain selection (e.g., `--domain security,perf`) |
+| Flag | Default | Description |
+|------|---------|-------------|
+| `-y\|--yes\|--force\|-f` | off | Publish without approval |
+| `-g\|--graph` | off | Enable code graph analysis (dependency map) |
+| `--inline` | off | Add inline comments on PR (PR mode only) |
+| `-d\|--domain` | auto | Override domain selection (e.g., `-d security,perf`) |
+| `-s\|--sub` | off | Use sub-agents instead of team agents for domain analysis |
 
 If `$ARGUMENTS` contains explicit publish intent ("comment 달아", "바로 올려", "게시해", "post it"), treat as `-y`.
 
@@ -120,17 +120,28 @@ Collect the union of all activated domains from all changed files. Deduplicate.
 
 ## Step 3: Domain Agents (Parallel Execution)
 
-Launch activated domain agents in parallel using the Agent tool. Each agent receives the full diff and context from Step 1.
+Launch activated domain agents in parallel. Each agent receives the full diff and context from Step 1.
 
-### Agent Definitions
+### Execution Mode
 
-#### Security Agent
+| Mode | Condition | Description |
+|------|-----------|-------------|
+| **Team agents** (default) | `-s`/`--sub` flag NOT set | Each domain runs as an independent team agent with its own context window. Better result quality for large diffs. |
+| **Sub-agents** | `-s`/`--sub` flag set | Each domain runs as a sub-agent via the Agent tool. Results return to the main context. Lighter for small diffs. |
 
-```
-subagent_type: "oh-my-claudecode:security-reviewer"
-```
+**Team agent mode**: Create a team with one agent per activated domain. Each agent works independently and reports findings back. Use the team task list for coordination.
 
-Prompt the agent with: the diff, changed file contents, and instruction to analyze for:
+**Sub-agent mode**: Launch each domain agent via the Agent tool in parallel. Collect results in the main conversation.
+
+### Domain Definitions
+
+Each domain agent — whether team or sub — receives the same prompt structure: diff, changed file contents, and domain-specific analysis instructions.
+
+#### 🛡️ Security
+
+Agent type: `oh-my-claudecode:security-reviewer`
+
+Focus areas:
 - Authentication/authorization flaws
 - Input validation gaps
 - SQL injection, XSS, command injection
@@ -138,15 +149,11 @@ Prompt the agent with: the diff, changed file contents, and instruction to analy
 - Dependency vulnerabilities (if package files changed)
 - Insecure configurations
 
-Each finding must include: title, file:line, description, and suggested fix.
+#### ⚡ Performance
 
-#### Performance Agent
+Agent type: `oh-my-claudecode:scientist`
 
-```
-subagent_type: "oh-my-claudecode:scientist"
-```
-
-Prompt the agent with: the diff, changed file contents, and instruction to analyze for:
+Focus areas:
 - Algorithm complexity issues (O(n^2) or worse in hot paths)
 - N+1 query patterns
 - Missing caching opportunities
@@ -154,15 +161,11 @@ Prompt the agent with: the diff, changed file contents, and instruction to analy
 - Unoptimized database queries
 - Blocking operations in async contexts
 
-Each finding must include: title, file:line, description, and suggested fix.
+#### 🏗️ Architecture
 
-#### Architecture Agent
+Agent type: `oh-my-claudecode:architect`
 
-```
-subagent_type: "oh-my-claudecode:architect"
-```
-
-Prompt the agent with: the diff, changed file contents, project structure, and instruction to analyze for:
+Focus areas:
 - SOLID principle violations
 - Coupling/cohesion issues
 - Interface contract breakage
@@ -170,15 +173,11 @@ Prompt the agent with: the diff, changed file contents, project structure, and i
 - Inconsistency with existing patterns
 - Missing abstractions or over-abstraction
 
-Each finding must include: title, file:line, description, and suggested fix.
+#### 🔍 Domain Logic
 
-#### Domain Logic Agent
+Agent type: `oh-my-claudecode:code-reviewer`
 
-```
-subagent_type: "oh-my-claudecode:code-reviewer"
-```
-
-Prompt the agent with: the diff, changed file contents, and instruction to analyze for:
+Focus areas:
 - Business rule correctness
 - Error handling completeness
 - Edge case coverage
@@ -188,9 +187,9 @@ Prompt the agent with: the diff, changed file contents, and instruction to analy
 
 Each finding must include: title, file:line, description, and suggested fix.
 
-### Fallback (non-Agent runners)
+### Fallback (non-Claude Code runners)
 
-If Agent tool is unavailable (non-Claude Code runners) or the specified subagent types are not registered, perform all domain analyses sequentially in a single pass. Analyze each domain's focus areas one by one and collect findings.
+If neither team agents nor sub-agents are available (e.g., Codex, Gemini), perform all domain analyses sequentially in a single pass. Analyze each domain's focus areas one by one and collect findings.
 
 ---
 
@@ -291,15 +290,17 @@ Suggested fix: {suggestion}
 
 Based on the mode and flags, publish the review output.
 
-### Approval Logic
+### Approval Gate (PR Review Mode)
+
+In PR mode, the review output is a GitHub comment that will be publicly visible. **Publishing requires explicit approval.**
 
 | Condition | Behavior |
 |-----------|----------|
-| `-y` or `-f` flag | Publish immediately |
-| `$ARGUMENTS` contains publish intent | Publish immediately |
-| Default | Show output to user, ask for approval before publishing |
+| `-y` or `-f` flag present | Publish immediately, skip approval |
+| `$ARGUMENTS` contains publish intent ("comment 달아", "바로 올려", "게시해", "post it") | Publish immediately, skip approval |
+| **Default (neither above)** | **STOP here. Show the review output to the user and ask: "PR에 게시할까요?" Do NOT proceed to publishing until the user approves.** |
 
-### PR Review Mode — Publishing
+### PR Review Mode — Publishing (only after approval or auto-publish flag)
 
 **Summary comment** (always): Post the full review as a PR comment.
 
@@ -338,10 +339,13 @@ Display the review output directly to the user in the conversation. No GitHub pu
 4. **Domain Agents**: Launch activated agents in parallel via Agent tool. Collect all findings.
 5. **Cross-Validation**: Verify each finding against expanded context, git history, comments, and PR intent. Classify as Confirmed / Demoted / Dismissed.
 6. **Output Generator**: Produce severity-first structured output. Apply formatting rules.
-7. **Publisher**: Based on mode and flags, publish or display the review.
+7. **Publisher**:
+   - **Working Dir / Path mode**: Display output directly. Done.
+   - **PR mode without `-y`/`-f`**: Show output to user → ask "PR에 게시할까요?" → publish ONLY if approved.
+   - **PR mode with `-y`/`-f`**: Publish immediately.
 
 **Important:**
-- Do NOT publish review comments without user approval unless `-y`/`-f` is set or explicit publish intent is detected.
+- Do NOT publish review comments to GitHub without explicit user approval. The only exceptions are the `-y`/`-f` flag or explicit publish intent in `$ARGUMENTS`. A PR number alone is NOT publish intent.
 - Do NOT replace linter checks — focus on semantic, architectural, and logic issues.
 - Do NOT suggest auto-fix or auto-merge — this is review only.
 - This skill is independent from `review-reply`. `code-review` generates reviews (proactive); `review-reply` responds to received reviews (reactive).
