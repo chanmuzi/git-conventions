@@ -5,7 +5,7 @@ description: >-
   TRIGGER when: user asks to review code, analyze PR quality, check for issues, run code review, or audit changes (e.g., "코드 리뷰해줘", "review this PR", "코드 분석해줘", "리뷰 돌려줘").
   DO NOT TRIGGER when: user is replying to review comments (use review-reply), creating PRs, committing, or performing git operations without review intent.
 argument-hint: "[PR번호|경로] [-d|--domain security,perf] [--inline] [-y|--yes] [-g|--graph] [-s|--sub]"
-version: "1.3.0"
+version: "1.4.0"
 allowed-tools: Bash(git *), Bash(gh *), Read, Grep, Glob, Agent
 ---
 
@@ -232,44 +232,112 @@ Produce severity-first structured output.
 | Warning | 🟡 | Potential bug, performance issue, maintainability concern |
 | Info | 🟢 | Suggestion, minor improvement, style note |
 
-### Output Template
+### Output Templates
 
 Write the review in the language configured in the project's CLAUDE.md.
 If no language is configured, follow the user's conversational language.
 Examples below are in Korean.
+
+There are two output formats depending on the rendering medium:
+- **Terminal format**: Used for Working Dir / Path mode, and for PR mode preview (before approval).
+- **GitHub format**: Used only for the final PR comment published to GitHub (after approval).
+
+#### Terminal Format
+
+Optimized for CLI readability. No HTML tags, no tables, flat structure.
+
+```markdown
+## Code Review: {target}
+
+Domains: {activated domains joined by " • "} | Findings: {critical_count} critical, {warning_count} warnings, {info_count} info
+
+---
+
+### 🔴 Critical ({n})
+
+`{file}` ({location summary, e.g., "3곳: L42, L58, L103"})
+**{finding title}** — {domain}
+
+{description}
+
+> **Fix**: {suggestion in natural language}
+
+---
+
+### 🟡 Warning ({n})
+
+`{file}` ({location summary})
+**{finding title}** — {domain}
+
+{description}
+
+> **Fix**: {suggestion in natural language}
+
+---
+
+### 🟢 Info ({n})
+
+`{file}` ({location summary})
+**{finding title}** — {domain}
+
+{description}
+```
+
+#### GitHub Format
+
+Optimized for GitHub PR comment rendering. Uses tables, `<details>` collapsibles, and diff blocks.
 
 ```markdown
 ## Code Review: {target}
 
 **Domains**: {activated domains joined by " • "} | **Findings**: {total count}
 
-| Severity | Count | Domains |
-|----------|-------|---------|
-| 🔴 Critical | {n} | {domains} |
-| 🟡 Warning  | {n} | {domains} |
-| 🟢 Info     | {n} | {domains} |
+| Severity | Count |
+|----------|-------|
+| 🔴 Critical | {n} |
+| 🟡 Warning  | {n} |
+| 🟢 Info     | {n} |
 
 ---
 
 ### 🔴 Critical
 
-**{finding title}** — {domain}
-`{file}:{line}`
-{description in Korean}
-Suggested fix: {suggestion}
+#### {finding title} — {domain}
+`{file}` {location summary}
 
-### 🟡 Warning
+{description}
 
-**{finding title}** — {domain}
-`{file}:{line}`
-{description in Korean}
-Suggested fix: {suggestion}
+```diff
+- {original code}
++ {suggested code}
+```
 
-### 🟢 Info
+---
 
-**{finding title}** — {domain}
-`{file}:{line}`
-{description in Korean}
+<details>
+<summary><h3>🟡 Warning ({n})</h3></summary>
+
+#### {finding title} — {domain}
+`{file}` {location summary}
+
+{description}
+
+```diff
+- {original code}
++ {suggested code}
+```
+
+</details>
+
+<details>
+<summary><h3>🟢 Info ({n})</h3></summary>
+
+#### {finding title} — {domain}
+`{file}` {location summary}
+
+{description}
+
+</details>
 
 ---
 ✅ {domain}: No issues found
@@ -277,13 +345,26 @@ Suggested fix: {suggestion}
 
 ### Formatting Rules
 
-- If findings exceed 5 per severity group, wrap each group in `<details><summary>` for collapsibility.
-- Domains with no findings: show as `✅ {Domain}: No issues found` (one line each, at the bottom).
-- Each finding: **Title** — Domain + location + description + suggested fix (for Critical/Warning).
-- Summary table always at the top.
+**Common rules (both formats)**:
+- Location: file path on its own line, line numbers as `L42, L58` with count prefix (e.g., "3곳: L42, L58, L103").
+- Finding title must NOT repeat the file name (location is already on its own line).
 - Omit severity sections that have 0 findings.
 - **Bullet management**: If a single finding has more than 5 sub-points, consolidate.
 - **Commit SHA references**: Never use backticks around SHAs. Use plain text or markdown links.
+
+**Terminal-specific rules**:
+- No `<details>` or HTML tags — they don't render in CLI.
+- Summary line (not table) at the top: `Findings: 1 critical, 3 warnings, 1 info`.
+- Fix is always natural language in a blockquote (`> **Fix**: ...`).
+- Domains with no findings: omit entirely (no "✅ ... No issues found" line).
+
+**GitHub-specific rules**:
+- Summary table at the top (severity + count). Omit Domains column — domain is shown per finding.
+- `<details>` collapsibility: Critical is always expanded. Warning and Info are collapsed when findings exceed 3. Always expanded when 3 or fewer.
+- Fix format depends on specificity:
+  - Concrete code change → `diff` block (red/green).
+  - Directional suggestion (e.g., "remove section", "restructure") → `> **Fix**: ...` natural language.
+- Domains with no findings: show as `✅ {Domain}: No issues found` (one line each, at the bottom).
 
 ---
 
@@ -291,23 +372,33 @@ Suggested fix: {suggestion}
 
 Based on the mode and flags, publish the review output.
 
-### Approval Gate (PR Review Mode)
+### Working Dir / Path Mode
 
-In PR mode, the review output is a GitHub comment that will be publicly visible. **Publishing requires explicit approval.**
+Display the review output using **Terminal format** directly to the user. No GitHub publishing.
 
-| Condition | Behavior |
-|-----------|----------|
-| `-y` or `-f` flag present | Publish immediately, skip approval |
-| `$ARGUMENTS` contains publish intent ("comment 달아", "바로 올려", "게시해", "post it") | Publish immediately, skip approval |
-| **Default (neither above)** | **STOP here. Show the review output to the user and ask: "PR에 게시할까요?" Do NOT proceed to publishing until the user approves.** |
+### PR Review Mode
 
-### PR Review Mode — Publishing (only after approval or auto-publish flag)
+PR mode uses a two-phase flow: preview in terminal, then publish to GitHub.
 
-**Summary comment** (always): Post the full review as a PR comment.
+#### Phase 1: Preview (Terminal format)
+
+Generate the review using **Terminal format** and display it to the user in the conversation.
+
+| Condition | Next step |
+|-----------|-----------|
+| `-y` or `-f` flag present | Skip preview, go directly to Phase 2 |
+| `$ARGUMENTS` contains publish intent ("comment 달아", "바로 올려", "게시해", "post it") | Skip preview, go directly to Phase 2 |
+| **Default** | **STOP here. Show the Terminal format output and ask: "PR에 게시할까요?" Do NOT proceed until the user approves.** |
+
+#### Phase 2: Publish (GitHub format)
+
+After approval (or auto-publish flag), **re-render the same findings** using **GitHub format** and publish.
+
+**Summary comment** (always): Post the GitHub-formatted review as a PR comment.
 
 ```
 gh pr comment {number} --body "$(cat <<'EOF'
-{review output}
+{GitHub format review output}
 
 Generated with [Claude Code](https://claude.com/claude-code)
 EOF
@@ -326,10 +417,6 @@ EOF
 
 If inline comments fail (e.g., line not in diff), fall back to the summary comment only. Do not retry individual inline comments.
 
-### Working Dir / Path Mode — Publishing
-
-Display the review output directly to the user in the conversation. No GitHub publishing.
-
 ---
 
 ## Task
@@ -339,11 +426,11 @@ Display the review output directly to the user in the conversation. No GitHub pu
 3. **Domain Router**: Analyze changed file types and activate relevant domains. Respect `--domain` override.
 4. **Domain Agents**: Launch activated agents in parallel via Agent tool. Collect all findings.
 5. **Cross-Validation**: Verify each finding against expanded context, git history, comments, and PR intent. Classify as Confirmed / Demoted / Dismissed.
-6. **Output Generator**: Produce severity-first structured output. Apply formatting rules.
+6. **Output Generator**: Produce severity-first structured output using the appropriate format template.
 7. **Publisher**:
-   - **Working Dir / Path mode**: Display output directly. Done.
-   - **PR mode without `-y`/`-f`**: Show output to user → ask "PR에 게시할까요?" → publish ONLY if approved.
-   - **PR mode with `-y`/`-f`**: Publish immediately.
+   - **Working Dir / Path mode**: Display Terminal format output directly. Done.
+   - **PR mode without `-y`/`-f`**: Show Terminal format preview → ask "PR에 게시할까요?" → re-render as GitHub format → publish ONLY if approved.
+   - **PR mode with `-y`/`-f`**: Render GitHub format → publish immediately.
 
 **Important:**
 - Do NOT publish review comments to GitHub without explicit user approval. The only exceptions are the `-y`/`-f` flag or explicit publish intent in `$ARGUMENTS`. A PR number alone is NOT publish intent.

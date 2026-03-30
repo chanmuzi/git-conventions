@@ -1,5 +1,13 @@
 # Change Log
 
+### 2026-03-31: /code-review 출력 포맷 이중 분리 (Terminal / GitHub)
+
+**Output Template 이중 포맷 (code-review v1.4.0)**
+- 터미널 포맷: CLI 가독성 최적화 — 요약 테이블 제거, 플랫 구조, blockquote Fix
+- GitHub 포맷: PR 코멘트 최적화 — summary 테이블, `<details>` 접기, diff 블록 (구체적 수정 시)
+- PR 모드 2-phase 플로우: 터미널 미리보기 → 승인 → GitHub 포맷으로 게시
+- Finding 구조 개선: 파일 위치를 첫 줄로 분리, 제목에서 파일명 중복 제거, 라인 번호 `L42` 형식 통일
+
 ### 2026-03-31: /code-review 스킬 추가 — context-aware multi-agent 코드 리뷰
 
 **Code Review 스킬 신규 추가 (code-review)**
