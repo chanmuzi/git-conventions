@@ -21,6 +21,7 @@ npx skills add chanmuzi/git-conventions
    - `pr` — 프로젝트 convention에 맞는 pull request 생성
    - `issue` — 템플릿 기반 GitHub 이슈 생성 및 자동 labeling
    - `review-reply` — PR 리뷰 코멘트 분석 및 답글
+   - `code-review` — context-aware multi-agent 코드 리뷰 (severity 기반)
 2. **Which agents do you want to install to?** — 사용할 agent 선택 (예: Codex, Cursor, Gemini CLI, GitHub Copilot, …)
 3. **Installation scope** — `Project` (현재 repo만) 또는 `Global` (모든 프로젝트에서 사용)
 4. **Installation method** — `Symlink` (권장) 또는 `Copy`
@@ -28,7 +29,7 @@ npx skills add chanmuzi/git-conventions
 
 > 프롬프트 없이 한번에 설치하려면:
 > ```bash
-> npx skills add chanmuzi/git-conventions --skill commit --skill pr --skill issue --skill review-reply -g
+> npx skills add chanmuzi/git-conventions --skill commit --skill pr --skill issue --skill review-reply --skill code-review -g
 > ```
 
 ### 방법 2: Claude Code Plugin
@@ -128,6 +129,24 @@ PR의 리뷰 코멘트(CodeRabbit, Copilot, 팀원 등)를 수집하고, 실제 
 /review-reply 42       # PR #42 리뷰
 ```
 
+### `/code-review` — Context-Aware 코드 리뷰
+
+PR 또는 로컬 코드 변경사항을 도메인별 전문 agent(Security, Performance, Architecture, Domain Logic)로 병렬 분석합니다. 코드 context와 대조하여 false positive를 필터링한 뒤, severity 기반 구조화된 리뷰를 생성합니다.
+
+```
+/code-review           # working directory 변경사항 리뷰
+/code-review 42        # PR #42 코드 리뷰
+/code-review src/auth/ # 특정 경로 코드 리뷰
+```
+
+**플래그:**
+- `--domain security,perf` — 자동 감지 대신 도메인 수동 지정
+- `--inline` — PR에 inline comment 추가 (PR 모드 전용)
+- `-y` / `-f` — 승인 없이 즉시 게시
+- `-g` — 코드 그래프 분석 활성화
+
+**Severity:** 🔴 Critical, 🟡 Warning, 🟢 Info
+
 ## 언어 동작
 
 모든 커맨드의 출력(커밋 메시지, PR 제목/본문)은 프로젝트의 `CLAUDE.md`에 설정된 언어로 작성됩니다. 설정이 없으면 사용자의 대화 언어를 따릅니다.
@@ -153,7 +172,7 @@ PR의 리뷰 코멘트(CodeRabbit, Copilot, 팀원 등)를 수집하고, 실제 
 - Branch: `{type}/{english-kebab-case}` (feat/, fix/, refactor/, docs/, hotfix/)
 - PR title: `{Type}: {description}` (대문자 prefix: Feat, Fix, Refactor, Perf 등)
 - Release PR: `Release: dev → main 통합 (vX.Y.Z)`
-- `/commit`, `/pr`, `/pr release`, `/issue`, `/review-reply` 커맨드로 전체 워크플로우 실행
+- `/commit`, `/pr`, `/pr release`, `/issue`, `/review-reply`, `/code-review` 커맨드로 전체 워크플로우 실행
 ```
 
 ## 라이선스
