@@ -17,7 +17,7 @@ Parse `$ARGUMENTS` to determine the review mode and flags.
 
 | Mode | Condition | Description |
 |------|-----------|-------------|
-| **PR Review** | `$ARGUMENTS` contains a number or `--pr` | Review a specific PR's diff + commit context |
+| **PR Review** | `$ARGUMENTS` contains a standalone numeric token (e.g., `42`) or `--pr <number>` | Review a specific PR's diff + commit context |
 | **Working Dir** | `$ARGUMENTS` is empty (no arguments) | Review current working directory changes (staged + unstaged) |
 | **Path Review** | `$ARGUMENTS` contains a file/directory path | Review code at the specified path |
 
@@ -30,6 +30,7 @@ Parse `$ARGUMENTS` to determine the review mode and flags.
 | `--inline` | off | Add inline comments on PR (PR mode only) |
 | `-d\|--domain` | auto | Override domain selection (e.g., `-d security,perf`) |
 | `-s\|--sub` | off | Use sub-agents instead of team agents for domain analysis |
+| `--pr` | — | Explicit PR mode (e.g., `--pr 42`). Use when path arguments contain digits |
 
 If `$ARGUMENTS` contains explicit publish intent ("comment 달아", "바로 올려", "게시해", "post it"), treat as `-y`.
 
@@ -221,7 +222,7 @@ Log dismissed findings internally (do not output them) to avoid noise.
 
 ## Step 5: Output Generator
 
-Produce severity-first structured output in Korean (technical terms in English).
+Produce severity-first structured output.
 
 ### Severity Levels
 
@@ -315,11 +316,11 @@ EOF
 
 **Inline comments** (only if `--inline` flag): For each Critical and Warning finding with a specific file:line, add an inline review comment.
 
-Use the GitHub pull request review API to submit all inline comments as a single review:
+Use the GitHub pull request review API to submit all inline comments as a single review. The `position` field is the line index within the diff hunk (1-based), NOT the file line number. Calculate it from `gh pr diff` output by counting lines from the `@@` hunk header:
 
 ```
 gh api repos/{owner}/{repo}/pulls/{number}/reviews --input - <<'EOF'
-{"event":"COMMENT","body":"Code review by Claude Code","comments":[{"path":"{file}","line":{line},"body":"{finding_summary}"}]}
+{"event":"COMMENT","body":"Code review by Claude Code","comments":[{"path":"{file}","position":{diff_position},"body":"{finding_summary}"}]}
 EOF
 ```
 
