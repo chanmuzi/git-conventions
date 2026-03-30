@@ -76,6 +76,7 @@ npx skills add ./  # 로컬 경로에서 설치
 - Type: feat, fix, refactor, style, docs, test, perf, chore, hotfix
 - 파일 staging 시 `git add -A` 금지, 개별 파일 지정
 - 커밋 승인은 세션의 tool permission 설정에 따름
+- PR merge 시 squash 금지 — 커밋 히스토리를 보존하여 agent/reviewer 추적성 유지
 
 ## 스킬 공통 규칙
 
