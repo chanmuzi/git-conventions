@@ -1,6 +1,19 @@
-# git-conventions
+<p align="center">
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:6366F1,50:8B5CF6,100:A855F7&height=220&section=header&text=git-conventions&fontSize=52&fontColor=ffffff&fontAlignY=38&desc=Agent%20Skills%20for%20consistent%20Git%20workflows&descSize=18&descColor=E2E8F0&descAlignY=58&animation=fadeIn" alt="git-conventions" width="100%" />
+</p>
 
-[English](README.md) | [한국어](README.ko.md)
+<p align="center">
+  <img src="https://img.shields.io/badge/skills-5-8B5CF6?logo=git&logoColor=white" alt="Skills" />
+  <a href="https://agentskills.io"><img src="https://img.shields.io/badge/Agent_Skills-compatible-0EA5E9?logo=robotframework&logoColor=white" alt="Agent Skills" /></a>
+  <img src="https://img.shields.io/github/license/chanmuzi/git-conventions?color=blue" alt="License" />
+  <img src="https://img.shields.io/github/last-commit/chanmuzi/git-conventions?color=orange" alt="Last Commit" />
+</p>
+
+<p align="center">
+  <a href="README.md">English</a> · <a href="README.ko.md">한국어</a>
+</p>
+
+---
 
 Git commit, PR, review convention을 강제하는 [Agent Skill](https://agentskills.io)입니다.
 
