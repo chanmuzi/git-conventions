@@ -6,7 +6,7 @@ description: >-
   DO NOT TRIGGER when: user is replying to review comments (use review-reply), creating PRs, committing, or performing git operations without review intent.
 argument-hint: "[PR번호|경로] [-d|--domain security,perf] [--inline] [-y|--yes] [-g|--graph] [-s|--sub]"
 version: "1.4.0"
-allowed-tools: Bash(git *), Bash(gh *), Read, Grep, Glob, Agent
+allowed-tools: Bash(git *), Bash(gh *), Read, Grep, Glob, Agent, TeamCreate, TaskCreate, TaskList, TaskUpdate, TaskGet, SendMessage
 ---
 
 ## Parse Arguments
@@ -130,9 +130,24 @@ Launch activated domain agents in parallel. Each agent receives the full diff an
 | **Team agents** (default) | `-s`/`--sub` flag NOT set | Each domain runs as an independent team agent with its own context window. Better result quality for large diffs. |
 | **Sub-agents** | `-s`/`--sub` flag set | Each domain runs as a sub-agent via the Agent tool. Results return to the main context. Lighter for small diffs. |
 
-**Team agent mode**: Create a team with one agent per activated domain. Each agent works independently and reports findings back. Use the team task list for coordination.
+### Team Agent Mode (default)
 
-**Sub-agent mode**: Launch each domain agent via the Agent tool in parallel. Collect results in the main conversation.
+Used when `-s`/`--sub` flag is NOT set. Each domain agent gets its own context window.
+
+1. `TeamCreate` — name: `code-review`.
+2. For each activated domain:
+   - `TaskCreate` — subject: `"{Domain} domain analysis"`. Description: changed files relevant to this domain and domain-specific focus areas.
+   - Spawn teammate via `Agent` with `team_name: "code-review"`, `name` set to domain name (lowercase, e.g., `"security"`, `"architecture"`), `subagent_type` per Domain Definitions. Prompt includes: full diff from Step 1, changed file context, domain focus areas, and finding format (title, file path, occurrence count, description, suggested fix).
+   - `TaskUpdate` — set `owner` to the agent name.
+3. Monitor `TaskList` until all domain tasks complete. Collect findings from agent messages.
+4. Shut down agents via `SendMessage` with `shutdown_request`.
+5. Pass aggregated findings to Step 4.
+
+Fallback: if `TeamCreate` is unavailable, switch to Sub-agent mode.
+
+### Sub-agent Mode
+
+Used when `-s`/`--sub` flag IS set, or as fallback. Launch each domain agent via `Agent` in parallel. Results return to the main context.
 
 ### Domain Definitions
 
@@ -217,6 +232,12 @@ For each finding:
 | **Dismissed** | False positive — remove from output |
 
 Log dismissed findings internally (do not output them) to avoid noise.
+
+### Deduplication
+
+When multiple domain agents flag the same code location:
+- **Same root cause**: Merge into a single finding. Keep the higher severity and credit all relevant domains (e.g., `Architecture • Domain Logic`).
+- **Different concerns**: Keep as separate findings, each under its own domain.
 
 ---
 
