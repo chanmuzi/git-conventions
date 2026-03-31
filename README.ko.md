@@ -184,6 +184,31 @@ PR 또는 로컬 코드 변경사항을 도메인별 전문 agent(Security, Perf
 
 기술 용어는 명확성을 위해 원어 그대로 유지합니다.
 
+## Label 시스템
+
+`/pr`과 `/issue`는 통일된 label 체계를 공유합니다. Label은 최초 사용 시 자동 생성되며, 이미 존재하면 그대로 유지됩니다.
+
+| Label | Color | 출처 |
+|-------|-------|------|
+| `bug` | 🔴 `d73a4a` | GitHub 기본 |
+| `feature` | 🔵 `0075ca` | GitHub 기본 |
+| `enhancement` | 🩵 `a2eeef` | GitHub 기본 |
+| `docs` | 🟣 `5319e7` | GitHub 기본 |
+| `chore` | 🟡 `e4e669` | 표준 |
+| `refactor` | 🟪 `d4c5f9` | 표준 |
+| `test` | 🟢 `bfd4f2` | 표준 |
+| `perf` | 🟠 `f9d0c4` | 표준 |
+| `hotfix` | 🔴 `b60205` | 표준 |
+| `release` | 🔵 `1d76db` | 표준 |
+| `critical` | 🔴 `b60205` | 우선순위 |
+| `high` | 🟠 `d93f0b` | 우선순위 |
+| `medium` | 🟡 `fbca04` | 우선순위 |
+| `low` | 🟢 `0e8a16` | 우선순위 |
+
+- **Namespace 접두사 없음** — 깔끔하고 간결한 이름 (`type: bug` 대신 `bug`)
+- **GitHub 표준 색상** — GitHub 기본 palette과 동일한 색상 사용
+- **충돌 안전** — `gh label create ... 2>/dev/null || true` (없으면 생성, 있으면 스킵)
+
 ## Convention 요약
 
 | 항목 | 형식 | 예시 |

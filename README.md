@@ -184,6 +184,31 @@ All commands write output (commit messages, PR titles/body) in the language conf
 
 Technical terms are kept in their original form to preserve clarity — no forced translations.
 
+## Label System
+
+`/pr` and `/issue` share a unified label scheme. Labels are auto-created on first use — if a label already exists, it is left unchanged.
+
+| Label | Color | Source |
+|-------|-------|--------|
+| `bug` | 🔴 `d73a4a` | GitHub default |
+| `feature` | 🔵 `0075ca` | GitHub default |
+| `enhancement` | 🩵 `a2eeef` | GitHub default |
+| `docs` | 🟣 `5319e7` | GitHub default |
+| `chore` | 🟡 `e4e669` | Standard |
+| `refactor` | 🟪 `d4c5f9` | Standard |
+| `test` | 🟢 `bfd4f2` | Standard |
+| `perf` | 🟠 `f9d0c4` | Standard |
+| `hotfix` | 🔴 `b60205` | Standard |
+| `release` | 🔵 `1d76db` | Standard |
+| `critical` | 🔴 `b60205` | Priority |
+| `high` | 🟠 `d93f0b` | Priority |
+| `medium` | 🟡 `fbca04` | Priority |
+| `low` | 🟢 `0e8a16` | Priority |
+
+- **No namespace prefix** — clean, simple names (`bug` instead of `type: bug`)
+- **GitHub-standard colors** — matches GitHub's default palette where applicable
+- **Conflict-safe** — `gh label create ... 2>/dev/null || true` (create if missing, skip if exists)
+
 ## Conventions at a Glance
 
 | Item | Format | Example |
