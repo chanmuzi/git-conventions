@@ -49,7 +49,7 @@
 - 파일 타입 기반 도메인 자동 활성화 (override: `--domain`)
 - Cross-validation 단계로 false positive 필터링 (git history, 주석, PR description 대조)
 - Severity-first 구조화 출력 포맷 (🔴 Critical / 🟡 Warning / 🟢 Info)
-- 플래그: `-y`/`-f` (즉시 게시), `-g` (코드 그래프), `--inline` (PR inline comment — v1.7.0에서 기본 동작으로 전환)
+- 플래그: `--inline` (PR inline comment), `-y`/`-f` (즉시 게시), `-g` (코드 그래프)
 - Agent tool 미지원 runner에서 sequential fallback 제공
 
 **문서 업데이트**

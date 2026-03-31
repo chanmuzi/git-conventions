@@ -501,7 +501,7 @@ If there are zero findings overall, post: `## Code Review: {target}\n\n✅ No is
 
 Posted as individual review comments, each attached to a specific file and line in the diff. One finding per comment.
 
-```markdown
+````markdown
 {severity_icon} **{finding title}** — {domain}
 
 {description}
@@ -513,7 +513,7 @@ Posted as individual review comments, each attached to a specific file and line 
 {else:}
 > **Fix**: {suggestion}
 {end if}
-```
+````
 
 Use GitHub `suggestion` blocks when the fix is a concrete, localized code change (variable rename, parameter addition, line replacement). The suggestion block enables one-click "Apply suggestion" in GitHub's UI. Use `> **Fix**: ...` for directional or structural suggestions that span multiple locations.
 
@@ -595,8 +595,10 @@ Construct a JSON payload for the Review API:
   "comments": [
     {
       "path": "{file}",
-      "line": {line_number},
+      "line": {end_line_number},
       "side": "RIGHT",
+      "start_line": {start_line_number},
+      "start_side": "RIGHT",
       "body": "{Inline Comment template}"
     }
   ]
@@ -606,16 +608,20 @@ Construct a JSON payload for the Review API:
 - `commit_id`: Obtain from `gh pr view {number} --json headRefOid --jq '.headRefOid'`
 - `body`: Review Summary template (severity table + unmapped findings if any + footer)
 - `comments`: Array of mapped findings, each using the Inline Comment template
-- All string values in JSON must be properly escaped (`\n` for newlines, `\"` for quotes)
+- For single-line findings, omit `start_line` and `start_side` — only `line` and `side` are needed.
+- Serialize the JSON payload using `jq -n` or write to a temp file — do NOT manually escape strings in a heredoc. Comment bodies contain multi-line markdown, code fences, and `suggestion` blocks that break raw string interpolation.
 
 If there are no mapped findings (all unmapped), the `comments` array is empty. The review body contains all findings.
 
 **3. Submit**
 
 ```
-gh api repos/{owner}/{repo}/pulls/{number}/reviews --method POST --input - <<'REVIEW_EOF'
-{JSON payload}
-REVIEW_EOF
+jq -n \
+  --arg commit_id "$HEAD_SHA" \
+  --arg body "$REVIEW_BODY" \
+  --argjson comments "$COMMENTS_JSON" \
+  '{commit_id: $commit_id, event: "COMMENT", body: $body, comments: $comments}' \
+| gh api repos/{owner}/{repo}/pulls/{number}/reviews --method POST --input -
 ```
 
 Where `{owner}/{repo}` is obtained from `gh repo view --json nameWithOwner --jq '.nameWithOwner'`.
@@ -623,8 +629,8 @@ Where `{owner}/{repo}` is obtained from `gh repo view --json nameWithOwner --jq 
 **4. Fallback**
 
 If the Review API call fails (e.g., 422 due to invalid line mapping):
-1. Identify the failing comment(s) from the error response, move them to unmapped findings, and retry with the remaining mapped comments.
-2. If all inline comments fail or the API is unavailable, fall back to posting the full review as a single PR comment:
+1. Move all inline comments to the Review Summary body as General Findings, then resubmit with an empty `comments` array. GitHub's 422 does not specify which comment failed, so individual retry is not possible.
+2. If the retry also fails or the API is unavailable, fall back to posting the full review as a single PR comment:
    ```
    gh pr comment {number} --body "$(cat <<'EOF'
    {Review Summary with ALL findings included in body}
