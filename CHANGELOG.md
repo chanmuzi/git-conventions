@@ -1,5 +1,10 @@
 # Change Log
 
+### 2026-04-01: 터미널 렌더링 가이드라인 추가
+
+- review-reply 템플릿 항목 간 빈 줄 → `---` 변경 (터미널에서 numbered list 내 빈 줄이 무시되는 문제 수정)
+- CLAUDE.md에 "터미널 렌더링 가이드라인" 섹션 신설 — Markdown 요소별 터미널 렌더링 차이 테이블, 항목 분리 원칙
+
 ### 2026-03-31: label 간소화, README 개선 (v1.7.1)
 
 - Label에서 `type:`, `priority:` namespace 접두사 제거 — `bug`, `feature`, `critical` 등 간결한 이름으로 변경
