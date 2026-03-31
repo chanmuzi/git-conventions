@@ -37,18 +37,17 @@ Works with Claude Code, Codex CLI, Gemini CLI, Cursor, GitHub Copilot, Amp, and 
 npx skills add chanmuzi/git-conventions
 ```
 
-The interactive installer will guide you through:
+**Included skills:**
 
-1. **Select skills to install** — use `space` to toggle each skill
-   - `commit` — Create a git commit following project conventions
-   - `pr` — Create a pull request following project conventions
-   - `issue` — Create a GitHub issue with templates and auto-labeling
-   - `review-reply` — Review AI-generated PR review comments and reply
-   - `code-review` — Context-aware multi-agent code review with severity-based findings
-2. **Which agents do you want to install to?** — select your agents (e.g. Codex, Cursor, Gemini CLI, GitHub Copilot, …)
-3. **Installation scope** — `Project` (current repo only) or `Global` (available across all projects)
-4. **Installation method** — `Symlink` (recommended) or `Copy`
-5. **Confirm** and done
+| Skill | Description |
+|-------|-------------|
+| `commit` | Create a git commit following project conventions |
+| `pr` | Create a pull request following project conventions |
+| `issue` | Create a GitHub issue with templates and auto-labeling |
+| `review-reply` | Review AI-generated PR review comments and reply |
+| `code-review` | Context-aware multi-agent code review with severity-based findings |
+
+The interactive installer lets you select skills, target agents, scope (project/global), and install method.
 
 > To install all skills at once without prompts:
 > ```bash
