@@ -156,7 +156,6 @@ PR 또는 로컬 코드 변경사항을 도메인별 전문 agent(Security, Perf
 **플래그:**
 - `--wd` — PR 자동 감지를 건너뛰고 working directory 모드 강제
 - `--domain security,perf` — 자동 감지 대신 도메인 수동 지정
-- `--inline` — PR에 inline comment 추가 (PR 모드 전용)
 - `-y` / `-f` — 승인 없이 즉시 게시
 - `-g` — 코드 그래프 분석 활성화
 - `--no-codex` — Codex 통합 비활성화
@@ -174,6 +173,8 @@ PR 또는 로컬 코드 변경사항을 도메인별 전문 agent(Security, Perf
 ```
 
 **Codex 통합:** [Codex 플러그인](https://github.com/anthropics/codex) 설치 환경에서 `/code-review` 실행 시 Codex adversarial review가 도메인 에이전트와 자동 병렬 실행됩니다. findings는 교차검증 후 출처 태그와 함께 통합 정렬됩니다. `--no-codex`로 비활성화 가능합니다.
+
+**Inline review comments:** PR 모드에서 findings는 GitHub Review API를 통해 diff의 특정 라인에 inline review comment로 게시됩니다. 각 finding이 독립 스레드로 생성되어 개별 답변, resolve, suggestion 적용이 가능합니다. review body에는 severity 요약 테이블이 포함되며, diff 밖의 findings는 "General Findings"로 요약에 포함됩니다.
 
 **Severity:** 🔴 Critical, 🟡 Warning, 🟢 Info
 

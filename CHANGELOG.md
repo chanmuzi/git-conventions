@@ -1,5 +1,17 @@
 # Change Log
 
+### 2026-03-31: /code-review inline review comments 기본 전환 (v1.7.0)
+
+**Inline Review Comments (code-review v1.7.0)**
+- PR 모드에서 findings를 GitHub Review API를 통해 inline review comment로 게시 (기본 동작)
+- 각 finding이 diff의 특정 라인에 개별 스레드로 생성 — reply, resolve, suggestion 적용 가능
+- Review body에 severity 요약 테이블 포함, diff 밖 findings는 "General Findings"로 요약에 포함
+- GitHub `suggestion` 블록 지원: 구체적 코드 수정은 one-click apply 가능
+- `--inline` 플래그 제거 — inline이 기본 동작으로 전환됨
+- domain agent findings에 primary line number 필수 포함 (inline comment 타겟팅용)
+- Fallback: Review API 실패 시 기존 summary comment 방식으로 자동 전환
+- review-reply 스킬과 완전 호환 — inline comment가 `pulls/comments` API로 조회됨
+
 ### 2026-03-31: /code-review Codex adversarial-review 통합 (v1.6.0)
 
 **Codex 멀티모델 리뷰 통합 (code-review v1.6.0)**
@@ -37,7 +49,7 @@
 - 파일 타입 기반 도메인 자동 활성화 (override: `--domain`)
 - Cross-validation 단계로 false positive 필터링 (git history, 주석, PR description 대조)
 - Severity-first 구조화 출력 포맷 (🔴 Critical / 🟡 Warning / 🟢 Info)
-- 플래그: `--inline` (PR inline comment), `-y`/`-f` (즉시 게시), `-g` (코드 그래프)
+- 플래그: `-y`/`-f` (즉시 게시), `-g` (코드 그래프), `--inline` (PR inline comment — v1.7.0에서 기본 동작으로 전환)
 - Agent tool 미지원 runner에서 sequential fallback 제공
 
 **문서 업데이트**
