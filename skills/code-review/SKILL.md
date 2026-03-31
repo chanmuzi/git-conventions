@@ -4,9 +4,9 @@ description: >-
   Review code changes using context-aware multi-agent pipeline with severity-based findings.
   TRIGGER when: user asks to review code, analyze PR quality, check for issues, run code review, or audit changes (e.g., "코드 리뷰해줘", "review this PR", "코드 분석해줘", "리뷰 돌려줘").
   DO NOT TRIGGER when: user is replying to review comments (use review-reply), creating PRs, committing, or performing git operations without review intent.
-argument-hint: "[PR번호|경로] [-d|--domain security,perf] [--inline] [-y|--yes] [-g|--graph] [-s|--sub] [--wd]"
-version: "1.5.0"
-allowed-tools: Bash(git *), Bash(gh *), Read, Grep, Glob, Agent, TeamCreate, TaskCreate, TaskList, TaskUpdate, TaskGet, SendMessage
+argument-hint: "[PR번호|경로] [-d|--domain security,perf] [--inline] [-y|--yes] [-g|--graph] [-s|--sub] [--wd] [--no-codex|--codex-review|--codex-both]"
+version: "1.6.0"
+allowed-tools: Bash(git *), Bash(gh *), Bash(node *), Bash(find *), Read, Grep, Glob, Agent, TeamCreate, TaskCreate, TaskList, TaskUpdate, TaskGet, SendMessage
 ---
 
 ## Parse Arguments
@@ -47,6 +47,12 @@ Key behaviors:
 | `-s\|--sub` | off | Use sub-agents instead of team agents for domain analysis |
 | `--pr` | — | Explicit PR mode (e.g., `--pr 42`). Use when path arguments contain digits |
 | `--wd` | off | Force Working Dir mode, skipping PR auto-detection |
+| `--no-codex` | off | Disable Codex integration entirely (skip Codex detection and execution) |
+| `--codex-review` | off | Use Codex general review (`codex:review`) instead of adversarial review |
+| `--codex-both` | off | Run both Codex general review and adversarial review in parallel |
+
+Codex flag precedence: `--no-codex` > `--codex-both` > `--codex-review` > default (adversarial only).
+Only one Codex mode flag should be used at a time. If multiple are present, the highest-precedence flag wins.
 
 If `$ARGUMENTS` contains explicit publish intent ("comment 달아", "바로 올려", "게시해", "post it"), treat as `-y`.
 
@@ -135,6 +141,42 @@ Collect the union of all activated domains from all changed files. Deduplicate.
 
 ---
 
+## Step 2.5: Codex Detection
+
+Determine whether the Codex plugin is available and resolve the Codex execution mode. This step is zero-cost: it relies on the skills already listed in the current session's system prompt — no hooks, environment variables, or CLI checks needed.
+
+### Detection
+
+Check if the skill `codex:codex-cli-runtime` is listed among the available skills in the current session. If yes, the Codex plugin is installed and the companion runtime is available.
+
+Note: `codex:adversarial-review` and `codex:review` have `disable-model-invocation: true`, so they do NOT appear in the session skill list. Detection must use `codex:codex-cli-runtime` instead, which has no such restriction.
+
+### Companion Path Resolution
+
+When Codex is detected, resolve the companion script path at runtime:
+
+```bash
+COMPANION=$(find ~/.claude/plugins/cache/openai-codex -name "codex-companion.mjs" 2>/dev/null | sort -V | tail -1)
+```
+
+If no companion is found, treat Codex as **disabled**.
+
+### Mode Resolution
+
+| Condition | Codex Mode | Companion Subcommand |
+|-----------|-----------|---------------------|
+| `--no-codex` flag is set | **disabled** | None |
+| Codex not available | **disabled** | None |
+| `--codex-both` flag is set | **both** | `review --wait` + `adversarial-review --wait` |
+| `--codex-review` flag is set | **review** | `review --wait` |
+| Default (no Codex flag) | **adversarial** | `adversarial-review --wait` |
+
+In PR mode, append `--base {baseRefName}` to each subcommand to scope the review to the PR diff.
+
+Store the resolved mode for use in Steps 3, 4, and 5. Note: the companion path is resolved here for validation only. Each spawned Codex agent re-resolves the path independently via `find` since agents run in separate contexts. If mode is **disabled**, skip all Codex-related logic in subsequent steps and proceed exactly as before (full backward compatibility).
+
+---
+
 ## Step 3: Domain Agents (Parallel Execution)
 
 Launch activated domain agents in parallel. Each agent receives the full diff and context from Step 1.
@@ -219,9 +261,49 @@ Focus areas:
 
 Each finding must include: title, file path, occurrence count, description, and suggested fix. Reference locations by section heading, function name, or code pattern — not by line number.
 
+### Codex Parallel Execution
+
+If Codex mode (from Step 2.5) is NOT **disabled**, launch Codex alongside the domain agents in parallel. Codex runs as an independent second reviewer — it is NOT a domain agent, but its execution is concurrent with domain agents.
+
+Codex is invoked via the companion runtime directly through Bash, NOT via `Skill("codex:...")`. The `codex:adversarial-review` and `codex:review` skills have `disable-model-invocation: true`, which blocks `Skill()` invocation. The companion runtime (`codex-companion.mjs`) has no such restriction and is the official programmatic interface for invoking Codex from Claude Code.
+
+#### Team Agent Mode (default, `-s`/`--sub` NOT set)
+
+For each Codex subcommand to invoke (per the mode table in Step 2.5):
+
+1. `TaskCreate` — subject: `"Codex {mode} review"` (e.g., `"Codex adversarial review"`).
+2. Spawn teammate via `Agent` with:
+   - `team_name: "code-review"`
+   - `name: "codex"` (or `"codex-review"` / `"codex-adversarial"` when mode is **both**, to distinguish the two)
+   - Prompt: Instruct the agent to run the companion via Bash and return the findings. The Bash command:
+     ```
+     COMPANION=$(find ~/.claude/plugins/cache/openai-codex -name "codex-companion.mjs" 2>/dev/null | sort -V | tail -1) && node "$COMPANION" {subcommand} --wait
+     ```
+     Where `{subcommand}` is `adversarial-review` or `review` per the mode table. Use `--base {baseRefName}` for PR mode.
+3. `TaskUpdate` — set `owner` to the agent name.
+
+The Codex agent(s) run in parallel with domain agents (Security, Architecture, etc.) within the same `code-review` team. They appear in `TaskList` output alongside domain agents, satisfying traceability (Acceptance Criterion F).
+
+#### Sub-agent Mode (`-s`/`--sub` set)
+
+For each Codex subcommand to invoke:
+
+- Launch via `Agent` with `name: "codex"` (or `"codex-review"` / `"codex-adversarial"` for **both** mode). No `team_name`. The agent runs the companion via Bash (same command as Team Agent Mode) and returns findings.
+
+Launch Codex agents at the same time as domain agents — do NOT wait for domain agents to finish first.
+
+### Codex Failure Handling
+
+If a Codex agent reports a non-zero exit code or returns an error (e.g., quota exhausted, authentication failure, network error):
+
+1. **Do NOT retry** — treat the Codex contribution as unavailable for this run.
+2. **Findings = empty** — proceed with domain agent findings only. Do not attempt to parse error output as findings.
+3. **Terminal notice** — append `ℹ️ Codex: unavailable (skipped)` to the Terminal format output (see Step 5).
+4. **GitHub format** — do NOT include any Codex failure notice. Codex availability is an internal infrastructure detail, not relevant to PR reviewers.
+
 ### Fallback (non-Claude Code runners)
 
-If neither team agents nor sub-agents are available (e.g., Codex, Gemini), perform all domain analyses sequentially in a single pass. Analyze each domain's focus areas one by one and collect findings.
+If neither team agents nor sub-agents are available (e.g., Codex CLI, Gemini CLI as the runner platform), perform all domain analyses sequentially in a single pass. Analyze each domain's focus areas one by one and collect findings.
 
 ---
 
@@ -249,10 +331,20 @@ For each finding:
 
 Log dismissed findings internally (do not output them) to avoid noise.
 
+### Codex Findings Integration
+
+If Codex mode is NOT **disabled**, collect findings from the Codex agent(s) after they complete. Codex findings join the cross-validation process identically to domain agent findings:
+
+1. **Merge into unified pool**: Combine Codex findings with domain agent findings before cross-validation.
+2. **Apply the same verdict process**: Each Codex finding undergoes the same Confirmed / Demoted / Dismissed evaluation (expanded context, git history, comments/docs, PR description).
+3. **Tag preservation**: Preserve the Codex origin tag on each finding (see Step 5 for tag rules). The tag indicates which Codex subcommand produced the finding.
+
+Codex findings are NOT given special treatment — they must pass the same quality gate as domain agent findings.
+
 ### Deduplication
 
-When multiple domain agents flag the same code location:
-- **Same root cause**: Merge into a single finding. Keep the higher severity and credit all relevant domains (e.g., `Architecture • Domain Logic`).
+When multiple agents (domain or Codex) flag the same code location:
+- **Same root cause**: Merge into a single finding. Keep the higher severity and credit all relevant sources (e.g., `Architecture • Domain Logic`, `Architecture • Codex`). Codex tags follow Step 5 Source Tags rules (`Codex` or `Codex Adv`).
 - **Different concerns**: Keep as separate findings, each under its own domain.
 
 ---
@@ -268,6 +360,22 @@ Produce severity-first structured output.
 | Critical | 🔴 | Security vulnerability, data loss risk, crash-inducing bug |
 | Warning | 🟡 | Potential bug, performance issue, maintainability concern |
 | Info | 🟢 | Suggestion, minor improvement, style note |
+
+### Source Tags
+
+Each finding displays a source tag after the title (e.g., `**Finding title** — Security`). Domain agent findings use their domain name. Codex findings use tags based on the active Codex mode:
+
+| Codex Mode | Source(s) | Tag(s) |
+|-----------|-----------|--------|
+| **disabled** | Domain agents only | Domain name (e.g., `Security`, `Architecture`) |
+| **adversarial** (default) | Domain agents + Codex adversarial | Domain name / `Codex` |
+| **review** (`--codex-review`) | Domain agents + Codex review | Domain name / `Codex` |
+| **both** (`--codex-both`) | Domain agents + Codex review + Codex adversarial | Domain name / `Codex` (review findings) / `Codex Adv` (adversarial findings) |
+
+When Codex mode is **adversarial** or **review** (single source), all Codex findings are tagged `— Codex`.
+When Codex mode is **both** (dual source), review findings are tagged `— Codex` and adversarial findings are tagged `— Codex Adv` to distinguish the two sources.
+
+All findings (domain + Codex) are sorted together by severity (Critical → Warning → Info), not grouped by source.
 
 ### Output Templates
 
@@ -288,7 +396,7 @@ Finding title comes first (renders as bold/bright in terminal), file path second
 ```markdown
 ## Code Review: {target}
 
-Domains: {activated domains joined by " • "} | Findings: {critical_count} critical, {warning_count} warnings, {info_count} info
+Domains: {activated domains joined by " • "} | {if Codex enabled: "Codex 🤖 | "}{Findings: {critical_count} critical, {warning_count} warnings, {info_count} info}
 
 ---
 
@@ -344,7 +452,7 @@ Optimized for GitHub PR comment rendering. Uses tables, `<details>` collapsibles
 ```markdown
 ## Code Review: {target}
 
-**Domains**: {activated domains joined by " • "} | **Findings**: {total count}
+**Domains**: {activated domains joined by " • "} | {if Codex enabled: "**Codex 🤖** | "}**Findings**: {total count}
 
 | Severity | Count |
 |----------|-------|
@@ -413,6 +521,7 @@ Optimized for GitHub PR comment rendering. Uses tables, `<details>` collapsibles
 - Finding title first (bold — renders bright in CLI), file path second.
 - Fix is always natural language in a blockquote (`> **Fix**: ...`), referencing by section/pattern.
 - Domains with no findings: omit entirely (no "✅ ... No issues found" line).
+- Codex failure notice (if applicable): append `ℹ️ Codex: unavailable (skipped)` after the summary line. Only shown when Codex mode was NOT disabled but companion returned non-zero exit. Do NOT include in GitHub format.
 
 **GitHub-specific rules**:
 - Summary table at the top (severity + count). Omit Domains column — domain is shown per finding.
@@ -477,13 +586,14 @@ If inline comments fail (e.g., line not in diff), fall back to the summary comme
 
 ## Task
 
-1. Parse `$ARGUMENTS` to determine mode (PR / Working Dir / Path) and flags.
+1. Parse `$ARGUMENTS` to determine mode (PR / Working Dir / Path) and flags (including Codex flags).
 2. **Context Builder**: Gather diff, commit history, related files, and PR description (if applicable).
 3. **Domain Router**: Analyze changed file types and activate relevant domains. Respect `--domain` override.
-4. **Domain Agents**: Launch activated agents in parallel via Agent tool. Collect all findings.
-5. **Cross-Validation**: Verify each finding against expanded context, git history, comments, and PR intent. Classify as Confirmed / Demoted / Dismissed.
-6. **Output Generator**: Produce severity-first structured output using the appropriate format template.
-7. **Publisher**:
+4. **Codex Detection**: Check `codex:codex-cli-runtime` availability, resolve companion path, and determine Codex mode (adversarial / review / both / disabled).
+5. **Domain Agents + Codex**: Launch activated domain agents in parallel. If Codex is enabled, launch Codex agent(s) via companion runtime concurrently. Collect all findings. If Codex fails (non-zero exit), proceed with domain findings only.
+6. **Cross-Validation**: Verify each finding (domain + Codex) against expanded context, git history, comments, and PR intent. Classify as Confirmed / Demoted / Dismissed.
+7. **Output Generator**: Produce severity-first structured output with source tags (domain names + Codex tags per mode).
+8. **Publisher**:
    - **Working Dir / Path mode**: Display Terminal format output directly. Done.
    - **PR mode without `-y`/`-f`**: Show Terminal format preview → ask "PR에 게시할까요?" → re-render as GitHub format → publish ONLY if approved.
    - **PR mode with `-y`/`-f`**: Render GitHub format → publish immediately.
