@@ -1,5 +1,17 @@
 # Change Log
 
+### 2026-03-31: /code-review Codex adversarial-review 통합 (v1.6.0)
+
+**Codex 멀티모델 리뷰 통합 (code-review v1.6.0)**
+- Codex 플러그인 설치 환경에서 adversarial-review 자동 병렬 실행 (opt-out 방식)
+- zero-cost 감지: system prompt의 available skills 목록으로 Codex 유무 판별 (hooks/환경변수 불필요)
+- Codex 플래그 추가: `--no-codex` (비활성화), `--codex-review` (일반 리뷰), `--codex-both` (리뷰 + adversarial 동시)
+- Step 2.5 Codex Detection 단계 신규 추가
+- Step 3에서 Codex agent를 도메인 에이전트와 동일 레벨로 병렬 실행 (Team/Sub-agent 모드 지원)
+- Step 4 Cross-Validation에 Codex findings 합류 — 동일 품질 검증 적용
+- Step 5 출처 태그: default → `— Codex`, `--codex-both` → `— Codex` + `— Codex Adv`
+- Codex 없는 환경에서 기존 동작 100% 동일 (하위호환)
+
 ### 2026-03-31: /code-review PR 자동 탐지 및 --wd 플래그 추가
 
 **PR Auto-Detection (code-review v1.5.0)**

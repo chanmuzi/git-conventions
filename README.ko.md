@@ -159,6 +159,11 @@ PR 또는 로컬 코드 변경사항을 도메인별 전문 agent(Security, Perf
 - `--inline` — PR에 inline comment 추가 (PR 모드 전용)
 - `-y` / `-f` — 승인 없이 즉시 게시
 - `-g` — 코드 그래프 분석 활성화
+- `--no-codex` — Codex 통합 비활성화
+- `--codex-review` — adversarial 대신 Codex 일반 리뷰 사용
+- `--codex-both` — Codex 일반 리뷰 + adversarial 동시 실행
+
+**Codex 통합:** [Codex 플러그인](https://github.com/anthropics/codex) 설치 환경에서 `/code-review` 실행 시 Codex adversarial review가 도메인 에이전트와 자동 병렬 실행됩니다. findings는 교차검증 후 출처 태그와 함께 통합 정렬됩니다. `--no-codex`로 비활성화 가능합니다.
 
 **Severity:** 🔴 Critical, 🟡 Warning, 🟢 Info
 

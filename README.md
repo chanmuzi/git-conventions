@@ -159,6 +159,11 @@ Analyzes PR or local code changes using a multi-agent pipeline with domain-speci
 - `--inline` — Add inline comments on PR (PR mode only)
 - `-y` / `-f` — Publish without approval
 - `-g` — Enable code graph analysis
+- `--no-codex` — Disable Codex integration
+- `--codex-review` — Use Codex general review instead of adversarial
+- `--codex-both` — Run both Codex review and adversarial review
+
+**Codex integration:** When the [Codex plugin](https://github.com/anthropics/codex) is installed, `/code-review` automatically runs Codex adversarial review in parallel with domain agents. Findings are cross-validated and merged with source tags. Use `--no-codex` to opt out.
 
 **Severity levels:** 🔴 Critical, 🟡 Warning, 🟢 Info
 
