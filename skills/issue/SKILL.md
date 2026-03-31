@@ -5,7 +5,7 @@ description: >-
   TRIGGER when: user asks to create an issue, report a bug, request a feature, file a ticket, or track work (e.g., "이슈 만들어줘", "버그 리포트", "feature request", "이거 이슈로 만들어줘").
   DO NOT TRIGGER when: user is viewing, listing, or commenting on existing issues without intent to create a new one.
 argument-hint: "[bug|feature|enhancement|chore|docs|...]"
-version: "1.3.0"
+version: "1.3.1"
 allowed-tools: Bash(gh issue *), Bash(gh label *), Read, Grep, Glob
 ---
 

@@ -1,8 +1,11 @@
 # Change Log
 
-### 2026-03-31: label namespace 제거, 체크리스트 보강
+### 2026-03-31: label 간소화, README 개선 (v1.7.1)
 
 - Label에서 `type:`, `priority:` namespace 접두사 제거 — `bug`, `feature`, `critical` 등 간결한 이름으로 변경
+- README에 Label System 섹션 추가 (GitHub 표준 색상, 충돌 안전 자동 생성)
+- 설치/업데이트 섹션 순서 변경 — Claude Code Plugin을 Recommended로 격상
+- Skills CLI 설치 섹션 가독성 개선 (스킬 목록 테이블 분리)
 - 새 스킬 추가 체크리스트에 `skills-N` 배지 count 동기화 항목 추가
 
 ### 2026-03-31: /code-review inline review comments 기본 전환 (v1.7.0)
