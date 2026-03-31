@@ -4,8 +4,8 @@ description: >-
   Review code changes using context-aware multi-agent pipeline with severity-based findings.
   TRIGGER when: user asks to review code, analyze PR quality, check for issues, run code review, or audit changes (e.g., "코드 리뷰해줘", "review this PR", "코드 분석해줘", "리뷰 돌려줘").
   DO NOT TRIGGER when: user is replying to review comments (use review-reply), creating PRs, committing, or performing git operations without review intent.
-argument-hint: "[PR번호|경로] [-d|--domain security,perf] [--inline] [-y|--yes] [-g|--graph] [-s|--sub]"
-version: "1.4.0"
+argument-hint: "[PR번호|경로] [-d|--domain security,perf] [--inline] [-y|--yes] [-g|--graph] [-s|--sub] [--wd]"
+version: "1.5.0"
 allowed-tools: Bash(git *), Bash(gh *), Read, Grep, Glob, Agent, TeamCreate, TaskCreate, TaskList, TaskUpdate, TaskGet, SendMessage
 ---
 
@@ -15,11 +15,26 @@ Parse `$ARGUMENTS` to determine the review mode and flags.
 
 ### Mode Detection
 
-| Mode | Condition | Description |
-|------|-----------|-------------|
-| **PR Review** | `$ARGUMENTS` contains a standalone numeric token (e.g., `42`) or `--pr <number>` | Review a specific PR's diff + commit context |
-| **Working Dir** | `$ARGUMENTS` is empty (no arguments) | Review current working directory changes (staged + unstaged) |
-| **Path Review** | `$ARGUMENTS` contains a file/directory path | Review code at the specified path |
+| Priority | Mode | Condition | Description |
+|----------|------|-----------|-------------|
+| 1 | **PR Review (explicit)** | `$ARGUMENTS` contains a standalone numeric token (e.g., `42`) or `--pr <number>` | Review a specific PR's diff + commit context |
+| 2 | **Working Dir (forced)** | `--wd` flag is set | Force working directory review, even on a PR branch |
+| 3 | **Path Review** | `$ARGUMENTS` contains a file/directory path | Review code at the specified path |
+| 4 | **PR Review (auto)** | `$ARGUMENTS` is empty → auto-detect (see below) | Auto-detected PR on current branch |
+| 5 | **Working Dir** | `$ARGUMENTS` is empty and no PR detected | Review current working directory changes (staged + unstaged) |
+
+### PR Auto-Detection
+
+When `$ARGUMENTS` is empty and `--wd` is not set, attempt to detect an open PR on the current branch:
+
+```
+gh pr list --head "$(git branch --show-current)" --author "@me" --state open --json number,title --jq '.[0]'
+```
+
+Key behaviors:
+- `--author "@me"` ensures only the current user's PRs are matched, skipping bot PRs (dependabot, renovate, etc.)
+- If a PR is found → enter **PR Review (auto)** mode with the detected PR number
+- If no PR is found (empty result, detached HEAD, or `main`/`master` branch) → fall through to **Working Dir** mode
 
 ### Flag Detection
 
@@ -31,6 +46,7 @@ Parse `$ARGUMENTS` to determine the review mode and flags.
 | `-d\|--domain` | auto | Override domain selection (e.g., `-d security,perf`) |
 | `-s\|--sub` | off | Use sub-agents instead of team agents for domain analysis |
 | `--pr` | — | Explicit PR mode (e.g., `--pr 42`). Use when path arguments contain digits |
+| `--wd` | off | Force Working Dir mode, skipping PR auto-detection |
 
 If `$ARGUMENTS` contains explicit publish intent ("comment 달아", "바로 올려", "게시해", "post it"), treat as `-y`.
 

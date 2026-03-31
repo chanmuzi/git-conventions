@@ -1,5 +1,13 @@
 # Change Log
 
+### 2026-03-31: /code-review PR 자동 탐지 및 --wd 플래그 추가
+
+**PR Auto-Detection (code-review v1.5.0)**
+- 인자 없이 `/code-review` 실행 시 현재 브랜치의 열린 PR 자동 감지
+- `--author @me` 필터로 봇 PR (dependabot, renovate 등) 자동 스킵
+- `--wd` 플래그 추가: PR 브랜치에서도 Working Dir 모드 강제 가능
+- Mode Detection을 우선순위 기반 5단계로 확장
+
 ### 2026-03-31: /code-review 출력 포맷 이중 분리 (Terminal / GitHub)
 
 **Output Template 이중 포맷 (code-review v1.4.0)**

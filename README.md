@@ -147,12 +147,14 @@ Collects review comments (CodeRabbit, Copilot, teammates, etc.) from a PR, analy
 Analyzes PR or local code changes using a multi-agent pipeline with domain-specific agents (Security, Performance, Architecture, Domain Logic). Cross-validates findings against code context to filter false positives, then produces severity-based structured output.
 
 ```
-/code-review           # Review working directory changes
+/code-review           # Auto-detect PR on current branch, or review working dir
 /code-review 42        # Review PR #42
 /code-review src/auth/ # Review specific path
+/code-review --wd      # Force working dir review (skip PR auto-detection)
 ```
 
 **Flags:**
+- `--wd` — Force working directory mode, even on a PR branch
 - `--domain security,perf` — Override auto-detected domains
 - `--inline` — Add inline comments on PR (PR mode only)
 - `-y` / `-f` — Publish without approval

@@ -147,12 +147,14 @@ PR의 리뷰 코멘트(CodeRabbit, Copilot, 팀원 등)를 수집하고, 실제 
 PR 또는 로컬 코드 변경사항을 도메인별 전문 agent(Security, Performance, Architecture, Domain Logic)로 병렬 분석합니다. 코드 context와 대조하여 false positive를 필터링한 뒤, severity 기반 구조화된 리뷰를 생성합니다.
 
 ```
-/code-review           # working directory 변경사항 리뷰
+/code-review           # 현재 브랜치의 PR 자동 감지, 없으면 working dir 리뷰
 /code-review 42        # PR #42 코드 리뷰
 /code-review src/auth/ # 특정 경로 코드 리뷰
+/code-review --wd      # PR 브랜치에서도 working dir 리뷰 강제
 ```
 
 **플래그:**
+- `--wd` — PR 자동 감지를 건너뛰고 working directory 모드 강제
 - `--domain security,perf` — 자동 감지 대신 도메인 수동 지정
 - `--inline` — PR에 inline comment 추가 (PR 모드 전용)
 - `-y` / `-f` — 승인 없이 즉시 게시
