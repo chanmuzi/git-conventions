@@ -314,7 +314,7 @@ Codex findings are NOT given special treatment — they must pass the same quali
 
 ### Deduplication
 
-When multiple domain agents flag the same code location:
+When multiple agents (domain or Codex) flag the same code location:
 - **Same root cause**: Merge into a single finding. Keep the higher severity and credit all relevant domains (e.g., `Architecture • Domain Logic`).
 - **Different concerns**: Keep as separate findings, each under its own domain.
 
