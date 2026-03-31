@@ -131,7 +131,7 @@ Release: dev → main 통합 (vX.Y.Z)  # Release
 ```
 
 **템플릿:** Bug Report, Feature Request, General
-**자동 labeling:** `type: bug`, `type: feature`, `type: enhancement`, `priority: critical/high/medium/low` 등
+**자동 labeling:** `bug`, `feature`, `enhancement`, `critical`/`high`/`medium`/`low` 등
 
 ### `/review-reply` — PR 리뷰 분석 및 답글
 

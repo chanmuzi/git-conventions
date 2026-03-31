@@ -131,7 +131,7 @@ Creates a structured issue with the appropriate template and auto-assigns type/p
 ```
 
 **Templates:** Bug Report, Feature Request, General
-**Auto-labeling:** `type: bug`, `type: feature`, `type: enhancement`, `priority: critical/high/medium/low`, etc.
+**Auto-labeling:** `bug`, `feature`, `enhancement`, `critical`/`high`/`medium`/`low`, etc.
 
 ### `/review-reply` — Review & Reply to PR Comments
 

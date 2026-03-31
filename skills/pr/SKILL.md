@@ -79,30 +79,30 @@ If no language is configured, follow the user's conversational language.
 
 ## Label System
 
-Assign a type label to the PR based on its title prefix. This label scheme is shared with the `/issue` skill for project-wide consistency. The core labels are identical; `/issue` additionally defines `type: enhancement` for improvement requests.
+Assign a type label to the PR based on its title prefix. This label scheme is shared with the `/issue` skill for project-wide consistency. The core labels are identical; `/issue` additionally defines `enhancement` for improvement requests.
 
 ### Type Labels
 
 | Label | Color | PR type prefix |
 |-------|-------|----------------|
-| `type: feature` | `0075ca` | `Feat:` |
-| `type: bug` | `d73a4a` | `Fix:` |
-| `type: refactor` | `d4c5f9` | `Refactor:` |
-| `type: perf` | `f9d0c4` | `Perf:` |
-| `type: docs` | `5319e7` | `Docs:` |
-| `type: test` | `bfd4f2` | `Test:` |
-| `type: chore` | `e4e669` | `Chore:` |
-| `type: hotfix` | `b60205` | `Hotfix:` |
-| `type: release` | `1d76db` | `Release:` |
+| `feature` | `0075ca` | `Feat:` |
+| `bug` | `d73a4a` | `Fix:` |
+| `refactor` | `d4c5f9` | `Refactor:` |
+| `perf` | `f9d0c4` | `Perf:` |
+| `docs` | `5319e7` | `Docs:` |
+| `test` | `bfd4f2` | `Test:` |
+| `chore` | `e4e669` | `Chore:` |
+| `hotfix` | `b60205` | `Hotfix:` |
+| `release` | `1d76db` | `Release:` |
 
 ### Priority Labels (optional — assign only if the user specifies)
 
 | Label | Color |
 |-------|-------|
-| `priority: critical` | `b60205` |
-| `priority: high` | `d93f0b` |
-| `priority: medium` | `fbca04` |
-| `priority: low` | `0e8a16` |
+| `critical` | `b60205` |
+| `high` | `d93f0b` |
+| `medium` | `fbca04` |
+| `low` | `0e8a16` |
 
 Before assigning a label, ensure it exists in the repository. Color values are 6-character hex without `#`:
 ```
@@ -243,8 +243,8 @@ Title format: `Release: {default-base} → {release-base} 통합 (vX.Y.Z)`
    d. Commit the changes using the project's commit convention (fall back to `chore: release vX.Y.Z` if no convention is found).
 
 6. Push the branch: `git push -u origin {branch-name}`
-7. Ensure the type label exists: `gh label create "type: release" --color "1d76db" 2>/dev/null || true`
-8. Draft the PR title and body using the Release PR Template, and create the PR: `gh pr create --base {base-branch} --assignee @me --label "type: release" --title "..." --body "$(cat <<'EOF' ... EOF)"`. Follow the session's tool permission settings for approval.
+7. Ensure the type label exists: `gh label create "release" --color "1d76db" 2>/dev/null || true`
+8. Draft the PR title and body using the Release PR Template, and create the PR: `gh pr create --base {base-branch} --assignee @me --label "release" --title "..." --body "$(cat <<'EOF' ... EOF)"`. Follow the session's tool permission settings for approval.
 9. Return the PR URL. Include a one-line note: **Base branch: `{base-branch}`** — {reason}. Also provide **post-merge guidance** — list the following as next steps the user should perform after merging:
    - Create and push a git tag: `git tag vX.Y.Z && git push origin vX.Y.Z`
    - Create a GitHub Release: `gh release create vX.Y.Z --generate-notes`

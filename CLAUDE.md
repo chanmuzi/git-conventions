@@ -98,8 +98,8 @@ npx skills add ./  # 로컬 경로에서 설치
 2. `skills/{name}/LICENSE.txt` — 라이선스 파일
 3. `.claude-plugin/marketplace.json` — `skills` 배열에 경로 추가, `description` 반영
 4. `CLAUDE.md` — 프로젝트 개요(slash command 목록), 아키텍처 트리, 로컬 테스트, 스킬 공통 규칙
-5. `README.md` — 스킬 소개 섹션, 설치 명령어(`--skill`), CLAUDE.md 연동 예시
-6. `README.ko.md` — README.md와 동일 항목 한국어 반영
+5. `README.md` — 스킬 소개 섹션, 설치 명령어(`--skill`), CLAUDE.md 연동 예시, `skills-N` 배지 count 동기화
+6. `README.ko.md` — README.md와 동일 항목 한국어 반영 (`skills-N` 배지 포함)
 7. `CHANGELOG.md` — 변경 항목 추가
 
 위 목록 반영 후, 기존 스킬 이름(예: `review-reply`)으로 Grep하여 참조가 있는 파일을 추가 확인한다. 누락된 파일이 있으면 함께 업데이트한다.

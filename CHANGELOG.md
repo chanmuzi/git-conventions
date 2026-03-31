@@ -1,5 +1,10 @@
 # Change Log
 
+### 2026-03-31: label namespace 제거, 체크리스트 보강
+
+- Label에서 `type:`, `priority:` namespace 접두사 제거 — `bug`, `feature`, `critical` 등 간결한 이름으로 변경
+- 새 스킬 추가 체크리스트에 `skills-N` 배지 count 동기화 항목 추가
+
 ### 2026-03-31: /code-review inline review comments 기본 전환 (v1.7.0)
 
 **Inline Review Comments (code-review v1.7.0)**
