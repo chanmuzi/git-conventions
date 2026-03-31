@@ -156,7 +156,6 @@ Analyzes PR or local code changes using a multi-agent pipeline with domain-speci
 **Flags:**
 - `--wd` — Force working directory mode, even on a PR branch
 - `--domain security,perf` — Override auto-detected domains
-- `--inline` — Add inline comments on PR (PR mode only)
 - `-y` / `-f` — Publish without approval
 - `-g` — Enable code graph analysis
 - `--no-codex` — Disable Codex integration
@@ -174,6 +173,8 @@ Analyzes PR or local code changes using a multi-agent pipeline with domain-speci
 ```
 
 **Codex integration:** When the [Codex plugin](https://github.com/anthropics/codex) is installed, `/code-review` automatically runs Codex adversarial review in parallel with domain agents. Findings are cross-validated and merged with source tags. Use `--no-codex` to opt out.
+
+**Inline review comments:** In PR mode, findings are published as inline review comments attached to specific diff lines via the GitHub Review API. Each finding becomes an independent conversation thread — reply, resolve, or apply suggestions individually. A severity summary table is included in the review body. Findings outside the diff are included as "General Findings" in the summary.
 
 **Severity levels:** 🔴 Critical, 🟡 Warning, 🟢 Info
 

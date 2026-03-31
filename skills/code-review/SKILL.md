@@ -4,8 +4,8 @@ description: >-
   Review code changes using context-aware multi-agent pipeline with severity-based findings.
   TRIGGER when: user asks to review code, analyze PR quality, check for issues, run code review, or audit changes (e.g., "코드 리뷰해줘", "review this PR", "코드 분석해줘", "리뷰 돌려줘").
   DO NOT TRIGGER when: user is replying to review comments (use review-reply), creating PRs, committing, or performing git operations without review intent.
-argument-hint: "[PR번호|경로] [-d|--domain security,perf] [--inline] [-y|--yes] [-g|--graph] [-s|--sub] [--wd] [--no-codex|--codex-review|--codex-both]"
-version: "1.6.0"
+argument-hint: "[PR번호|경로] [-d|--domain security,perf] [-y|--yes] [-g|--graph] [-s|--sub] [--wd] [--no-codex|--codex-review|--codex-both]"
+version: "1.7.0"
 allowed-tools: Bash(git *), Bash(gh *), Bash(node *), Bash(find *), Read, Grep, Glob, Agent, TeamCreate, TaskCreate, TaskList, TaskUpdate, TaskGet, SendMessage
 ---
 
@@ -42,7 +42,6 @@ Key behaviors:
 |------|---------|-------------|
 | `-y\|--yes\|--force\|-f` | off | Publish without approval |
 | `-g\|--graph` | off | Enable code graph analysis (dependency map) |
-| `--inline` | off | Add inline comments on PR (PR mode only) |
 | `-d\|--domain` | auto | Override domain selection (e.g., `-d security,perf`) |
 | `-s\|--sub` | off | Use sub-agents instead of team agents for domain analysis |
 | `--pr` | — | Explicit PR mode (e.g., `--pr 42`). Use when path arguments contain digits |
@@ -259,7 +258,9 @@ Focus areas:
 - Race conditions
 - Type safety gaps
 
-Each finding must include: title, file path, occurrence count, description, and suggested fix. Reference locations by section heading, function name, or code pattern — not by line number.
+Each finding must include: title, file path, **primary line number**, occurrence count, description, and suggested fix.
+
+**Primary line number**: The line number in the new version of the file where the issue is most clearly visible. Required for inline comment targeting in PR mode. In the finding's description text, reference locations by section heading, function name, or code pattern — not by raw line number (line numbers are used only for comment placement, not in the output text).
 
 ### Codex Parallel Execution
 
@@ -396,7 +397,8 @@ Finding title comes first (renders as bold/bright in terminal), file path second
 ```markdown
 ## Code Review: {target}
 
-Domains: {activated domains joined by " • "} | {if Codex enabled: "Codex 🤖 | "}{Findings: {critical_count} critical, {warning_count} warnings, {info_count} info}
+Domains: {activated domains joined by " • "}{if Codex enabled: " · Codex 🤖"}
+Findings: {critical_count} critical, {warning_count} warnings, {info_count} info
 
 ---
 
@@ -445,65 +447,75 @@ Domains: {activated domains joined by " • "} | {if Codex enabled: "Codex 🤖 
 {description}
 ```
 
-#### GitHub Format
+#### GitHub Format: Review Summary
 
-Optimized for GitHub PR comment rendering. Uses tables, `<details>` collapsibles, and diff blocks.
+Posted as the pull request review `body`. Contains the overview table and any findings that could not be mapped to diff lines (unmapped findings).
 
 ```markdown
 ## Code Review: {target}
 
-**Domains**: {activated domains joined by " • "} | {if Codex enabled: "**Codex 🤖** | "}**Findings**: {total count}
+**Domains**: {activated domains joined by " • "}{if Codex enabled: " · **Codex 🤖**"}
+**Findings**: {severity counts joined by " · ", e.g., "🔴 1 Critical · 🟡 2 Warning · 🟢 1 Info"}{if unmapped > 0: " ({mapped count} inline, {unmapped count} general)"}
 
-| Severity | Count |
-|----------|-------|
-| 🔴 Critical | {n} |
-| 🟡 Warning  | {n} |
-| 🟢 Info     | {n} |
+### Summary
+
+{1-2 sentence overview of the PR's purpose and the review's key judgment — e.g., "Codex 통합을 위한 Step 2.5 추가 및 companion runtime 연동. 전반적으로 하위호환성이 잘 유지되나, 스킬 가용성 검증에 보완이 필요하다."}
+
+### Key Changes
+
+| File | Change |
+|------|--------|
+| `{file1}` | {1-line description of what changed and why} |
+| `{file2}` | {1-line description} |
+| ... | ... |
+
+{if unmapped findings exist:}
 
 ---
 
-### 🔴 Critical
+### 📋 General Findings
 
-#### {finding title} — {domain}
+{for each unmapped finding, sorted by severity:}
+
+{severity_icon} **{finding title}** — {domain}
 `{file}` ({N}곳)
 
 {description}
 
-```diff
-- {original code}
-+ {suggested code}
-```
+> **Fix**: {suggestion}
 
 ---
 
-<details>
-<summary><h3>🟡 Warning ({n})</h3></summary>
+{end for}
 
-#### {finding title} — {domain}
-`{file}` ({N}곳)
+Generated with [Claude Code](https://claude.com/claude-code)
+```
+
+- **Summary**: 1-2문장으로 PR 목적과 리뷰 핵심 판단을 기술. PR description의 요약이 아닌 리뷰어 관점의 평가.
+- **Key Changes**: 변경 파일별 한줄 요약. 파일 수가 10개 초과 시 주요 파일만 표시하고 나머지는 `외 {n}개` 로 축약.
+- **Findings count**: unmapped가 0이면 total count만 표시. unmapped가 1 이상이면 `(N inline, M general)` breakdown 추가.
+
+If there are zero findings overall, post: `## Code Review: {target}\n\n✅ No issues found.\n\nGenerated with [Claude Code](https://claude.com/claude-code)`
+
+#### GitHub Format: Inline Comment
+
+Posted as individual review comments, each attached to a specific file and line in the diff. One finding per comment.
+
+````markdown
+{severity_icon} **{finding title}** — {domain}
 
 {description}
 
-```diff
-- {original code}
-+ {suggested code}
+{if concrete code change:}
+```suggestion
+{suggested code — only the replacement lines, matching GitHub suggestion block format}
 ```
+{else:}
+> **Fix**: {suggestion}
+{end if}
+````
 
-</details>
-
-<details>
-<summary><h3>🟢 Info ({n})</h3></summary>
-
-#### {finding title} — {domain}
-`{file}` ({N}곳)
-
-{description}
-
-</details>
-
----
-✅ {domain}: No issues found
-```
+Use GitHub `suggestion` blocks when the fix is a concrete, localized code change (variable rename, parameter addition, line replacement). The suggestion block enables one-click "Apply suggestion" in GitHub's UI. Use `> **Fix**: ...` for directional or structural suggestions that span multiple locations.
 
 ### Formatting Rules
 
@@ -523,13 +535,13 @@ Optimized for GitHub PR comment rendering. Uses tables, `<details>` collapsibles
 - Domains with no findings: omit entirely (no "✅ ... No issues found" line).
 - Codex failure notice (if applicable): append `ℹ️ Codex: unavailable (skipped)` after the summary line. Only shown when Codex mode was NOT disabled but companion returned non-zero exit. Do NOT include in GitHub format.
 
-**GitHub-specific rules**:
-- Summary table at the top (severity + count). Omit Domains column — domain is shown per finding.
-- `<details>` collapsibility: Critical is always expanded. Warning and Info are collapsed when findings exceed 3. Always expanded when 3 or fewer.
-- Fix format depends on specificity:
-  - Concrete code change → `diff` block (red/green).
-  - Directional suggestion (e.g., "remove section", "restructure") → `> **Fix**: ...` natural language.
-- Domains with no findings: show as `✅ {Domain}: No issues found` (one line each, at the bottom).
+**GitHub-specific rules (inline review comments)**:
+- Review Summary: severity table at the top. Unmapped findings (not in diff) included below the table under "General Findings".
+- Inline Comment: one finding per comment. No `<details>` tags — each comment is self-contained.
+- Fix format in inline comments:
+  - Concrete, localized code change → GitHub `suggestion` block (enables one-click apply).
+  - Directional or multi-location suggestion → `> **Fix**: ...` natural language.
+- Domains with no findings: omit entirely from both summary and inline comments.
 
 ---
 
@@ -555,32 +567,76 @@ Generate the review using **Terminal format** and display it to the user in the 
 | `$ARGUMENTS` contains publish intent ("comment 달아", "바로 올려", "게시해", "post it") | Skip preview, go directly to Phase 2 |
 | **Default** | **STOP here. Show the Terminal format output and ask: "PR에 게시할까요?" Do NOT proceed until the user approves.** |
 
-#### Phase 2: Publish (GitHub format)
+#### Phase 2: Publish (Inline Review)
 
-After approval (or auto-publish flag), **re-render the same findings** using **GitHub format** and publish.
+After approval (or auto-publish flag), publish findings as **inline review comments** via the GitHub Pull Request Review API. Each finding becomes an individual comment attached to the relevant file and line in the diff, enabling per-finding resolution and reply through GitHub's native UI.
 
-**Summary comment** (always): Post the GitHub-formatted review as a PR comment.
+**1. Resolve line targets**
 
-```
-gh pr comment {number} --body "$(cat <<'EOF'
-{GitHub format review output}
-
-Generated with [Claude Code](https://claude.com/claude-code)
-EOF
-)"
-```
-
-**Inline comments** (only if `--inline` flag): For each Critical and Warning finding with a specific file:line, add an inline review comment.
-
-Use the GitHub pull request review API to submit all inline comments as a single review. The `position` field is the line index within the diff hunk (1-based), NOT the file line number. Calculate it from `gh pr diff` output by counting lines from the `@@` hunk header:
+For each confirmed finding, verify its primary line number exists in the PR diff:
 
 ```
-gh api repos/{owner}/{repo}/pulls/{number}/reviews --input - <<'EOF'
-{"event":"COMMENT","body":"Code review by Claude Code","comments":[{"path":"{file}","position":{diff_position},"body":"{finding_summary}"}]}
-EOF
+gh pr diff {number}
 ```
 
-If inline comments fail (e.g., line not in diff), fall back to the summary comment only. Do not retry individual inline comments.
+Parse diff hunks to determine which lines are targetable:
+- **Mapped**: The finding's file + line appears in a diff hunk (added line `+`, or context line on the RIGHT side). Include as an inline comment.
+- **Unmapped**: The finding's line is outside all diff hunks (existing code not changed by the PR). Include in the review body under "General Findings".
+
+**2. Build review payload**
+
+Construct a JSON payload for the Review API:
+
+```json
+{
+  "commit_id": "{head_sha}",
+  "event": "COMMENT",
+  "body": "{Review Summary template}",
+  "comments": [
+    {
+      "path": "{file}",
+      "line": {end_line_number},
+      "side": "RIGHT",
+      "start_line": {start_line_number},
+      "start_side": "RIGHT",
+      "body": "{Inline Comment template}"
+    }
+  ]
+}
+```
+
+- `commit_id`: Obtain from `gh pr view {number} --json headRefOid --jq '.headRefOid'`
+- `body`: Review Summary template (severity table + unmapped findings if any + footer)
+- `comments`: Array of mapped findings, each using the Inline Comment template
+- For single-line findings, omit `start_line` and `start_side` — only `line` and `side` are needed.
+- Serialize the JSON payload using `jq -n` or write to a temp file — do NOT manually escape strings in a heredoc. Comment bodies contain multi-line markdown, code fences, and `suggestion` blocks that break raw string interpolation.
+
+If there are no mapped findings (all unmapped), the `comments` array is empty. The review body contains all findings.
+
+**3. Submit**
+
+```
+jq -n \
+  --arg commit_id "$HEAD_SHA" \
+  --arg body "$REVIEW_BODY" \
+  --argjson comments "$COMMENTS_JSON" \
+  '{commit_id: $commit_id, event: "COMMENT", body: $body, comments: $comments}' \
+| gh api repos/{owner}/{repo}/pulls/{number}/reviews --method POST --input -
+```
+
+Where `{owner}/{repo}` is obtained from `gh repo view --json nameWithOwner --jq '.nameWithOwner'`.
+
+**4. Fallback**
+
+If the Review API call fails (e.g., 422 due to invalid line mapping):
+1. Move all inline comments to the Review Summary body as General Findings, then resubmit with an empty `comments` array. GitHub's 422 does not specify which comment failed, so individual retry is not possible.
+2. If the retry also fails or the API is unavailable, fall back to posting the full review as a single PR comment:
+   ```
+   gh pr comment {number} --body "$(cat <<'EOF'
+   {Review Summary with ALL findings included in body}
+   EOF
+   )"
+   ```
 
 ---
 
@@ -595,8 +651,8 @@ If inline comments fail (e.g., line not in diff), fall back to the summary comme
 7. **Output Generator**: Produce severity-first structured output with source tags (domain names + Codex tags per mode).
 8. **Publisher**:
    - **Working Dir / Path mode**: Display Terminal format output directly. Done.
-   - **PR mode without `-y`/`-f`**: Show Terminal format preview → ask "PR에 게시할까요?" → re-render as GitHub format → publish ONLY if approved.
-   - **PR mode with `-y`/`-f`**: Render GitHub format → publish immediately.
+   - **PR mode without `-y`/`-f`**: Show Terminal format preview → ask "PR에 게시할까요?" → resolve line targets → build inline review payload → publish via Review API ONLY if approved.
+   - **PR mode with `-y`/`-f`**: Resolve line targets → build inline review payload → publish via Review API immediately.
 
 **Important:**
 - Do NOT publish review comments to GitHub without explicit user approval. The only exceptions are the `-y`/`-f` flag or explicit publish intent in `$ARGUMENTS`. A PR number alone is NOT publish intent.
