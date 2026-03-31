@@ -21,7 +21,17 @@ Works with Claude Code, Codex CLI, Gemini CLI, Cursor, GitHub Copilot, Amp, and 
 
 ## Installation
 
-### Option 1: Skills CLI (All Agents)
+### Option 1: Claude Code Plugin (Recommended)
+
+```bash
+# Add marketplace
+/plugin marketplace add chanmuzi/git-conventions
+
+# Install plugin
+/plugin install git-conventions@git-conventions
+```
+
+### Option 2: Skills CLI (All Agents)
 
 ```bash
 npx skills add chanmuzi/git-conventions
@@ -45,20 +55,21 @@ The interactive installer will guide you through:
 > npx skills add chanmuzi/git-conventions --skill commit --skill pr --skill issue --skill review-reply --skill code-review -g
 > ```
 
-### Option 2: Claude Code Plugin
-
-```bash
-# Add marketplace
-/plugin marketplace add chanmuzi/git-conventions
-
-# Install plugin
-/plugin install git-conventions@git-conventions
-```
-
 ## Update
 
 > **Recommended:** Enable auto-update to receive new features and fixes automatically.
 > See platform-specific instructions below.
+
+### Claude Code Plugin
+
+```bash
+# Update the plugin
+/plugin update git-conventions@git-conventions
+```
+
+Or enable auto-update for hands-free upgrades (recommended):
+
+`/plugin` → **Marketplaces** tab → select marketplace → **Enable auto-update**
 
 ### Skills CLI
 
@@ -73,17 +84,6 @@ npx skills update
 > If you installed with Symlink (recommended), a single update applies to all agents at once. Copy installs require updating each copy individually.
 >
 > Skills CLI does not auto-update. Run `npx skills check` periodically, or after major releases announced in the [changelog](CHANGELOG.md).
-
-### Claude Code Plugin
-
-```bash
-# Update the plugin
-/plugin update git-conventions@git-conventions
-```
-
-Or enable auto-update for hands-free upgrades (recommended):
-
-`/plugin` → **Marketplaces** tab → select marketplace → **Enable auto-update**
 
 ## Skills
 
