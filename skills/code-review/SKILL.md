@@ -303,7 +303,7 @@ If a Codex agent reports a non-zero exit code or returns an error (e.g., quota e
 
 ### Fallback (non-Claude Code runners)
 
-If neither team agents nor sub-agents are available (e.g., Codex, Gemini), perform all domain analyses sequentially in a single pass. Analyze each domain's focus areas one by one and collect findings.
+If neither team agents nor sub-agents are available (e.g., Codex CLI, Gemini CLI as the runner platform), perform all domain analyses sequentially in a single pass. Analyze each domain's focus areas one by one and collect findings.
 
 ---
 
@@ -344,7 +344,7 @@ Codex findings are NOT given special treatment — they must pass the same quali
 ### Deduplication
 
 When multiple agents (domain or Codex) flag the same code location:
-- **Same root cause**: Merge into a single finding. Keep the higher severity and credit all relevant domains (e.g., `Architecture • Domain Logic`).
+- **Same root cause**: Merge into a single finding. Keep the higher severity and credit all relevant sources (e.g., `Architecture • Domain Logic`, `Architecture • Codex`). Codex tags follow Step 5 Source Tags rules (`Codex` or `Codex Adv`).
 - **Different concerns**: Keep as separate findings, each under its own domain.
 
 ---
@@ -396,7 +396,7 @@ Finding title comes first (renders as bold/bright in terminal), file path second
 ```markdown
 ## Code Review: {target}
 
-Domains: {activated domains joined by " • "} | Findings: {critical_count} critical, {warning_count} warnings, {info_count} info
+Domains: {activated domains joined by " • "} | {if Codex enabled: "Codex 🤖 | "}{Findings: {critical_count} critical, {warning_count} warnings, {info_count} info}
 
 ---
 
@@ -452,7 +452,7 @@ Optimized for GitHub PR comment rendering. Uses tables, `<details>` collapsibles
 ```markdown
 ## Code Review: {target}
 
-**Domains**: {activated domains joined by " • "} | **Findings**: {total count}
+**Domains**: {activated domains joined by " • "} | {if Codex enabled: "**Codex 🤖** | "}**Findings**: {total count}
 
 | Severity | Count |
 |----------|-------|
