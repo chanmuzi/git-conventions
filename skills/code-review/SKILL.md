@@ -397,7 +397,8 @@ Finding title comes first (renders as bold/bright in terminal), file path second
 ```markdown
 ## Code Review: {target}
 
-Domains: {activated domains joined by " • "} | {if Codex enabled: "Codex 🤖 | "}{Findings: {critical_count} critical, {warning_count} warnings, {info_count} info}
+Domains: {activated domains joined by " • "}{if Codex enabled: " · Codex 🤖"}
+Findings: {critical_count} critical, {warning_count} warnings, {info_count} info
 
 ---
 
@@ -453,13 +454,20 @@ Posted as the pull request review `body`. Contains the overview table and any fi
 ```markdown
 ## Code Review: {target}
 
-**Domains**: {activated domains joined by " • "} | {if Codex enabled: "**Codex 🤖** | "}**Findings**: {total count} ({mapped count} inline, {unmapped count} general)
+**Domains**: {activated domains joined by " • "}{if Codex enabled: " · **Codex 🤖**"}
+**Findings**: {severity counts joined by " · ", e.g., "🔴 1 Critical · 🟡 2 Warning · 🟢 1 Info"}{if unmapped > 0: " ({mapped count} inline, {unmapped count} general)"}
 
-| Severity | Count |
-|----------|-------|
-| 🔴 Critical | {n} |
-| 🟡 Warning  | {n} |
-| 🟢 Info     | {n} |
+### Summary
+
+{1-2 sentence overview of the PR's purpose and the review's key judgment — e.g., "Codex 통합을 위한 Step 2.5 추가 및 companion runtime 연동. 전반적으로 하위호환성이 잘 유지되나, 스킬 가용성 검증에 보완이 필요하다."}
+
+### Key Changes
+
+| File | Change |
+|------|--------|
+| `{file1}` | {1-line description of what changed and why} |
+| `{file2}` | {1-line description} |
+| ... | ... |
 
 {if unmapped findings exist:}
 
@@ -483,7 +491,9 @@ Posted as the pull request review `body`. Contains the overview table and any fi
 Generated with [Claude Code](https://claude.com/claude-code)
 ```
 
-If all findings are mapped (no unmapped findings), the summary contains only the severity table and the footer line. Omit the "General Findings" section and the `---` separator before it.
+- **Summary**: 1-2문장으로 PR 목적과 리뷰 핵심 판단을 기술. PR description의 요약이 아닌 리뷰어 관점의 평가.
+- **Key Changes**: 변경 파일별 한줄 요약. 파일 수가 10개 초과 시 주요 파일만 표시하고 나머지는 `외 {n}개` 로 축약.
+- **Findings count**: unmapped가 0이면 total count만 표시. unmapped가 1 이상이면 `(N inline, M general)` breakdown 추가.
 
 If there are zero findings overall, post: `## Code Review: {target}\n\n✅ No issues found.\n\nGenerated with [Claude Code](https://claude.com/claude-code)`
 
