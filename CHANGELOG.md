@@ -4,7 +4,7 @@
 
 **handoff**
 - Detection 순서 변경: 대화 맥락 분석(Layer 2)을 최우선으로, Artifact 검색(Layer 4)은 대화 맥락 기반으로 스코핑 — 이전 세션의 무관한 artifact가 handoff에 포함되는 문제 해결
-- Handoff Zone을 ` ```markdown ` 코드블록으로 감싸 `/copy` 피커에서 선택 복사 가능 — Meta Zone 없이 handoff 내용만 복사
+- Handoff Zone을 fenced markdown 코드블록으로 감싸 `/copy` 피커에서 선택 복사 가능 — Meta Zone 없이 handoff 내용만 복사
 - Adaptive Section Rules: Context 섹션에서 대화 맥락이 항상 주가 되고, artifact는 보충 참조로 변경
 
 **로컬 테스트 가이드 보완**

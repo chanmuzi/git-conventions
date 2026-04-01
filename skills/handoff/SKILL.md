@@ -105,6 +105,7 @@ Combine results from both patterns.
 If relevant artifacts are found:
 - Read the first few lines **only to verify relevance** to the current session's work.
 - Do **not** copy or quote any artifact content into the handoff; reference the artifact **by its path only**.
+- If **multiple** artifacts appear relevant, use the conversation context (Layer 2) to autonomously select the best match — the conversation typically mentions which artifact was created or worked on. Only ask the user if the model genuinely cannot determine the most relevant one after analysis.
 - This is the **artifact-present** path. Skip confirmation — generate the final handoff prompt directly.
 
 If no relevant artifacts are found, proceed with conversation-derived context from Layer 2.
@@ -126,13 +127,13 @@ Show:
 
 Separate the Meta Zone and Handoff Zone with a clear `---` divider.
 
-**Wrap the entire Handoff Zone in a fenced code block (` ```markdown ... ``` `).** This enables `/copy` to present it as a selectable item in the picker UI, so the user can copy only the handoff content without the Meta Zone.
+**Wrap the entire Handoff Zone in a fenced code block with the language set to `markdown`.** This enables `/copy` to present it as a selectable item in the picker UI, so the user can copy only the handoff content without the Meta Zone.
 
 ### Handoff Prompt — With Artifacts
 
 When Layer 4 found a relevant artifact:
 
-```
+```markdown
 ## Handoff
 
 ### Context
@@ -164,7 +165,7 @@ Example Next Action without OMC:
 
 When no relevant artifact was found (Layer 2 conversation context only):
 
-```
+```markdown
 ## Handoff
 
 ### Context
