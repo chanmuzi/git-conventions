@@ -65,7 +65,7 @@ Additionally build a **change-flow graph** for the PR description:
 
 Graph rules:
 - Mermaid direction: `flowchart LR` (left-to-right).
-- Node labels: filename only (no full path). Use `[filename.ts]` format.
+- Node labels: filename only (no full path). Use `[filename.ext]` format (basename + extension).
 - Edge labels: relationship type — code-level (`imports`, `calls`, `extends`, `emits/consumes`, `reads/writes`) or conceptual (`references`, `shared logic`, `configures`).
 - Module grouping: When changed files > 7, group by parent directory using `subgraph`. When ≤ 7, show individual file nodes without subgraph.
 
@@ -168,7 +168,7 @@ Apply this template for feature, fix, refactor, and other non-release PRs.
 - 관련 PR: #{number}
 
 
-{if -g flag set:}
+{if -g flag set AND relationships found:}
 ## 변경 흐름
 
 ```mermaid
@@ -228,7 +228,7 @@ Title format: `Release: {default-base} → {release-base} 통합 (vX.Y.Z)`
 - 관련 PR: #{PR number}
 
 
-{if -g flag set:}
+{if -g flag set AND relationships found:}
 ## 변경 흐름
 
 ```mermaid

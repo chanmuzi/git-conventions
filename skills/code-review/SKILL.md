@@ -41,7 +41,7 @@ Key behaviors:
 | Flag | Default | Description |
 |------|---------|-------------|
 | `-y\|--yes\|--force\|-f` | off | Publish without approval |
-| `-g\|--graph` | off | Generate a visual change-flow graph (Mermaid on GitHub, summary in terminal) |
+| `-g\|--graph` | off | Generate a visual change-flow graph for PR review (Mermaid on GitHub, summary in terminal preview). Ignored in Working Dir / Path modes. |
 | `-d\|--domain` | auto | Override domain selection (e.g., `-d security,perf`) |
 | `-s\|--sub` | off | Use sub-agents instead of team agents for domain analysis |
 | `--pr` | — | Explicit PR mode (e.g., `--pr 42`). Use when path arguments contain digits |
@@ -407,11 +407,10 @@ Finding title comes first (renders as bold/bright in terminal), file path second
 
 Domains: {activated domains joined by " • "}{if Codex enabled: " · Codex 🤖"}
 Findings: 🔴 {critical_count} critical · 🟡 {warning_count} warnings · 🟢 {info_count} info
-{if -g flag set AND PR mode:}
+{if -g flag set AND PR mode AND relationships found:}
 📊 Change Graph: GitHub 게시 시 Mermaid 플로우차트 포함
    {module_count} modules · {file_count} files · 주요 흐름: {primary_flow_path}
-{end if}
-{if -g flag set AND PR mode AND no relationships found:}
+{else if -g flag set AND PR mode AND no relationships found:}
 📊 Change Graph: 파일 간 관계가 감지되지 않아 그래프를 생략합니다
 {end if}
 
@@ -497,7 +496,7 @@ Posted as the pull request review `body`. Contains the severity counts, key chan
 - {개념적 변경 2}
 - {개념적 변경 3}
 
-{if -g flag set:}
+{if -g flag set AND relationships found:}
 
 ### Change Graph
 
@@ -590,7 +589,7 @@ Use GitHub `suggestion` blocks when the fix is a concrete, localized code change
 
 **Graph rules (when `-g` flag is set)**:
 - Mermaid direction: `flowchart LR` (left-to-right) for readability.
-- Node labels: filename only (no full path). Use `[filename.ts]` format.
+- Node labels: filename only (no full path). Use `[filename.ext]` format (basename + extension).
 - Edge labels: relationship type — code-level (`imports`, `calls`, `extends`, `emits/consumes`, `reads/writes`) or conceptual (`references`, `shared logic`, `configures`).
 - Module grouping: When changed files > 7, group by parent directory using `subgraph`. When ≤ 7, show individual file nodes without subgraph.
 - Terminal: One-line summary only — module count, file count, primary flow path (longest chain of connected nodes, max 4 nodes joined by ` → `).
