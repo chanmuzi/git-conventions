@@ -74,47 +74,66 @@ Group findings by category and present to the user:
 ```
 ## Review Analysis for PR #{number}
 
-### ✅ Valid Suggestions (recommended to apply)
+Reviewers: {reviewer names joined by " · "}
+Comments: ✅ {valid_count} valid · 🤔 {debatable_count} debatable · ❌ {ignore_count} ignored
 
-**1. [file.py:42]** {summary}
-- Reviewer said: {brief quote}
-- Assessment: {why this is valid, what the fix should be}
+────────────────────
 
-**2. [file.py:55]** {summary}
-- Reviewer said: {brief quote}
+### < ✅ Valid Suggestions ({n}) >
+
+---
+
+**1. [{file}:{line}]** {summary}
+- Reviewer ({reviewer_name}): {brief quote}
 - Assessment: {why this is valid, what the fix should be}
 
 ---
 
-### 🤔 Debatable
+**2. [{file}:{line}]** {summary}
+- Reviewer ({reviewer_name}): {brief quote}
+- Assessment: {why this is valid, what the fix should be}
 
-**1. [file.py:78]** {summary} **(추천: {Apply | Won't Fix | Follow-up})**
-- Reviewer said: {brief quote}
-- Pros: {benefits of applying}
-- Cons: {reasons to skip}
-- Recommendation: {1-line reasoning for the recommendation}
+────────────────────
 
-**2. [file.py:120]** {summary} **(추천: {Apply | Won't Fix | Follow-up})**
-- Reviewer said: {brief quote}
+### < 🤔 Debatable ({n}) >
+
+---
+
+**1. [{file}:{line}]** {summary} **(추천: {Apply | Won't Fix | Follow-up})**
+- Reviewer ({reviewer_name}): {brief quote}
 - Pros: {benefits of applying}
 - Cons: {reasons to skip}
 - Recommendation: {1-line reasoning for the recommendation}
 
 ---
 
-### ❌ Can Safely Ignore
+**2. [{file}:{line}]** {summary} **(추천: {Apply | Won't Fix | Follow-up})**
+- Reviewer ({reviewer_name}): {brief quote}
+- Pros: {benefits of applying}
+- Cons: {reasons to skip}
+- Recommendation: {1-line reasoning for the recommendation}
 
-**1. [file.py:15]** {summary}
-- Reviewer said: {brief quote}
+────────────────────
+
+### < ❌ Can Safely Ignore ({n}) >
+
+---
+
+**1. [{file}:{line}]** {summary}
+- Reviewer ({reviewer_name}): {brief quote}
 - Why: {reason this is not applicable — e.g., misunderstood context, project convention differs}
 
-**2. [file.py:30]** {summary}
-- Reviewer said: {brief quote}
+---
+
+**2. [{file}:{line}]** {summary}
+- Reviewer ({reviewer_name}): {brief quote}
 - Why: {reason}
 ```
 
 Use bold paragraphs (`**1. ...**`) instead of numbered lists so that blank lines between items render correctly in terminal.
-Between categories, insert a `---` horizontal rule for clear visual hierarchy.
+Three-level visual hierarchy: `────────────────────` (Unicode thin × 20) between categories, `---` between items within the same category, blank lines within items.
+Category headers use `### < {icon} Category ({n}) >` format with count.
+Omit categories that have 0 items.
 
 ## Step 4: Discuss and Apply
 

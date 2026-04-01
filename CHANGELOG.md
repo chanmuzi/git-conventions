@@ -1,10 +1,36 @@
 # Change Log
 
+### 2026-04-01: code-review / review-reply 출력 포맷 전면 개선
+
+**CLAUDE.md 터미널 렌더링 가이드라인 보정**
+- `---` 실제 동작 문서화 (수평선 → 짧은 세 대시로 보정)
+- Unicode box drawing 구분자(`─`, `━`) 항목 추가
+- 3단 위계 가이드 신설: `────────────────────` (섹션) / `---` (항목) / 빈 줄 (내부)
+
+**code-review 터미널 출력 개선**
+- Findings summary에 severity 아이콘 추가 (`🔴 · 🟡 · 🟢`)
+- Severity 헤더: `### < icon Severity (n) >` 포맷으로 전환
+- Severity 간 구분: `────────────────────`, finding 간 구분: `---`
+- Finding 번호 체계 도입: `C{n}` / `W{n}` / `I{n}` (Terminal + GitHub 공유)
+
+**code-review GitHub 게시 포맷 개선**
+- Key Changes: 파일별 테이블 → 개념적 변경 bullet으로 전환
+- Contextual Fallback Mapping: 2단계 → 3단계 line resolution (exact → contextual → unmapped)
+- Inline Comment: 번호 체계 + contextual match 템플릿 추가
+
+**review-reply 출력 개선**
+- 카테고리 간 구분: `---` → `────────────────────` (Unicode thin × 20)
+- 항목 간 구분: 빈 줄 → `---`
+- 카테고리 헤더에 `< >` 브래킷 + 카운트 추가
+- Summary line: 리뷰어 목록 및 카테고리별 카운트 추가
+- Reviewer 표기: `Reviewer said:` → `Reviewer ({name}):`
+
 ### 2026-04-01: 터미널 출력 템플릿 위계 구분 개선
 
-- review-reply: numbered list → bold paragraph 전환, 항목 간 `---` 제거 (빈 줄로 대체)
-- code-review: finding 간 `---` 제거, severity 헤더 간 `---`만 유지
-- CLAUDE.md: bold paragraph 패턴 문서화, `---` 사용 원칙을 카테고리/섹션 간 구분 전용으로 명확화
+- review-reply: numbered list → bold paragraph 전환
+- code-review: severity 헤더 간 `---` 유지
+- CLAUDE.md: bold paragraph 패턴 문서화
+- ⚠️ 이후 같은 날짜의 "출력 포맷 전면 개선"에서 위계 체계가 재설계됨 (Unicode 구분자 도입)
 
 ### 2026-04-01: 외부 레포 권한 부족 시 graceful fallback 추가
 
