@@ -57,7 +57,7 @@ Run the following commands using the resolved `{base-branch}`:
 Additionally build a **change-flow graph** for the PR description:
 
 1. **Trace relationships**: For each changed file, identify imports, exports, function calls, and data flow to/from other changed files using Grep.
-2. **Map edges**: Record directional relationships — `A imports B`, `A calls B.func()`, `A extends B`, `A emits → B consumes`.
+2. **Map edges**: Record directional relationships — code-level (`imports`, `calls`, `extends`, `emits/consumes`) and conceptual (`references`, `shared logic`, `configures`).
 3. **Group by module**: If changed files exceed 7, group by parent directory into logical modules (subgraph nodes). Individual files become child nodes.
 4. **Construct Mermaid source**: Build a `flowchart LR` diagram. Nodes = changed files (or module groups). Edges = relationships found in step 2, labeled with relationship type.
 
@@ -66,7 +66,7 @@ Additionally build a **change-flow graph** for the PR description:
 Graph rules:
 - Mermaid direction: `flowchart LR` (left-to-right).
 - Node labels: filename only (no full path). Use `[filename.ts]` format.
-- Edge labels: relationship type — `imports`, `calls`, `extends`, `emits/consumes`, `reads/writes`.
+- Edge labels: relationship type — code-level (`imports`, `calls`, `extends`, `emits/consumes`, `reads/writes`) or conceptual (`references`, `shared logic`, `configures`).
 - Module grouping: When changed files > 7, group by parent directory using `subgraph`. When ≤ 7, show individual file nodes without subgraph.
 
 ## Determine PR Type
@@ -169,7 +169,7 @@ Apply this template for feature, fix, refactor, and other non-release PRs.
 
 
 {if -g flag set:}
-## 📊 변경 흐름
+## 변경 흐름
 
 ```mermaid
 flowchart LR
@@ -229,7 +229,7 @@ Title format: `Release: {default-base} → {release-base} 통합 (vX.Y.Z)`
 
 
 {if -g flag set:}
-## 📊 변경 흐름
+## 변경 흐름
 
 ```mermaid
 flowchart LR

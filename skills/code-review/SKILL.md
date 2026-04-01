@@ -110,7 +110,7 @@ For each changed file, read sufficient surrounding context (at least 30 lines ar
 If `-g` (graph) flag is set **and the mode is PR Review**, build a **change-flow graph** for the GitHub review output. In Working Dir / Path mode, `-g` is ignored — the terminal cannot render Mermaid and there is no GitHub publishing target.
 
 1. **Trace relationships**: For each changed file, identify imports, exports, function calls, and data flow to/from other changed files using Grep.
-2. **Map edges**: Record directional relationships — `A imports B`, `A calls B.func()`, `A extends B`, `A emits → B consumes`.
+2. **Map edges**: Record directional relationships — code-level (`imports`, `calls`, `extends`, `emits/consumes`) and conceptual (`references`, `shared logic`, `configures`).
 3. **Group by module**: If changed files exceed 7, group by parent directory into logical modules (subgraph nodes). Individual files become child nodes.
 4. **Construct Mermaid source**: Build a `flowchart LR` diagram. Nodes = changed files (or module groups). Edges = relationships found in step 2, labeled with relationship type.
 
@@ -499,7 +499,7 @@ Posted as the pull request review `body`. Contains the severity counts, key chan
 
 {if -g flag set:}
 
-### 📊 Change Graph
+### Change Graph
 
 ```mermaid
 flowchart LR
@@ -591,7 +591,7 @@ Use GitHub `suggestion` blocks when the fix is a concrete, localized code change
 **Graph rules (when `-g` flag is set)**:
 - Mermaid direction: `flowchart LR` (left-to-right) for readability.
 - Node labels: filename only (no full path). Use `[filename.ts]` format.
-- Edge labels: relationship type — `imports`, `calls`, `extends`, `emits/consumes`, `reads/writes`.
+- Edge labels: relationship type — code-level (`imports`, `calls`, `extends`, `emits/consumes`, `reads/writes`) or conceptual (`references`, `shared logic`, `configures`).
 - Module grouping: When changed files > 7, group by parent directory using `subgraph`. When ≤ 7, show individual file nodes without subgraph.
 - Terminal: One-line summary only — module count, file count, primary flow path (longest chain of connected nodes, max 4 nodes joined by ` → `).
 - GitHub: Full Mermaid code block placed after Key Changes, before General Findings.
