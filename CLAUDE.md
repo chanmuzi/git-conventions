@@ -172,27 +172,28 @@ Markdown 원문과 터미널 표시가 다른 주요 케이스:
 
 ## 릴리스 프로세스
 
-### 자동 릴리스 규칙
+### 릴리스 시점
 
-`feat`/`fix` 타입 PR이 main에 머지될 때를 릴리스 시점으로 간주한다.
-따라서 `/pr`로 `feat`/`fix` PR을 생성할 때, 아래 version bump를 PR에 **포함**시킨다:
+릴리스는 사용자가 수동으로 결정한다. Feature PR에는 version bump를 포함하지 않는다.
+릴리스하고 싶을 때 `chore: release vX.Y.Z` 커밋을 생성하고 태그를 단다.
 
-1. `.claude-plugin/marketplace.json` — `metadata.version` bump
-2. 변경된 `skills/*/SKILL.md` — frontmatter `version`을 새 버전으로 동기화
+### Semver 기준
 
-Semver 기준:
-- 새 스킬 추가, 주요 기능 변경 → **minor** (예: 1.7.1 → 1.8.0)
-- 버그 수정 → **patch** (예: 1.7.1 → 1.7.2)
+마지막 태그 이후의 커밋을 분석하여 bump 타입을 결정한다:
+- 새 스킬 추가, 주요 기능 변경 (`feat`) → **minor** (예: 1.7.1 → 1.8.0)
+- 버그 수정 (`fix`) → **patch** (예: 1.7.1 → 1.7.2)
 - 하위호환 깨지는 변경 → **major** (예: 1.x → 2.0.0)
+- `docs`/`style`/`chore`만 있으면 → 릴리스 불필요
 
-`docs`/`style`/`chore` 타입 PR에는 version bump를 포함하지 않는다.
-
-### 머지 후 태그
-
-PR 머지 후 다음을 실행하여 릴리스를 완료한다:
+### 릴리스 절차
 
 ```bash
-git tag v{version} && git push origin v{version}
+# 1. version bump 커밋
+#    marketplace.json version + 변경된 SKILL.md version 동기화
+git commit -m "chore: release vX.Y.Z"
+
+# 2. 태그 생성 및 푸시
+git tag vX.Y.Z && git push origin main vX.Y.Z
 ```
 
 ### 릴리스에 포함되는 파일
