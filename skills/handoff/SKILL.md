@@ -10,7 +10,7 @@ allowed-tools: Bash(git *), Read, Glob, Grep
 
 ## Core Principle
 
-> **Never repeat artifact content.** If a spec, plan, or document exists, reference its path. The handoff prompt contains only: (1) pointers to existing artifacts, (2) session delta that exists nowhere else, (3) a single concrete next action with skill recommendation.
+> **Never repeat artifact content.** If a spec, plan, or document exists, reference its path. The handoff prompt contains only: (1) pointers to existing artifacts, (2) session context not captured elsewhere, (3) a directive for the next session's first action.
 
 ## Parse Arguments
 
@@ -81,7 +81,7 @@ git log --oneline -5
 git stash list
 ```
 
-Use this to populate the handoff Context and Delta sections:
+Use this to populate the handoff `상황` section:
 - Current branch name
 - Uncommitted changes (count and nature)
 - Recent commits (what was done this session)
@@ -129,61 +129,116 @@ Separate the Meta Zone and Handoff Zone with a clear `---` divider.
 
 **Wrap the entire Handoff Zone in a fenced code block with the language set to `markdown`.** This enables `/copy` to present it as a selectable item in the picker UI, so the user can copy only the handoff content without the Meta Zone.
 
-### Handoff Prompt — With Artifacts
+### Directive Line
 
-When Layer 4 found a relevant artifact:
+The handoff prompt always opens with a **directive** — 1~3 lines that tell the next session what to do first.
+
+- When the intent is clear: a concrete command (what, where, how)
+- When exploration is needed: scope the investigation and specify expected output
+- When continuing with a skill: weave the skill name into the directive so copy-paste triggers it directly
+
+The tone does not need to be strictly imperative. Natural phrasing is fine as long as the intended action is unambiguous.
+
+### Section Pool
+
+Below the directive, add structured context by selecting from the section pool. Each section uses a **bold heading** followed by bullets.
+
+| Section | Purpose | When to include |
+|---------|---------|-----------------|
+| `상황` | Current state, background, git metadata | **Always** |
+| `원인` | Diagnosed root cause of a problem | Bug/issue where root cause was identified |
+| `진행 상황` | Completed vs remaining work | Work is partially done |
+| `판단 필요 사항` | Options and criteria for a pending decision | Direction not yet determined |
+| `조사 결과` | Investigation/analysis findings | Research done, execution not started |
+| `참고` | Files, PRs, issues, artifact paths, branches | References exist (**almost always**) |
+
+**Composition rules:**
+- `상황` is always present. `참고` is present whenever references exist.
+- Select 0–2 variable sections (`원인`, `진행 상황`, `판단 필요 사항`, `조사 결과`) based on the scenario. Do not include sections that have no content.
+- Keep each section to 5 bullets or fewer. Consolidate or point to artifact paths for detail.
+- Omit empty sections entirely.
+- Artifact paths from Layer 4 belong in `참고`. Never copy artifact content inline — reference by path only.
+- Git state (branch, status) is included in `상황` as inline info, not as a standalone section.
+
+### Scenario Patterns
+
+Typical combinations — adapt based on actual session content, not rigid templates.
+
+**Clear task** — directive + `상황` + `원인` + `참고`:
 
 ```markdown
-### Context
-{conversation summary — what this session worked on}
-- Spec: `{artifact_path}`
-- Branch: `{current_branch}`
-- Status: {brief git state — clean / N files modified / stash exists}
+{project}에서 {problem}을 {approach}로 해결할 것.
 
-### Delta
-- {session progress — what was completed since the artifact was created}
-- {discoveries — what was found that is not captured in the artifact}
-- {blockers — what is blocking next steps, if any}
+**상황**
+- {background and current state}
+- Branch: `{branch}` / Status: {state}
 
-### Next Action
-{skill recommendation woven naturally into the action description}
+**원인**
+- {root cause analysis}
+
+**참고**
+- {files, PRs, etc.}
 ```
 
-Example Next Action with OMC detected:
-```
-/autopilot으로 `.omc/specs/deep-interview-code-review.md` 참고하여 Step 4 cross-validation부터 진행
-```
-
-Example Next Action without OMC:
-```
-`.omc/specs/deep-interview-code-review.md` 참고하여 Step 4 cross-validation부터 진행
-```
-
-### Handoff Prompt — Without Artifacts
-
-When no relevant artifact was found (Layer 2 conversation context only):
+**Direction needed** — directive + `상황` + `판단 필요 사항` + `참고`:
 
 ```markdown
-### Context
-{conversation summary — topic, key decisions, agreed direction}
-- Branch: `{current_branch}`
-- Status: {brief git state}
+{project}에서 아래 이슈의 영향 범위를 진단하고
+대응 방식을 결정하여 작업 계획을 제시할 것.
 
-### Delta
-- {key decisions made this session}
-- {rejected alternatives and why}
-- {open questions remaining}
+**상황**
+- {background and current state}
 
-### Next Action
-{specific task description with concrete starting point}
+**판단 필요 사항**
+- {option A vs option B, criteria}
+
+**참고**
+- {files, PRs, etc.}
 ```
 
-### Adaptive Section Rules
+**Partial progress** — directive + `상황` + `진행 상황` + `참고`:
 
-- **Context**: Conversation summary (Layer 2) with artifact path reference (if Layer 4 found one). Artifact path supplements — never replaces — the conversation context.
-- **Delta**: Thin when artifact is comprehensive (just progress state). Detailed when no artifact captures session work.
-- **Next Action**: Include skill name naturally if sentinel detected. Plain task description if no skills detected.
-- **Omit empty sections entirely.** If nothing happened beyond creating a spec, omit the Delta section. If git state is clean and irrelevant, omit the Status line.
+```markdown
+{artifact} 참고하여 {next step}부터 이어서 진행할 것.
+
+**상황**
+- {background and what this session was about}
+- Branch: `{branch}` / Status: {state}
+
+**진행 상황**
+- {completed items}
+- {remaining items}
+
+**참고**
+- Spec: {artifact_path}
+```
+
+**Investigation complete** — directive + `상황` + `조사 결과` + `참고`:
+
+```markdown
+아래 조사 결과를 바탕으로 {topic}에 대한 구현 방향을
+결정하고 작업을 시작할 것.
+
+**상황**
+- {background}
+
+**조사 결과**
+- {key findings}
+- {implications}
+
+**참고**
+- {files, PRs, etc.}
+```
+
+**Skill continuation (minimal)** — directive + `상황`:
+
+```markdown
+/autopilot으로 {artifact} 참고하여 {next step}부터 진행.
+
+**상황**
+- {brief context}
+- Branch: `{branch}` / Status: {state}
+```
 
 ### Skill Recommendation Mapping
 
@@ -197,7 +252,7 @@ Based on sentinel detection (Layer 1) + context type (Layers 2-4):
 | Committed, no PR | `/pr` | `/pr` | Create PR |
 | Conversation only | Context-dependent | Plain task description | Varies by topic |
 
-**Important:** Weave the skill name into the Next Action naturally:
+**Important:** Weave the skill name into the directive line so that copy-paste triggers the skill directly:
 - Good: `/autopilot으로 spec 참고하여 Step 4부터 진행`
 - Bad: `Step 4부터 진행 (추천: /autopilot)`
 
@@ -215,7 +270,7 @@ Conversation analyzed → Relevant artifact found? ──yes──→ Output dir
                               └── Show draft → user reviews and uses `/copy` or requests modifications
 ```
 
-- **Relevant artifact found**: Skip confirmation. The handoff is a straightforward reference + thin delta.
+- **Relevant artifact found**: Skip confirmation. The handoff is a straightforward directive with minimal context sections.
 - **No relevant artifact, no -y**: Show draft directly. The user reviews the output and either uses `/copy` to accept, or requests modifications.
 - **-y flag**: Always skip confirmation regardless of artifact presence.
 

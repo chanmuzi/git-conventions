@@ -1,5 +1,17 @@
 # Change Log
 
+### 2026-04-02: /handoff 템플릿 재설계 — 지시형 프롬프트 구조로 전환
+
+**handoff**
+- `Context / Delta / Next Action` 고정 3-section 구조 폐지
+- 지시문(Directive Line) + 섹션 풀(Section Pool) 조합 구조로 전환
+- 지시문: 첫 줄/블록에 다음 세션의 행동을 명시, 스킬 추천 시 copy-paste로 즉시 트리거 가능
+- 섹션 풀 6종: `상황`(필수), `원인`, `진행 상황`, `판단 필요 사항`, `조사 결과`, `참고`
+- 시나리오별 조합 패턴 5종 제시 (clear task, direction needed, partial progress, investigation complete, skill continuation)
+- Confirmation Flow: "thin delta" 등 폐지된 섹션 참조 제거
+
+---
+
 ### 2026-04-02: /commit amend 자동 감지 및 --no-amend 플래그 추가
 
 **commit**
