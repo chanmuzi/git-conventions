@@ -391,7 +391,7 @@ There are two output formats depending on the rendering medium:
 #### Terminal Format
 
 Optimized for CLI readability. No HTML tags, no tables, flat structure.
-Each finding is separated by `---` for clear visual boundaries.
+Use `---` only for major section breaks: once between the summary block and the findings, and then after each severity header for visual hierarchy. Findings within the same severity are separated by blank lines.
 Finding title comes first (renders as bold/bright in terminal), file path second.
 
 ```markdown
@@ -413,16 +413,12 @@ Findings: {critical_count} critical, {warning_count} warnings, {info_count} info
 
 > **Fix**: {suggestion}
 
----
-
 **{finding title}** — {domain}
 `{file}` ({N}곳)
 
 {description}
 
 > **Fix**: {suggestion}
-
----
 
 🟡 **Warning** ({n})
 
@@ -434,8 +430,6 @@ Findings: {critical_count} critical, {warning_count} warnings, {info_count} info
 {description}
 
 > **Fix**: {suggestion}
-
----
 
 🟢 **Info** ({n})
 
@@ -529,7 +523,7 @@ Use GitHub `suggestion` blocks when the fix is a concrete, localized code change
 **Terminal-specific rules**:
 - No `<details>` or HTML tags — they don't render in CLI.
 - Summary line (not table) at the top: `Findings: 1 critical, 3 warnings, 1 info`.
-- Each finding is separated by `---`. Severity headers also followed by `---` before the first finding.
+- Severity headers are followed by `---` before the first finding. Findings within the same severity are separated by blank lines only (no `---`).
 - Finding title first (bold — renders bright in CLI), file path second.
 - Fix is always natural language in a blockquote (`> **Fix**: ...`), referencing by section/pattern.
 - Domains with no findings: omit entirely (no "✅ ... No issues found" line).
