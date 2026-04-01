@@ -56,7 +56,7 @@ git-conventions/
 # 방법 1: Skills CLI
 npx skills add ./  # 로컬 경로에서 설치
 
-# 방법 2: Claude Code Plugin
+# 방법 2: Claude Code Plugin (초기 설치 전용, 브랜치 테스트는 아래 '브랜치 테스트' 섹션 참조)
 /plugin marketplace add /Users/chanmuzi/coding/workspace/git-conventions
 /plugin install git-conventions@git-conventions
 
@@ -87,31 +87,37 @@ npx skills add ./  # 로컬 경로에서 설치
 ### 브랜치 테스트 (merge 전 스킬 검증)
 
 플러그인이 GitHub remote(`chanmuzi/git-conventions`)에서 설치된 경우, `/reload-plugins`는 **main 브랜치**에서 가져온다.
-fix/feat 브랜치의 SKILL.md 변경을 merge 전에 테스트하려면 로컬 마켓플레이스로 전환해야 한다.
+fix/feat 브랜치의 SKILL.md 변경을 merge 전에 테스트하려면 아래 방법을 사용한다.
+
+> **참고**: `/plugin marketplace add /local/path` → remote 복원 방식은 Claude Code 버그([#9537](https://github.com/anthropics/claude-code/issues/9537))로 `settings.json`에 `path` 잔여물이 남아 사용하지 않는다.
+
+플러그인 cache 디렉토리에 로컬 스킬 파일을 복사한 뒤 `/reload-plugins`로 반영한다.
+marketplace 디렉토리가 아닌 **cache 디렉토리**에 복사해야 동작한다.
 
 ```bash
-# 1. 로컬 마켓플레이스로 전환 (테스트 브랜치로 checkout한 상태에서)
-/plugin marketplace add /Users/chanmuzi/coding/workspace/git-conventions
-/reload-plugins
+# 1. cache 경로 확인 (installPath의 마지막 디렉토리가 version identifier)
+grep -A4 'git-conventions@git-conventions' ~/.claude/plugins/installed_plugins.json
 
-# 2. 수정한 스킬 테스트 수행
+# 2. 로컬 스킬 파일을 cache에 복사
+cp -r skills/ ~/.claude/plugins/cache/git-conventions/git-conventions/{hash}/skills/
+# (Claude Code에서 실행) /reload-plugins
+
+# 3. 수정한 스킬 테스트 수행
 /{수정한 스킬}    # 예: /handoff, /commit, /code-review 등
 
-# 3. 테스트 완료 후 remote로 복원
-/plugin marketplace add chanmuzi/git-conventions
-/reload-plugins
+# 4. 테스트 완료 후 복원 (marketplace는 main 상태이므로 여기서 복사)
+cp -r ~/.claude/plugins/marketplaces/git-conventions/skills/ ~/.claude/plugins/cache/git-conventions/git-conventions/{hash}/skills/
+# (Claude Code에서 실행) /reload-plugins
 ```
-
-사용자가 로컬 테스트를 요청하면, 위 3단계를 순서대로 안내한다.
 
 ### 테스트 안내 흐름
 
 로컬 테스트 안내 시 아래 구조를 따른다:
 
-1. **전환**: 로컬 마켓플레이스 전환 안내
+1. **cache 경로 확인**: `installed_plugins.json`에서 active cache 경로 조회
 2. **시나리오 소개**: 테스트 시나리오 목록 제시 + "준비되면 아래 시나리오를 진행하겠습니다"
 3. **테스트 실행**: 사용자 확인 후 시나리오별 실행
-4. **복원**: 테스트 완료 후에만 remote 복원 안내
+4. **복원**: 테스트 완료 후에만 복원 안내
 
 복원 절차를 테스트 전에 미리 보여주지 않는다. 시나리오 소개와 복원이 한 번에 나오면 정보 과부하.
 
