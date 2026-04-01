@@ -391,51 +391,73 @@ There are two output formats depending on the rendering medium:
 #### Terminal Format
 
 Optimized for CLI readability. No HTML tags, no tables, flat structure.
-Use `---` only for major section breaks: once between the summary block and the findings, and then after each severity header for visual hierarchy. Findings within the same severity are separated by blank lines.
+Three-level visual hierarchy: `────────────────────` (Unicode thin × 20) between severity sections, `---` between findings and after severity headers, blank lines within findings.
 Finding title comes first (renders as bold/bright in terminal), file path second.
 
 ```markdown
 ## Code Review: {target}
 
 Domains: {activated domains joined by " • "}{if Codex enabled: " · Codex 🤖"}
-Findings: {critical_count} critical, {warning_count} warnings, {info_count} info
+Findings: 🔴 {critical_count} critical · 🟡 {warning_count} warnings · 🟢 {info_count} info
+
+────────────────────
+
+### < 🔴 Critical ({n}) >
 
 ---
 
-🔴 **Critical** ({n})
-
----
-
-**{finding title}** — {domain}
+**C1. {finding title}** — {domain}
 `{file}` ({N}곳)
 
 {description}
 
 > **Fix**: {suggestion}
 
-**{finding title}** — {domain}
+---
+
+**C2. {finding title}** — {domain}
 `{file}` ({N}곳)
 
 {description}
 
 > **Fix**: {suggestion}
 
-🟡 **Warning** ({n})
+────────────────────
+
+### < 🟡 Warning ({n}) >
 
 ---
 
-**{finding title}** — {domain}
+**W1. {finding title}** — {domain}
 `{file}` ({N}곳)
 
 {description}
 
 > **Fix**: {suggestion}
 
-🟢 **Info** ({n})
+---
+
+**W2. {finding title}** — {domain}
+`{file}` ({N}곳)
+
+{description}
+
+> **Fix**: {suggestion}
+
+────────────────────
+
+### < 🟢 Info ({n}) >
 
 ---
 
-**{finding title}** — {domain}
+**I1. {finding title}** — {domain}
+`{file}` ({N}곳)
+
+{description}
+
+---
+
+**I2. {finding title}** — {domain}
 `{file}` ({N}곳)
 
 {description}
@@ -522,8 +544,11 @@ Use GitHub `suggestion` blocks when the fix is a concrete, localized code change
 
 **Terminal-specific rules**:
 - No `<details>` or HTML tags — they don't render in CLI.
-- Summary line (not table) at the top: `Findings: 1 critical, 3 warnings, 1 info`.
-- Severity headers are followed by `---` before the first finding. Findings within the same severity are separated by blank lines only (no `---`).
+- Summary line with severity icons: `Findings: 🔴 1 critical · 🟡 3 warnings · 🟢 1 info`.
+- Severity headers use `### < {icon} {Severity} ({n}) >` format with `< >` brackets.
+- Severity sections are separated by `────────────────────` (Unicode thin box drawing × 20).
+- Severity header is followed by `---` before the first finding. Findings within the same severity are also separated by `---`.
+- Each finding is numbered with a severity prefix: `C{n}` (Critical), `W{n}` (Warning), `I{n}` (Info), starting from 1 per severity.
 - Finding title first (bold — renders bright in CLI), file path second.
 - Fix is always natural language in a blockquote (`> **Fix**: ...`), referencing by section/pattern.
 - Domains with no findings: omit entirely (no "✅ ... No issues found" line).
