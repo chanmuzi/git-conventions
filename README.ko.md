@@ -160,6 +160,7 @@ PR 또는 로컬 코드 변경사항을 도메인별 전문 agent(Security, Perf
 - `--domain security,perf` — 자동 감지 대신 도메인 수동 지정
 - `-y` / `-f` — 승인 없이 즉시 게시
 - `-g` — Mermaid 변경 흐름 그래프 생성 (PR 모드 전용)
+- `-q` / `--quick` — Quick 모드: 단일 패스 분석 (에이전트 미사용), 도메인 최대 2개, Critical/Warning만 출력
 - `--no-codex` — Codex 통합 비활성화
 - `--codex` — Codex 일반 리뷰 + adversarial 동시 실행
 - `--codex-general` — Codex 일반 리뷰만 사용 (adversarial 없이)
@@ -172,6 +173,7 @@ PR 또는 로컬 코드 변경사항을 도메인별 전문 agent(Security, Perf
 /code-review codex 둘 다 돌려줘         # → /code-review --codex
 /code-review codex 없이 리뷰해줘        # → /code-review --no-codex
 /code-review working dir로 봐줘         # → /code-review --wd
+/code-review 간단하게 봐줘              # → /code-review --quick
 ```
 
 **Codex 통합 (선택 사항, 권장):** [Codex 플러그인](https://github.com/openai/codex) 설치 및 인증 환경에서 `/code-review` 실행 시 Codex adversarial review가 도메인 에이전트와 자동 병렬 실행됩니다. findings는 교차검증 후 출처 태그와 함께 통합 정렬됩니다. `--no-codex`로 비활성화 가능합니다.

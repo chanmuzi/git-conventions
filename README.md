@@ -160,6 +160,7 @@ Analyzes PR or local code changes using a multi-agent pipeline with domain-speci
 - `--domain security,perf` — Override auto-detected domains
 - `-y` / `-f` — Publish without approval
 - `-g` — Generate Mermaid change-flow graph (PR mode only)
+- `-q` / `--quick` — Quick mode: single-pass analysis (no agent spawn), max 2 domains, Critical/Warning only
 - `--no-codex` — Disable Codex integration
 - `--codex` — Run both Codex review and adversarial review
 - `--codex-general` — Use Codex general review only (without adversarial)
@@ -172,6 +173,7 @@ Analyzes PR or local code changes using a multi-agent pipeline with domain-speci
 /code-review codex 둘 다 돌려줘         # → /code-review --codex
 /code-review codex 없이 리뷰해줘        # → /code-review --no-codex
 /code-review working dir로 봐줘         # → /code-review --wd
+/code-review 간단하게 봐줘              # → /code-review --quick
 ```
 
 **Codex integration (optional, recommended):** When the [Codex plugin](https://github.com/openai/codex) is installed and authenticated, `/code-review` automatically runs Codex adversarial review in parallel with domain agents. Findings are cross-validated and merged with source tags. Use `--no-codex` to opt out.
