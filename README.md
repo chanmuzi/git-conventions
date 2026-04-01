@@ -110,6 +110,7 @@ Creates a PR with a structured template. Automatically detects whether to use th
 
 ```
 /pr              # Individual PR (Feat, Fix, Refactor, etc.)
+/pr -g           # Include Mermaid change-flow graph
 /pr release      # Release PR (dev → main integration)
 ```
 
@@ -156,7 +157,7 @@ Analyzes PR or local code changes using a multi-agent pipeline with domain-speci
 - `--wd` — Force working directory mode, even on a PR branch
 - `--domain security,perf` — Override auto-detected domains
 - `-y` / `-f` — Publish without approval
-- `-g` — Enable code graph analysis
+- `-g` — Generate Mermaid change-flow graph (PR mode only)
 - `--no-codex` — Disable Codex integration
 - `--codex-review` — Use Codex general review instead of adversarial
 - `--codex-both` — Run both Codex review and adversarial review
