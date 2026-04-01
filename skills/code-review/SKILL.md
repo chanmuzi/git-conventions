@@ -391,7 +391,7 @@ There are two output formats depending on the rendering medium:
 #### Terminal Format
 
 Optimized for CLI readability. No HTML tags, no tables, flat structure.
-Use `---` only after severity headers for visual hierarchy. Findings within the same severity are separated by blank lines.
+Use `---` only for major section breaks: once between the summary block and the findings, and then after each severity header for visual hierarchy. Findings within the same severity are separated by blank lines.
 Finding title comes first (renders as bold/bright in terminal), file path second.
 
 ```markdown
