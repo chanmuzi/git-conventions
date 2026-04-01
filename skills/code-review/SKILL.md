@@ -478,12 +478,9 @@ Posted as the pull request review `body`. Contains the overview table and any fi
 {1-2 sentence overview of the PR's purpose and the review's key judgment — e.g., "Codex 통합을 위한 Step 2.5 추가 및 companion runtime 연동. 전반적으로 하위호환성이 잘 유지되나, 스킬 가용성 검증에 보완이 필요하다."}
 
 ### Key Changes
-
-| File | Change |
-|------|--------|
-| `{file1}` | {1-line description of what changed and why} |
-| `{file2}` | {1-line description} |
-| ... | ... |
+- {개념적 변경 1: 무엇을 왜}
+- {개념적 변경 2}
+- {개념적 변경 3}
 
 {if unmapped findings exist:}
 
@@ -508,7 +505,7 @@ Generated with [Claude Code](https://claude.com/claude-code)
 ```
 
 - **Summary**: 1-2문장으로 PR 목적과 리뷰 핵심 판단을 기술. PR description의 요약이 아닌 리뷰어 관점의 평가.
-- **Key Changes**: 변경 파일별 한줄 요약. 파일 수가 10개 초과 시 주요 파일만 표시하고 나머지는 `외 {n}개` 로 축약.
+- **Key Changes**: 개념적 변경사항 bullet. 각 bullet은 하나의 논리적 변경 단위를 기술. 개수 제한 없이, PR이 수행한 변경만큼 기재.
 - **Findings count**: unmapped가 0이면 total count만 표시. unmapped가 1 이상이면 `(N inline, M general)` breakdown 추가.
 
 If there are zero findings overall, post: `## Code Review: {target}\n\n✅ No issues found.\n\nGenerated with [Claude Code](https://claude.com/claude-code)`
@@ -518,7 +515,27 @@ If there are zero findings overall, post: `## Code Review: {target}\n\n✅ No is
 Posted as individual review comments, each attached to a specific file and line in the diff. One finding per comment.
 
 ````markdown
-{severity_icon} **{finding title}** — {domain}
+{severity_icon} **{prefix}{n}. {finding title}** — {domain}
+
+{description}
+
+{if concrete code change:}
+```suggestion
+{suggested code — only the replacement lines, matching GitHub suggestion block format}
+```
+{else:}
+> **Fix**: {suggestion}
+{end if}
+````
+
+Numbering uses the same scheme as Terminal format: `C{n}` / `W{n}` / `I{n}`, starting from 1 per severity. Terminal preview and GitHub inline comments share the same numbers for cross-reference.
+
+For contextual match findings (mapped via contextual fallback):
+
+````markdown
+{severity_icon} **{prefix}{n}. {finding title}** — {domain}
+
+📍 이 변경의 영향: `{affected_file}` ({N}곳)
 
 {description}
 
@@ -555,7 +572,7 @@ Use GitHub `suggestion` blocks when the fix is a concrete, localized code change
 - Codex failure notice (if applicable): append `ℹ️ Codex: unavailable (skipped)` after the summary line. Only shown when Codex mode was NOT disabled but companion returned non-zero exit. Do NOT include in GitHub format.
 
 **GitHub-specific rules (inline review comments)**:
-- Review Summary: severity table at the top. Unmapped findings (not in diff) included below the table under "General Findings".
+- Review Summary: severity counts and key changes at the top. Unmapped findings (after contextual mapping) included below under "General Findings" as fallback only.
 - Inline Comment: one finding per comment. No `<details>` tags — each comment is self-contained.
 - Fix format in inline comments:
   - Concrete, localized code change → GitHub `suggestion` block (enables one-click apply).
@@ -598,9 +615,23 @@ For each confirmed finding, verify its primary line number exists in the PR diff
 gh pr diff {number}
 ```
 
-Parse diff hunks to determine which lines are targetable:
-- **Mapped**: The finding's file + line appears in a diff hunk (added line `+`, or context line on the RIGHT side). Include as an inline comment.
-- **Unmapped**: The finding's line is outside all diff hunks (existing code not changed by the PR). Include in the review body under "General Findings".
+For each confirmed finding, resolve its target line in the PR diff using a three-tier strategy:
+
+1. **Exact match**: The finding's file + line appears in a diff hunk (added line `+`,
+   or context line on the RIGHT side). Include as an inline comment at that location.
+
+2. **Contextual match**: Exact match failed. Search the diff for the root cause change
+   that triggered this finding:
+   - Rename not propagated → map to the diff line where the rename occurred
+   - Missing entry that should accompany new entries → map to the nearest new entry line
+   - Dead code from a removal → map to the diff line where the related code was removed
+   Include as an inline comment at the contextual location. Prepend to the comment body:
+   `📍 이 변경의 영향: \`{affected_file}\` ({N}곳)`
+   followed by the original finding description.
+
+3. **Unmapped**: Neither exact nor contextual match is possible (e.g., finding references
+   a file/pattern with no related changes in the diff). Include in the review body under
+   "📋 General Findings" as a last resort.
 
 **2. Build review payload**
 
