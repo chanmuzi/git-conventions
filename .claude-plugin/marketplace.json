@@ -3,19 +3,20 @@
   "owner": { "name": "chanmuzi" },
   "metadata": {
     "description": "Git commit, PR, review conventions for consistent workflows",
-    "version": "1.7.1"
+    "version": "1.8.0"
   },
   "plugins": [
     {
       "name": "git-conventions",
-      "description": "Enforce consistent commit messages, PR templates, issue tracking, code review (with optional Codex plugin integration), and review triage & reply",
+      "description": "Enforce consistent commit messages, PR templates, issue tracking, code review (with optional Codex plugin integration), review triage & reply, and session handoff",
       "source": "./",
       "skills": [
         "./skills/commit",
         "./skills/pr",
         "./skills/issue",
         "./skills/review-reply",
-        "./skills/code-review"
+        "./skills/code-review",
+        "./skills/handoff"
       ]
     }
   ]

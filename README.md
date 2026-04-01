@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/skills-5-8B5CF6?logo=git&logoColor=white" alt="Skills" />
+  <img src="https://img.shields.io/badge/skills-6-8B5CF6?logo=git&logoColor=white" alt="Skills" />
   <a href="https://agentskills.io"><img src="https://img.shields.io/badge/Agent_Skills-compatible-0EA5E9?logo=robotframework&logoColor=white" alt="Agent Skills" /></a>
   <img src="https://img.shields.io/github/license/chanmuzi/git-conventions?color=blue" alt="License" />
   <img src="https://img.shields.io/github/last-commit/chanmuzi/git-conventions?color=orange" alt="Last Commit" />
@@ -46,12 +46,13 @@ npx skills add chanmuzi/git-conventions
 | `issue` | Create a GitHub issue with templates and auto-labeling |
 | `review-reply` | Review AI-generated PR review comments and reply |
 | `code-review` | Context-aware multi-agent code review with severity-based findings |
+| `handoff` | Generate a copy-ready handoff prompt for session transfer |
 
 The interactive installer lets you select skills, target agents, scope (project/global), and install method.
 
 > To install all skills at once without prompts:
 > ```bash
-> npx skills add chanmuzi/git-conventions --skill commit --skill pr --skill issue --skill review-reply --skill code-review -g
+> npx skills add chanmuzi/git-conventions --skill commit --skill pr --skill issue --skill review-reply --skill code-review --skill handoff -g
 > ```
 
 ## Update
@@ -178,6 +179,22 @@ Analyzes PR or local code changes using a multi-agent pipeline with domain-speci
 
 **Severity levels:** 🔴 Critical, 🟡 Warning, 🟢 Info
 
+### `/handoff` — Session Handoff Prompt
+
+Generates a copy-ready handoff prompt that transfers work context to a new session. Auto-detects artifacts, git state, and conversation context, then structures a concise prompt following the **reference-not-repeat** principle.
+
+```
+/handoff                   # Auto-detect and generate handoff prompt
+/handoff -y                # Skip confirmation, output directly
+/handoff auth refactoring  # Focus handoff on a specific topic
+```
+
+**Detection cascade:** Artifacts (`.omc/specs/`, `.omc/plans/`) → Git state → Conversation context
+
+**Skill recommendation:** When plugins like OMC or Codex are detected, the handoff recommends the most appropriate skill for the next session (e.g., `/autopilot`, `/ralph`, `/commit`).
+
+**Output:** Terminal text optimized for `/copy`. Never repeats artifact content — references file paths instead.
+
 ## Language Behavior
 
 All commands write output (commit messages, PR titles/body) in the language configured in your project's `CLAUDE.md`. If no language is set, the user's conversational language is used.
@@ -228,7 +245,7 @@ Add the following to your global `~/.claude/CLAUDE.md` to reference these conven
 - Branch: `{type}/{english-kebab-case}` (feat/, fix/, refactor/, docs/, hotfix/)
 - PR title: `{Type}: {description}` (capitalized prefix: Feat, Fix, Refactor, Perf, etc.)
 - Release PR: `Release: dev → main 통합 (vX.Y.Z)`
-- Use `/commit`, `/pr`, `/pr release`, `/issue`, `/review-reply`, `/code-review` commands for full workflows
+- Use `/commit`, `/pr`, `/pr release`, `/issue`, `/review-reply`, `/code-review`, `/handoff` commands for full workflows
 ```
 
 ## License

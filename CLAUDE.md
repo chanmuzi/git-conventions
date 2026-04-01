@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## 프로젝트 개요
 
 Git commit, PR, review 관련 convention을 강제하는 Agent Skill.
-`/commit`, `/pr`, `/pr release`, `/issue`, `/review-reply`, `/code-review` 여섯 가지 slash command를 제공한다.
+`/commit`, `/pr`, `/pr release`, `/issue`, `/review-reply`, `/code-review`, `/handoff` 일곱 가지 slash command를 제공한다.
 Agent Skills 오픈 표준(agentskills.io)을 따르며, Claude Code 외에도 Codex CLI, Gemini CLI, Cursor 등 40+ agent에서 사용 가능.
 
 ## 아키텍처
@@ -28,8 +28,11 @@ git-conventions/
 │   ├── review-reply/
 │   │   ├── SKILL.md                  # /review-reply
 │   │   └── LICENSE.txt
-│   └── code-review/
-│       ├── SKILL.md                  # /code-review
+│   ├── code-review/
+│   │   ├── SKILL.md                  # /code-review
+│   │   └── LICENSE.txt
+│   └── handoff/
+│       ├── SKILL.md                  # /handoff
 │       └── LICENSE.txt
 ├── .gitignore
 ├── README.md
@@ -71,6 +74,9 @@ npx skills add ./  # 로컬 경로에서 설치
 /code-review --wd         → PR 브랜치에서도 working dir 리뷰 강제
 /code-review --no-codex   → Codex 통합 비활성화
 /code-review --codex-both → Codex review + adversarial 동시 실행
+/handoff              → 세션 컨텍스트 분석 후 handoff 프롬프트 생성
+/handoff -y           → 확인 없이 즉시 출력
+/handoff auth 리팩토링 → 특정 주제 필터링된 handoff 생성
 ```
 
 ## Git Convention (이 프로젝트 자체에 적용)
@@ -166,7 +172,31 @@ Markdown 원문과 터미널 표시가 다른 주요 케이스:
 
 ## 릴리스 프로세스
 
-새 버전 배포 시 다음 항목을 업데이트한다:
+### 릴리스 시점
+
+릴리스는 사용자가 수동으로 결정한다. Feature PR에는 version bump를 포함하지 않는다.
+릴리스하고 싶을 때 `chore: release vX.Y.Z` 커밋을 생성하고 태그를 단다.
+
+### Semver 기준
+
+마지막 태그 이후의 커밋을 분석하여 bump 타입을 결정한다:
+- 새 스킬 추가, 주요 기능 변경 (`feat`) → **minor** (예: 1.7.1 → 1.8.0)
+- 버그 수정 (`fix`) → **patch** (예: 1.7.1 → 1.7.2)
+- 하위호환 깨지는 변경 → **major** (예: 1.x → 2.0.0)
+- `docs`/`style`/`chore`만 있으면 → 릴리스 불필요
+
+### 릴리스 절차
+
+```bash
+# 1. version bump 커밋
+#    marketplace.json version + 변경된 SKILL.md version 동기화
+git commit -m "chore: release vX.Y.Z"
+
+# 2. 태그 생성 및 푸시
+git tag vX.Y.Z && git push origin main vX.Y.Z
+```
+
+### 릴리스에 포함되는 파일
 
 1. `.claude-plugin/marketplace.json` — `metadata.version` bump
 2. `skills/*/SKILL.md` — frontmatter `version` 동기화
