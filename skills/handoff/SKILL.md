@@ -4,7 +4,7 @@ description: >-
   Generate a copy-ready handoff prompt for transferring work context to a new session.
   TRIGGER when: user asks to hand off work, create a handoff prompt, transfer context, wrap up session, prepare for next session (e.g., "handoff 해줘", "다음 세션으로 넘겨줘", "작업 이관해줘", "handoff prompt 만들어줘").
   DO NOT TRIGGER when: user is committing, creating PRs, reviewing code, or performing other git operations without handoff intent.
-version: "1.8.0"
+version: "1.0.0"
 allowed-tools: Bash(git *), Read, Glob, Grep
 ---
 
@@ -44,7 +44,6 @@ Check if these sentinel skill names exist in the current session's available ski
 | Sentinel | Plugin | What it enables |
 |----------|--------|-----------------|
 | `oh-my-claudecode:autopilot` | OMC | Recommend `/autopilot` or `/ralph` for spec/plan-based execution |
-| `codex:codex-cli-runtime` | Codex | Recommend `/code-review --codex-both` for code review |
 | `git-conventions:commit` | git-conventions (self) | Recommend `/commit` for uncommitted changes |
 | `git-conventions:pr` | git-conventions (self) | Recommend `/pr` for committed changes without PR |
 
@@ -61,14 +60,14 @@ Glob: .omc/specs/*.md
 Glob: .omc/plans/*.md
 ```
 
-Glob returns results sorted by modification time (newest first). Combine results from both patterns.
+Combine results from both patterns.
 
 If artifacts are found:
-- If the conversation context clearly maps to one artifact, select it as the primary reference.
-- If multiple artifacts exist and it is ambiguous which one is relevant, list candidates and ask the user to confirm which to hand off.
-- Read the first few lines of the selected artifact to extract its title/purpose for the Context section.
+- Use the topic filter (if provided) and the current conversation context to determine which artifact is most relevant.
+- If multiple artifacts exist and it is ambiguous which one is relevant, list candidates and ask the user to confirm which to hand off. This is **artifact selection confirmation** — separate from the draft-summary confirmation in Layer 4.
+- You may read the first few lines of the selected artifact **only to understand what it is about and to choose the right artifact**. Do **not** copy or quote any artifact content into the handoff; in the Context section, reference the artifact **by its path only**.
 
-If artifacts are found, this is the **artifact-present** path. Confirmation is skipped (the reference is unambiguous).
+Once the relevant artifact has been selected (or was unambiguous from the start), this is the **artifact-present** path. Skip draft-summary confirmation — generate the final handoff prompt directly.
 
 ---
 
