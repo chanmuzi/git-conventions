@@ -23,13 +23,14 @@
 - 항목 간 구분: 빈 줄 → `---`
 - 카테고리 헤더에 `< >` 브래킷 + 카운트 추가
 - Summary line: 리뷰어 목록 및 카테고리별 카운트 추가
-- Reviewer 표기: `Reviewer said:` → `Reviewer ({name}):` 
+- Reviewer 표기: `Reviewer said:` → `Reviewer ({name}):`
 
 ### 2026-04-01: 터미널 출력 템플릿 위계 구분 개선
 
-- review-reply: numbered list → bold paragraph 전환, 항목 간 `---` 제거 (빈 줄로 대체)
-- code-review: finding 간 `---` 제거, severity 헤더 간 `---`만 유지
-- CLAUDE.md: bold paragraph 패턴 문서화, `---` 사용 원칙을 카테고리/섹션 간 구분 전용으로 명확화
+- review-reply: numbered list → bold paragraph 전환
+- code-review: severity 헤더 간 `---` 유지
+- CLAUDE.md: bold paragraph 패턴 문서화
+- ⚠️ 이후 같은 날짜의 "출력 포맷 전면 개선"에서 위계 체계가 재설계됨 (Unicode 구분자 도입)
 
 ### 2026-04-01: 외부 레포 권한 부족 시 graceful fallback 추가
 

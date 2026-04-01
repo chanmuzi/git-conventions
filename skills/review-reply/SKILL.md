@@ -75,7 +75,7 @@ Group findings by category and present to the user:
 ## Review Analysis for PR #{number}
 
 Reviewers: {reviewer names joined by " · "}
-Comments: ✅ {valid_count} valid · 🤔 {debatable_count} debatable · ❌ {ignore_count} ignore
+Comments: ✅ {valid_count} valid · 🤔 {debatable_count} debatable · ❌ {ignore_count} ignored
 
 ────────────────────
 

@@ -465,7 +465,7 @@ Findings: 🔴 {critical_count} critical · 🟡 {warning_count} warnings · �
 
 #### GitHub Format: Review Summary
 
-Posted as the pull request review `body`. Contains the overview table and any findings that could not be mapped to diff lines (unmapped findings).
+Posted as the pull request review `body`. Contains the severity counts, key changes, and any findings that could not be mapped to diff lines (unmapped findings).
 
 ```markdown
 ## Code Review: {target}
@@ -624,8 +624,8 @@ For each confirmed finding, resolve its target line in the PR diff using a three
    that triggered this finding:
    - Rename not propagated → map to the diff line where the rename occurred
    - Missing entry that should accompany new entries → map to the nearest new entry line
-   - Dead code from a removal → map to the diff line where the related code was removed
-   Include as an inline comment at the contextual location. Prepend to the comment body:
+   - Dead code from a removal → map to a nearby RIGHT-side context or addition line adjacent to the removal
+   Include as an inline comment at the contextual location (must be a RIGHT-side line). Prepend to the comment body:
    `📍 이 변경의 영향: \`{affected_file}\` ({N}곳)`
    followed by the original finding description.
 
@@ -656,7 +656,7 @@ Construct a JSON payload for the Review API:
 ```
 
 - `commit_id`: Obtain from `gh pr view {number} --json headRefOid --jq '.headRefOid'`
-- `body`: Review Summary template (severity table + unmapped findings if any + footer)
+- `body`: Review Summary template (severity counts + key changes + unmapped findings if any + footer)
 - `comments`: Array of mapped findings, each using the Inline Comment template
 - For single-line findings, omit `start_line` and `start_side` — only `line` and `side` are needed.
 - Serialize the JSON payload using `jq -n` or write to a temp file — do NOT manually escape strings in a heredoc. Comment bodies contain multi-line markdown, code fences, and `suggestion` blocks that break raw string interpolation.
