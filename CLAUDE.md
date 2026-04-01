@@ -63,14 +63,6 @@ npx skills add ./  # 로컬 경로에서 설치
 # SKILL.md 수정 후 반영 (캐시 갱신 — 새 세션 불필요)
 /reload-plugins
 
-# ⚠️ remote 설치(GitHub) 상태에서는 /reload-plugins가 main 브랜치를 가져옴
-# fix 브랜치 등 미 merge 변경사항을 테스트하려면 로컬 마켓플레이스로 전환 필요:
-/plugin marketplace add /Users/chanmuzi/coding/workspace/git-conventions  # 로컬 전환
-/reload-plugins                                                           # 로컬에서 로드
-# 테스트 완료 후 remote로 복원:
-/plugin marketplace add chanmuzi/git-conventions                          # remote 복원
-/reload-plugins
-
 # 각 command 테스트
 /commit        → diff 분석 후 conventional commit 메시지 제안 확인
 /pr            → Individual PR 템플릿 생성 확인
@@ -89,6 +81,26 @@ npx skills add ./  # 로컬 경로에서 설치
 /handoff -y           → 확인 없이 즉시 출력
 /handoff auth 리팩토링 → 특정 주제 필터링된 handoff 생성
 ```
+
+### 브랜치 테스트 (merge 전 스킬 검증)
+
+플러그인이 GitHub remote(`chanmuzi/git-conventions`)에서 설치된 경우, `/reload-plugins`는 **main 브랜치**에서 가져온다.
+fix/feat 브랜치의 SKILL.md 변경을 merge 전에 테스트하려면 로컬 마켓플레이스로 전환해야 한다.
+
+```bash
+# 1. 로컬 마켓플레이스로 전환 (테스트 브랜치로 checkout한 상태에서)
+/plugin marketplace add /Users/chanmuzi/coding/workspace/git-conventions
+/reload-plugins
+
+# 2. 스킬 테스트 수행
+/handoff    # 또는 수정한 스킬 실행
+
+# 3. 테스트 완료 후 remote로 복원
+/plugin marketplace add chanmuzi/git-conventions
+/reload-plugins
+```
+
+사용자가 로컬 테스트를 요청하면, 위 3단계를 순서대로 안내한다.
 
 ## Git Convention (이 프로젝트 자체에 적용)
 
