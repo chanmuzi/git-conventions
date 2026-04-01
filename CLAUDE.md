@@ -95,36 +95,37 @@ fix/feat 브랜치의 SKILL.md 변경을 merge 전에 테스트하려면 아래 
 플러그인 cache 디렉토리에 로컬 스킬 파일을 복사한 뒤 `/reload-plugins`로 반영한다.
 marketplace 디렉토리가 아닌 **cache 디렉토리**에 복사해야 동작한다.
 
-**중요**: 복사는 반드시 `/reload-plugins` **전에** 수행한다. `/reload-plugins`가 GitHub에서 최신 버전을 가져오면서 cache hash가 변경될 수 있으므로, reload 후 복사하면 이전 hash 경로에 복사되어 반영되지 않는다.
+**중요**: `/reload-plugins`는 새 cache hash를 생성하면서 `installed_plugins.json`을 갱신하지 않을 수 있다. 따라서 특정 hash를 조회하여 복사하는 대신, **모든 cache 디렉토리에 일괄 복사**한다. 복사는 반드시 `/reload-plugins` **전에** 수행한다.
 
 ```bash
-# 1. cache 경로 확인 (installPath의 마지막 디렉토리가 version identifier)
-grep -A4 'git-conventions@git-conventions' ~/.claude/plugins/installed_plugins.json
+# 1. 로컬 스킬 파일을 모든 cache 디렉토리에 복사
+for d in ~/.claude/plugins/cache/git-conventions/git-conventions/*/; do
+  cp -r skills/ "$d/skills/"
+done
 
-# 2. 로컬 스킬 파일을 cache에 복사
-cp -r skills/ ~/.claude/plugins/cache/git-conventions/git-conventions/{hash}/skills/
+# 2. (이 세션에서 실행) /reload-plugins   ← 수정된 스킬 메모리 로드
 
-# 3. (Claude Code에서 실행) /reload-plugins   ← 수정된 스킬 메모리 로드
-
-# 4. 수정한 스킬 테스트 수행
+# 3. 수정한 스킬 테스트 수행
 /{수정한 스킬}    # 예: /handoff, /commit, /code-review 등
 
-# 5. 테스트 완료 후 복원 (marketplace는 main 상태이므로 여기서 복사)
-cp -r ~/.claude/plugins/marketplaces/git-conventions/skills/ ~/.claude/plugins/cache/git-conventions/git-conventions/{hash}/skills/
+# 4. 테스트 완료 후 복원 (marketplace는 main 상태이므로 여기서 복사)
+for d in ~/.claude/plugins/cache/git-conventions/git-conventions/*/; do
+  cp -r ~/.claude/plugins/marketplaces/git-conventions/skills/ "$d/skills/"
+done
 
-# 6. (Claude Code에서 실행) /reload-plugins   ← 원본 복원
+# 5. (이 세션에서 실행) /reload-plugins   ← 원본 복원
 ```
 
-> **hash 변경 시**: step 3에서 `/reload-plugins` 후 `installed_plugins.json`의 hash가 변경되었다면 (main에 새 커밋이 있는 경우), 변경된 hash로 step 2를 다시 수행하고 step 3을 재실행한다.
+> **`/reload-plugins`는 반드시 이 Claude Code 세션에서 실행**해야 한다. 별도 터미널에서 실행하면 현재 세션의 메모리에 반영되지 않는다.
 
 ### 테스트 안내 흐름
 
 로컬 테스트 안내 시 아래 구조를 따른다. Claude가 복사·실행·리포트·복원을 전담하고, 사용자는 `/reload-plugins`만 실행한다.
 
-1. **cache 경로 확인 + 복사**: `installed_plugins.json`에서 active cache 경로 조회 → 로컬 스킬 복사
-2. **reload 요청**: 사용자에게 `/reload-plugins` 실행 요청 (수정된 스킬 메모리 로드). reload 후 hash 변경 여부 확인 — 변경 시 새 hash로 재복사 후 재 reload 요청
+1. **일괄 복사**: 모든 cache 디렉토리에 로컬 스킬 복사
+2. **reload 요청**: 사용자에게 이 세션에서 `/reload-plugins` 실행 요청 (수정된 스킬 메모리 로드)
 3. **테스트 실행 + 결과 리포트**: 스킬 실행 및 결과 보고
-4. **복원 + reload 안내**: marketplace에서 cache로 복원 → 사용자에게 `/reload-plugins` 실행 안내
+4. **복원 + reload 안내**: marketplace에서 모든 cache로 복원 → 사용자에게 이 세션에서 `/reload-plugins` 실행 안내
 
 복원 절차를 테스트 전에 미리 보여주지 않는다. 시나리오 소개와 복원이 한 번에 나오면 정보 과부하.
 
