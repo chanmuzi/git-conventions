@@ -1,5 +1,12 @@
 # Change Log
 
+### 2026-04-01: 외부 레포 권한 부족 시 graceful fallback 추가
+
+- pr: `git push` 권한 거부 시 `gh repo fork --remote-only` 자동 실행 후 재시도
+- pr: `gh pr create`에서 `--assignee`/`--label` 권한 부족 시 해당 플래그 제거 후 재시도
+- issue: `gh issue create`에서 동일한 `--assignee`/`--label` fallback 적용
+- 기존 워크플로우(본인 레포)에는 영향 없음 — 실패 시에만 fallback 경로 진입
+
 ### 2026-04-01: 터미널 렌더링 가이드라인 추가
 
 - review-reply 템플릿 항목 간 빈 줄 → `---` 변경 (터미널에서 numbered list 내 빈 줄이 무시되는 문제 수정)

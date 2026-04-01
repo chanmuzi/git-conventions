@@ -159,7 +159,7 @@ Examples below are in Korean.
    EOF
    )"
    ```
-   Omit `--label "{priority_label}"` if no priority was assigned. Follow the session's tool permission settings for approval.
+   Omit `--label "{priority_label}"` if no priority was assigned. If the command fails due to `--assignee` or `--label` permissions, retry without those flags. Follow the session's tool permission settings for approval.
 8. Return the issue URL.
 
 **Important:**
@@ -167,5 +167,5 @@ Examples below are in Korean.
 - Do NOT assign priority labels unless the user specifies priority or urgency is clearly implied.
 - Adapt section headers and content language to the project's CLAUDE.md language setting.
 - Always prioritize the project's own issue conventions over the defaults above.
-- **Assignee**: Always include `--assignee @me` in `gh issue create`. Never omit it.
+- **Assignee**: Always include `--assignee @me` in `gh issue create`. If it fails due to insufficient permissions, retry without it.
 - **Commit references**: Never wrap commit SHAs in backticks (e.g., `` `abc1234` ``). Backtick-wrapped SHAs render as inline code and are not clickable on GitHub. Use plain text (GitHub auto-links SHAs) or explicit markdown links: `[{short_sha}](https://github.com/{owner}/{repo}/commit/{sha})`.
