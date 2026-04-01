@@ -160,7 +160,7 @@ Analyzes PR or local code changes using a multi-agent pipeline with domain-speci
 - `--domain security,perf` — Override auto-detected domains
 - `-y` / `-f` — Publish without approval
 - `-g` — Generate Mermaid change-flow graph (PR mode only)
-- `-q` / `--quick` — Quick mode: single-pass analysis (no agent spawn), max 2 domains, Critical/Warning only
+- `-q` / `--quick` — Quick mode: single-pass analysis (no agent spawn), max 2 domains, Critical/Warning first (Info fallback when none found)
 - `--no-codex` — Disable Codex integration
 - `--codex` — Run both Codex review and adversarial review
 - `--codex-general` — Use Codex general review only (without adversarial)

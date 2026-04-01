@@ -160,7 +160,7 @@ PR 또는 로컬 코드 변경사항을 도메인별 전문 agent(Security, Perf
 - `--domain security,perf` — 자동 감지 대신 도메인 수동 지정
 - `-y` / `-f` — 승인 없이 즉시 게시
 - `-g` — Mermaid 변경 흐름 그래프 생성 (PR 모드 전용)
-- `-q` / `--quick` — Quick 모드: 단일 패스 분석 (에이전트 미사용), 도메인 최대 2개, Critical/Warning만 출력
+- `-q` / `--quick` — Quick 모드: 단일 패스 분석 (에이전트 미사용), 도메인 최대 2개, Critical/Warning 우선 (없으면 Info fallback)
 - `--no-codex` — Codex 통합 비활성화
 - `--codex` — Codex 일반 리뷰 + adversarial 동시 실행
 - `--codex-general` — Codex 일반 리뷰만 사용 (adversarial 없이)

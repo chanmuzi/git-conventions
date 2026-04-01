@@ -63,11 +63,11 @@ When `--quick` is set, the following flags are implicitly forced regardless of o
 | Implicit Override | Effect |
 |-------------------|--------|
 | `--no-codex` | Codex always disabled |
-| `-g` ignored | Graph generation skipped |
+| `-g` / `--graph` ignored | Graph generation skipped |
 
 Display hint immediately after flag parsing:
 
-> **⚡ Quick mode** — 단일 패스 분석, Critical/Warning만 출력
+> **⚡ Quick mode** — 단일 패스 분석, Critical/Warning 우선 (없으면 Info fallback)
 
 ---
 
