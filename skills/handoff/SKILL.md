@@ -81,7 +81,7 @@ git log --oneline -5
 git stash list
 ```
 
-Use this to populate the handoff context sections (directive line and `상황`):
+Use this to populate the handoff `상황` section:
 - Current branch name
 - Uncommitted changes (count and nature)
 - Recent commits (what was done this session)
