@@ -1,5 +1,13 @@
 # Change Log
 
+### 2026-04-02: 로컬 테스트 워크플로우 개선
+
+**CLAUDE.md**
+- 브랜치 테스트 워크플로우 교체: marketplace 전환 방식 → 파일 복사 + `/reload-plugins` 방식
+- 기존 marketplace 전환 방식의 `path` 잔여물 버그([#9537](https://github.com/anthropics/claude-code/issues/9537)) 주의 사항 명시
+
+---
+
 ### 2026-04-02: /handoff 템플릿 재설계 — 지시형 프롬프트 구조로 전환
 
 **handoff**
