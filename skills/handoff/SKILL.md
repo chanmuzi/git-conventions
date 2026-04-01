@@ -4,7 +4,7 @@ description: >-
   Generate a copy-ready handoff prompt for transferring work context to a new session.
   TRIGGER when: user asks to hand off work, create a handoff prompt, transfer context, wrap up session, prepare for next session (e.g., "handoff 해줘", "다음 세션으로 넘겨줘", "작업 이관해줘", "handoff prompt 만들어줘").
   DO NOT TRIGGER when: user is committing, creating PRs, reviewing code, or performing other git operations without handoff intent.
-version: "1.8.0"
+version: "1.8.1"
 allowed-tools: Bash(git *), Read, Glob, Grep
 ---
 
@@ -27,7 +27,7 @@ If `$ARGUMENTS` is empty, proceed with auto-detection and default confirmation f
 
 ## Detection Cascade
 
-Run the following detection layers in priority order. Each layer enriches the handoff context; later layers run only if earlier layers did not provide sufficient context.
+Run the following detection layers in priority order. Each layer enriches the handoff context.
 
 ---
 
@@ -51,23 +51,21 @@ Store detected sentinels for use in the skill recommendation step.
 
 ---
 
-**Layer 2 — Artifact Detection**
+**Layer 2 — Conversation Context Analysis**
 
-Search for existing structured artifacts using the Glob tool:
+Analyze the current conversation to understand what this session is about. This is the **primary context source** — it always runs and is never a fallback.
 
-```
-Glob: .omc/specs/*.md
-Glob: .omc/plans/*.md
-```
+Extract:
+- What task was the user working on?
+- What key decisions were made?
+- What was completed, and what remains?
+- What direction was agreed upon?
 
-Combine results from both patterns.
+The output of this layer scopes all subsequent layers — Layer 3 (Git) and Layer 4 (Artifact Search) are filtered through this understanding.
 
-If artifacts are found:
-- Use the topic filter (if provided) and the current conversation context to determine which artifact is most relevant.
-- If multiple artifacts exist and it is ambiguous which one is relevant, list candidates and ask the user to confirm which to hand off. This is **artifact selection confirmation** — separate from the draft-summary confirmation in Layer 4.
-- You may read the first few lines of the selected artifact **only to understand what it is about and to choose the right artifact**. Do **not** copy or quote any artifact content into the handoff; in the Context section, reference the artifact **by its path only**.
+If a topic filter was provided (Layer 0), focus the analysis accordingly.
 
-Once the relevant artifact has been selected (or was unambiguous from the start), this is the **artifact-present** path. Skip draft-summary confirmation — generate the final handoff prompt directly.
+**This layer triggers the confirmation flow** (unless `-y` flag is set or a relevant artifact is found in Layer 4), because conversation-derived summaries need user validation before handoff.
 
 ---
 
@@ -91,12 +89,25 @@ Use this to populate the handoff Context and Delta sections:
 
 ---
 
-**Layer 4 — Conversation Context Fallback**
+**Layer 4 — Artifact Search (Context-Scoped)**
 
-If no artifacts were found (Layer 2 empty) and git state alone is insufficient to describe the session work:
-- Analyze the current conversation to extract key decisions, conclusions, and agreed direction.
-- This becomes the primary content for the handoff prompt.
-- **This layer triggers the confirmation flow** (unless `-y` flag is set), because conversation-derived summaries need user validation before handoff.
+Search for existing structured artifacts using the Glob tool:
+
+```
+Glob: .omc/specs/*.md
+Glob: .omc/plans/*.md
+```
+
+Combine results from both patterns.
+
+**Important:** Only select artifacts that are **relevant to the conversation context identified in Layer 2**. Artifacts from other sessions or unrelated work MUST be ignored. The conversation context is the filter — not the other way around.
+
+If relevant artifacts are found:
+- Read the first few lines **only to verify relevance** to the current session's work.
+- Do **not** copy or quote any artifact content into the handoff; reference the artifact **by its path only**.
+- This is the **artifact-present** path. Skip confirmation — generate the final handoff prompt directly.
+
+If no relevant artifacts are found, proceed with conversation-derived context from Layer 2.
 
 ## Build Handoff Prompt
 
@@ -115,16 +126,17 @@ Show:
 
 Separate the Meta Zone and Handoff Zone with a clear `---` divider.
 
-Everything below the divider is the actual handoff prompt that the user copies to the next session.
+**Wrap the entire Handoff Zone in a fenced code block (` ```markdown ... ``` `).** This enables `/copy` to present it as a selectable item in the picker UI, so the user can copy only the handoff content without the Meta Zone.
 
 ### Handoff Prompt — With Artifacts
 
-When Layer 2 found a relevant artifact:
+When Layer 4 found a relevant artifact:
 
 ```
 ## Handoff
 
 ### Context
+{conversation summary — what this session worked on}
 - Spec: `{artifact_path}`
 - Branch: `{current_branch}`
 - Status: {brief git state — clean / N files modified / stash exists}
@@ -150,7 +162,7 @@ Example Next Action without OMC:
 
 ### Handoff Prompt — Without Artifacts
 
-When Layer 4 fallback was used:
+When no relevant artifact was found (Layer 2 conversation context only):
 
 ```
 ## Handoff
@@ -171,14 +183,14 @@ When Layer 4 fallback was used:
 
 ### Adaptive Section Rules
 
-- **Context**: Artifact path reference (if exists) OR conversation summary (if not). Never both.
+- **Context**: Conversation summary (Layer 2) with artifact path reference (if Layer 4 found one). Artifact path supplements — never replaces — the conversation context.
 - **Delta**: Thin when artifact is comprehensive (just progress state). Detailed when no artifact captures session work.
 - **Next Action**: Include skill name naturally if sentinel detected. Plain task description if no skills detected.
 - **Omit empty sections entirely.** If nothing happened beyond creating a spec, omit the Delta section. If git state is clean and irrelevant, omit the Status line.
 
 ### Skill Recommendation Mapping
 
-Based on sentinel detection (Layer 1) + context type (Layers 2-3):
+Based on sentinel detection (Layer 1) + context type (Layers 2-4):
 
 | Context | OMC Available | No OMC | Strategy |
 |---------|---------------|--------|----------|
@@ -195,19 +207,19 @@ Based on sentinel detection (Layer 1) + context type (Layers 2-3):
 ## Confirmation Flow
 
 ```
-Has artifact? ──yes──→ Output directly
-     │
-     no
-     │
-     ├── -y flag? ──yes──→ Output directly
-     │
-     no
-     │
-     └── Show draft → "이 내용으로 handoff 하면 될까요?" → [확인] / [수정]
+Conversation analyzed → Relevant artifact found? ──yes──→ Output directly
+                              │
+                              no
+                              │
+                              ├── -y flag? ──yes──→ Output directly
+                              │
+                              no
+                              │
+                              └── Show draft → "이 내용으로 handoff 하면 될까요?" → [확인] / [수정]
 ```
 
-- **Artifact present**: Skip confirmation. The handoff is a straightforward reference + thin delta.
-- **No artifact, no -y**: Show draft and ask for user confirmation. Prevents incorrect summaries from misleading the next session.
+- **Relevant artifact found**: Skip confirmation. The handoff is a straightforward reference + thin delta.
+- **No relevant artifact, no -y**: Show draft and ask for user confirmation. Prevents incorrect summaries from misleading the next session.
 - **-y flag**: Always skip confirmation regardless of artifact presence.
 
 When the user requests modifications after seeing the draft, adjust the handoff accordingly and output the final version.

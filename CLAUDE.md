@@ -60,6 +60,9 @@ npx skills add ./  # 로컬 경로에서 설치
 /plugin marketplace add /Users/chanmuzi/coding/workspace/git-conventions
 /plugin install git-conventions@git-conventions
 
+# SKILL.md 수정 후 반영 (캐시 갱신 — 새 세션 불필요)
+/reload-plugins
+
 # 각 command 테스트
 /commit        → diff 분석 후 conventional commit 메시지 제안 확인
 /pr            → Individual PR 템플릿 생성 확인

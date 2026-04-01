@@ -1,5 +1,17 @@
 # Change Log
 
+### 2026-04-01: /handoff Detection 순서 수정 및 /copy 호환성 개선
+
+**handoff**
+- Detection 순서 변경: 대화 맥락 분석(Layer 2)을 최우선으로, Artifact 검색(Layer 4)은 대화 맥락 기반으로 스코핑 — 이전 세션의 무관한 artifact가 handoff에 포함되는 문제 해결
+- Handoff Zone을 ` ```markdown ` 코드블록으로 감싸 `/copy` 피커에서 선택 복사 가능 — Meta Zone 없이 handoff 내용만 복사
+- Adaptive Section Rules: Context 섹션에서 대화 맥락이 항상 주가 되고, artifact는 보충 참조로 변경
+
+**로컬 테스트 가이드 보완**
+- CLAUDE.md: `/reload-plugins` 단계 추가 — SKILL.md 수정 후 캐시 갱신 절차 명시
+
+---
+
 ### 2026-04-01: /handoff 스킬 추가 — 세션 이관 handoff 프롬프트 생성
 
 **Handoff 스킬 신규 추가 (handoff)**
