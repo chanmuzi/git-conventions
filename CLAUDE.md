@@ -63,6 +63,14 @@ npx skills add ./  # 로컬 경로에서 설치
 # SKILL.md 수정 후 반영 (캐시 갱신 — 새 세션 불필요)
 /reload-plugins
 
+# ⚠️ remote 설치(GitHub) 상태에서는 /reload-plugins가 main 브랜치를 가져옴
+# fix 브랜치 등 미 merge 변경사항을 테스트하려면 로컬 마켓플레이스로 전환 필요:
+/plugin marketplace add /Users/chanmuzi/coding/workspace/git-conventions  # 로컬 전환
+/reload-plugins                                                           # 로컬에서 로드
+# 테스트 완료 후 remote로 복원:
+/plugin marketplace add chanmuzi/git-conventions                          # remote 복원
+/reload-plugins
+
 # 각 command 테스트
 /commit        → diff 분석 후 conventional commit 메시지 제안 확인
 /pr            → Individual PR 템플릿 생성 확인
