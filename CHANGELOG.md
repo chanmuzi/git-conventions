@@ -9,6 +9,7 @@
 - Formatting Rules 업데이트: terminal-specific, GitHub-specific 규칙에 severity별 action line 명시
 - Recommendation Labels 정의 테이블 추가: Accept (조치 불필요), Monitor (향후 주시), Won't Fix (수정 비용 > 이점)
 - Domain Agent 지시문의 "suggested fix"를 severity-aware "action line per severity"로 수정
+- 브랜치 테스트 가이드 개선: 복사→reload 순서 명시, hash 변경 대응, Claude 전담 흐름 정의
 
 ---
 
