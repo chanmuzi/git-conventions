@@ -1,5 +1,17 @@
 # Change Log
 
+### 2026-04-02: /code-review Codex Detection 개선
+
+**code-review**
+- Codex 탐지 방식 전환: LLM introspection → `find` 기반 companion path 단일 게이트 (결정적 탐지)
+- 플래그 이름 변경: `--codex-both` → `--codex` (full), `--codex-review` → `--codex-general` (general review only)
+- 탐지 결과 Hint 패턴 추가: 성공 시 `💡`, 명시적 플래그 + 미탐지 시 `⚠️`, 미설치 + 플래그 없음 시 silent
+- `--codex` 모드 에이전트 이름: `codex-review` → `codex-general` (플래그 이름과의 혼동 방지)
+- Codex Failure Handling 개선: 인증 실패 시 `⚠️` + `!codex setup` 안내 (기존: 일괄 `ℹ️ unavailable`)
+- README에 Codex 통합 셋업 가이드 추가 (설치 → 인증 → 자동 탐지 3단계)
+
+---
+
 ### 2026-04-02: 로컬 테스트 워크플로우 개선
 
 **CLAUDE.md**
