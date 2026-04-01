@@ -215,9 +215,9 @@ Title format: `Release: {default-base} → {release-base} 통합 (vX.Y.Z)`
 
 ### If Individual PR:
 
-4. Push the branch if not already pushed: `git push -u origin {branch-name}`
+4. Push the branch if not already pushed: `git push -u origin {branch-name}`. If push fails due to permission denied, run `gh repo fork --remote` and retry the push. If forking fails, inform the user with the specific error and stop. If push fails for other reasons, inform the user with the specific error and stop.
 5. Ensure the type label exists: `gh label create "{type_label}" --color "{hex}" 2>/dev/null || true`
-6. Draft the PR title and body using the Individual PR Template, and create the PR: `gh pr create --base {base-branch} --assignee @me --label "{type_label}" --title "..." --body "$(cat <<'EOF' ... EOF)"`. Follow the session's tool permission settings for approval.
+6. Draft the PR title and body using the Individual PR Template, and create the PR: `gh pr create --base {base-branch} --assignee @me --label "{type_label}" --title "..." --body "$(cat <<'EOF' ... EOF)"`. If the command fails due to `--assignee` or `--label` permissions, retry without those flags. Follow the session's tool permission settings for approval.
 7. Return the PR URL. Include a one-line note: **Base branch: `{base-branch}`** — {reason} (e.g., "CLAUDE.md Branch Strategy 설정에 따라 결정" or "origin/dev에서 분기한 브랜치로 감지").
 
 ### If Release PR:
@@ -242,9 +242,9 @@ Title format: `Release: {default-base} → {release-base} 통합 (vX.Y.Z)`
    c. After making changes, show the user a summary of what was updated (files changed, old → new values).
    d. Commit the changes using the project's commit convention (fall back to `chore: release vX.Y.Z` if no convention is found).
 
-6. Push the branch: `git push -u origin {branch-name}`
+6. Push the branch: `git push -u origin {branch-name}`. If push fails due to permission denied, run `gh repo fork --remote` and retry. If forking fails, inform the user with the specific error and stop. If push fails for other reasons, inform the user with the specific error and stop.
 7. Ensure the type label exists: `gh label create "release" --color "1d76db" 2>/dev/null || true`
-8. Draft the PR title and body using the Release PR Template, and create the PR: `gh pr create --base {base-branch} --assignee @me --label "release" --title "..." --body "$(cat <<'EOF' ... EOF)"`. Follow the session's tool permission settings for approval.
+8. Draft the PR title and body using the Release PR Template, and create the PR: `gh pr create --base {base-branch} --assignee @me --label "release" --title "..." --body "$(cat <<'EOF' ... EOF)"`. If the command fails due to `--assignee` or `--label` permissions, retry without those flags. Follow the session's tool permission settings for approval.
 9. Return the PR URL. Include a one-line note: **Base branch: `{base-branch}`** — {reason}. Also provide **post-merge guidance** — list the following as next steps the user should perform after merging:
    - Create and push a git tag: `git tag vX.Y.Z && git push origin vX.Y.Z`
    - Create a GitHub Release: `gh release create vX.Y.Z --generate-notes`
@@ -257,5 +257,5 @@ Title format: `Release: {default-base} → {release-base} 통합 (vX.Y.Z)`
 - Adapt section headers and content language to the project's CLAUDE.md language setting.
 - Do NOT create files that don't already exist in the project. Only update existing files.
 - Always prioritize the project's own conventions and release process over the defaults above.
-- **Assignee**: Always include `--assignee @me` in `gh pr create`. Never omit it.
+- **Assignee**: Always include `--assignee @me` in `gh pr create`. If it fails due to insufficient permissions, retry without it.
 - **Commit references**: Never wrap commit SHAs in backticks (e.g., `` `abc1234` ``). Backtick-wrapped SHAs render as inline code and are not clickable on GitHub. Use plain text (GitHub auto-links SHAs) or explicit markdown links: `[{short_sha}](https://github.com/{owner}/{repo}/commit/{sha})`.
