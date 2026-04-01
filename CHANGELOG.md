@@ -1,5 +1,22 @@
 # Change Log
 
+### 2026-04-01: `-g`/`--graph` Mermaid 변경 흐름 그래프 기능 추가
+
+**code-review**
+- `-g`/`--graph` 플래그를 Mermaid 플로우차트 기능으로 재정의
+- PR 모드 전용: GitHub에서 Mermaid 네이티브 렌더링, 터미널 프리뷰에서는 한 줄 요약
+- Working Dir/Path 모드에서는 렌더링 대상이 없어 `-g` 무시
+- 관계 미감지 시 skip condition 및 사유 고지
+- edge 유형: code-level (imports, calls 등) + conceptual (references, shared logic, configures)
+
+**pr**
+- `-g`/`--graph` 플래그 신설, Flag Detection 테이블 추가
+- Individual PR / Release PR 양쪽 템플릿에 "변경 흐름" Mermaid 섹션 추가
+- code-review와 동일한 graph 분석 프로세스 및 skip condition 적용
+
+**CLAUDE.md**
+- "스킬 간 공유 로직" 추적 테이블 추가 (graph 분석, label system)
+
 ### 2026-04-01: code-review / review-reply 출력 포맷 전면 개선
 
 **CLAUDE.md 터미널 렌더링 가이드라인 보정**

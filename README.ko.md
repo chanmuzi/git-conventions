@@ -110,6 +110,7 @@ staged/unstaged 변경 사항을 분석하고, conventional commit 형식에 맞
 
 ```
 /pr              # Individual PR (Feat, Fix, Refactor 등)
+/pr -g           # Mermaid 변경 흐름 그래프 포함
 /pr release      # Release PR (dev → main 통합)
 ```
 
@@ -156,7 +157,7 @@ PR 또는 로컬 코드 변경사항을 도메인별 전문 agent(Security, Perf
 - `--wd` — PR 자동 감지를 건너뛰고 working directory 모드 강제
 - `--domain security,perf` — 자동 감지 대신 도메인 수동 지정
 - `-y` / `-f` — 승인 없이 즉시 게시
-- `-g` — 코드 그래프 분석 활성화
+- `-g` — Mermaid 변경 흐름 그래프 생성 (PR 모드 전용)
 - `--no-codex` — Codex 통합 비활성화
 - `--codex-review` — adversarial 대신 Codex 일반 리뷰 사용
 - `--codex-both` — Codex 일반 리뷰 + adversarial 동시 실행
