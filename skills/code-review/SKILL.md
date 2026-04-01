@@ -207,7 +207,7 @@ Used when `-s`/`--sub` flag is NOT set. Each domain agent gets its own context w
 1. `TeamCreate` — name: `code-review`.
 2. For each activated domain:
    - `TaskCreate` — subject: `"{Domain} domain analysis"`. Description: changed files relevant to this domain and domain-specific focus areas.
-   - Spawn teammate via `Agent` with `team_name: "code-review"`, `name` set to domain name (lowercase, e.g., `"security"`, `"architecture"`), `subagent_type` per Domain Definitions. Prompt includes: full diff from Step 1, changed file context, domain focus areas, and finding format (title, file path, occurrence count, description, suggested fix).
+   - Spawn teammate via `Agent` with `team_name: "code-review"`, `name` set to domain name (lowercase, e.g., `"security"`, `"architecture"`), `subagent_type` per Domain Definitions. Prompt includes: full diff from Step 1, changed file context, domain focus areas, and finding format (title, file path, primary line number, occurrence count, description, and action line per severity).
    - `TaskUpdate` — set `owner` to the agent name.
 3. Monitor `TaskList` until all domain tasks complete. Collect findings from agent messages.
 4. Shut down agents via `SendMessage` with `shutdown_request`.
@@ -271,7 +271,7 @@ Focus areas:
 - Race conditions
 - Type safety gaps
 
-Each finding must include: title, file path, **primary line number**, occurrence count, description, and suggested fix.
+Each finding must include: title, file path, **primary line number**, occurrence count, description, and action line — `suggested fix` for Critical/Warning severity, `recommendation label` (Accept / Monitor / Won't Fix) for Info severity.
 
 **Primary line number**: The line number in the new version of the file where the issue is most clearly visible. Required for inline comment targeting in PR mode. In the finding's description text, reference locations by section heading, function name, or code pattern — not by raw line number (line numbers are used only for comment placement, not in the output text).
 
@@ -381,6 +381,16 @@ Produce severity-first structured output.
 | Warning | 🟡 | Potential bug, performance issue, maintainability concern |
 | Info | 🟢 | Suggestion, minor improvement, style note |
 
+### Recommendation Labels
+
+Info findings use a recommendation label instead of a fix suggestion. The label conveys the reviewer's assessment of whether action is needed.
+
+| Label | Meaning | When to use |
+|-------|---------|-------------|
+| **Accept** | Acknowledged, no action needed | Intentional design choice, acceptable trade-off, or cosmetic preference |
+| **Monitor** | No immediate action, track over time | Could become an issue at scale, under load, or after future changes |
+| **Won't Fix** | Known limitation, not worth addressing | Cost outweighs benefit, outside scope, or constrained by external factors |
+
 ### Source Tags
 
 Each finding displays a source tag after the title (e.g., `**Finding title** — Security`). Domain agent findings use their domain name. Codex findings use tags based on the active Codex mode:
@@ -480,12 +490,16 @@ Findings: 🔴 {critical_count} critical · 🟡 {warning_count} warnings · �
 
 {description}
 
+> **Recommendation**: {Accept | Monitor | Won't Fix} — {reason}
+
 ---
 
 **I2. {finding title}** — {domain}
 `{file}` ({N}곳)
 
 {description}
+
+> **Recommendation**: {Accept | Monitor | Won't Fix} — {reason}
 ```
 
 #### GitHub Format: Review Summary
@@ -534,7 +548,11 @@ flowchart LR
 
 {description}
 
+{if severity is Critical or Warning:}
 > **Fix**: {suggestion}
+{else (Info):}
+> **Recommendation**: {Accept | Monitor | Won't Fix} — {reason}
+{end if}
 
 ---
 
@@ -558,12 +576,16 @@ Posted as individual review comments, each attached to a specific file and line 
 
 {description}
 
+{if severity is Critical or Warning:}
 {if concrete code change:}
 ```suggestion
 {suggested code — only the replacement lines, matching GitHub suggestion block format}
 ```
 {else:}
 > **Fix**: {suggestion}
+{end if}
+{else (Info):}
+> **Recommendation**: {Accept | Monitor | Won't Fix} — {reason}
 {end if}
 ````
 
@@ -578,6 +600,7 @@ For contextual match findings (mapped via contextual fallback):
 
 {description}
 
+{if severity is Critical or Warning:}
 {if concrete code change:}
 ```suggestion
 {suggested code — only the replacement lines, matching GitHub suggestion block format}
@@ -585,9 +608,12 @@ For contextual match findings (mapped via contextual fallback):
 {else:}
 > **Fix**: {suggestion}
 {end if}
+{else (Info):}
+> **Recommendation**: {Accept | Monitor | Won't Fix} — {reason}
+{end if}
 ````
 
-Use GitHub `suggestion` blocks when the fix is a concrete, localized code change (variable rename, parameter addition, line replacement). The suggestion block enables one-click "Apply suggestion" in GitHub's UI. Use `> **Fix**: ...` for directional or structural suggestions that span multiple locations.
+Use GitHub `suggestion` blocks when the fix is a concrete, localized code change (variable rename, parameter addition, line replacement). The suggestion block enables one-click "Apply suggestion" in GitHub's UI. Use `> **Fix**: ...` for directional or structural suggestions that span multiple locations. Info findings always use `> **Recommendation**: ...` — suggestion blocks are not applicable.
 
 ### Formatting Rules
 
@@ -614,16 +640,17 @@ Use GitHub `suggestion` blocks when the fix is a concrete, localized code change
 - Severity header is followed by `---` before the first finding. Findings within the same severity are also separated by `---`.
 - Each finding is numbered with a severity prefix: `C{n}` (Critical), `W{n}` (Warning), `I{n}` (Info), starting from 1 per severity.
 - Finding title first (bold — renders bright in CLI), file path second.
-- Fix is always natural language in a blockquote (`> **Fix**: ...`), referencing by section/pattern.
+- Action line by severity: Critical/Warning use `> **Fix**: ...` (natural language, referencing by section/pattern). Info uses `> **Recommendation**: {Accept | Monitor | Won't Fix} — {reason}` to convey whether action is needed.
 - Domains with no findings: omit entirely (no "✅ ... No issues found" line).
 - Codex failure notice (if applicable): append after the summary line per the error classification in Step 3 Codex Failure Handling (`⚠️` for auth errors, `ℹ️` for other failures). Only shown when Codex mode was NOT disabled but companion returned non-zero exit. Do NOT include in GitHub format.
 
 **GitHub-specific rules (inline review comments)**:
 - Review Summary: severity counts and key changes at the top. Unmapped findings (after contextual mapping) included below under "General Findings" as fallback only.
 - Inline Comment: one finding per comment. No `<details>` tags — each comment is self-contained.
-- Fix format in inline comments:
-  - Concrete, localized code change → GitHub `suggestion` block (enables one-click apply).
-  - Directional or multi-location suggestion → `> **Fix**: ...` natural language.
+- Action line format in inline comments:
+  - Critical/Warning with concrete, localized code change → GitHub `suggestion` block (enables one-click apply).
+  - Critical/Warning with directional or multi-location suggestion → `> **Fix**: ...` natural language.
+  - Info → `> **Recommendation**: {Accept | Monitor | Won't Fix} — {reason}` (no suggestion block).
 - Domains with no findings: omit entirely from both summary and inline comments.
 
 ---

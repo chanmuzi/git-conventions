@@ -1,5 +1,21 @@
 # Change Log
 
+### 2026-04-02: /code-review Info finding에 Recommendation 추가
+
+**code-review**
+- Info severity finding에 `> **Recommendation**: {Accept | Monitor | Won't Fix} — {reason}` 행동 지침 추가
+- Terminal, GitHub Inline Comment, GitHub General Findings 전 포맷에 severity별 분기 적용
+- Critical/Warning은 기존 `> **Fix**:` 유지, Info는 `> **Recommendation**:` 사용
+- Formatting Rules 업데이트: terminal-specific, GitHub-specific 규칙에 severity별 action line 명시
+- Recommendation Labels 정의 테이블 추가: Accept (조치 불필요), Monitor (향후 주시), Won't Fix (수정 비용 > 이점)
+- Domain Agent 지시문의 "suggested fix"를 severity-aware "action line per severity"로 수정
+- 브랜치 테스트 가이드 개선: `ls -td` 최신 cache 경로 탐색 방식으로 전환 (installed_plugins.json ≠ 실제 로드 경로 문제 해결)
+- cache 누적 정리 가이드 추가 (reload마다 새 hash 생성되어 누적됨)
+- `/reload-plugins`는 이 세션에서 실행해야 한다는 안내 추가
+- 테스트 안내 흐름: Claude가 복사·실행·리포트·복원 전담, 사용자는 reload만
+
+---
+
 ### 2026-04-02: /code-review Codex Detection 개선
 
 **code-review**
