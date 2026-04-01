@@ -1,5 +1,21 @@
 # Change Log
 
+### 2026-04-02: /commit amend 자동 감지 및 --no-amend 플래그 추가
+
+**commit**
+- Amend Detection: 직전 커밋과 파일 겹침 감지 시 자동 amend 실행
+- Push 상태 인식: 미push 시 amend만, push 완료 시 amend + `--force-with-lease` 자동 실행
+- `--no-amend` 플래그: amend 감지 건너뛰고 항상 새 커밋 생성
+- Merge commit skip: 직전 커밋이 merge commit이면 amend 감지 건너뜀
+- Hint 패턴: 자동 실행 결과를 blockquote 형식으로 사용자에게 고지
+
+**CLAUDE.md**
+- 터미널 렌더링 가이드라인에 "Hint 패턴" 섹션 추가 (⚡ 자동 실행, 💡 정보, ⚠️ 주의)
+- 로컬 테스트에 amend 시나리오 및 `/commit --no-amend` 테스트 케이스 추가
+- "테스트 안내 흐름" 가이드라인 추가
+
+---
+
 ### 2026-04-01: /handoff Detection 순서 수정 및 /copy 호환성 개선
 
 **handoff**
