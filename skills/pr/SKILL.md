@@ -4,7 +4,7 @@ description: >-
   Create a pull request following project conventions.
   TRIGGER when: user asks to create/open a PR, push and create PR, or any workflow that includes PR creation (e.g., "PR 올려줘", "푸시하고 PR 만들어줘", "commit, push, and create PR").
   DO NOT TRIGGER when: user is viewing or listing existing PRs, or performing git operations without PR intent.
-argument-hint: "[release] [--base <branch>]"
+argument-hint: "[release] [--base <branch>] [-g|--graph]"
 version: "1.3.1"
 allowed-tools: Bash(git *), Bash(gh pr *), Bash(gh label *), Read, Grep, Glob
 ---
@@ -40,11 +40,34 @@ Resolve the target base branch before proceeding. Use the first matching rule:
 
 Do NOT ask for user confirmation. Instead, briefly state which base branch was selected and why (one line) when presenting the PR.
 
+## Flag Detection
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `-g\|--graph` | off | Include a Mermaid change-flow graph in the PR description |
+
 ## Gather Context
 
 Run the following commands using the resolved `{base-branch}`:
 1. `git log --oneline {base-branch}..HEAD 2>/dev/null || git log --oneline -10` — list commits on this branch
 2. `git diff {base-branch}...HEAD --stat 2>/dev/null || echo "Could not determine diff"` — list changed files
+
+### Graph Analysis (when `-g` flag is set)
+
+Additionally build a **change-flow graph** for the PR description:
+
+1. **Trace relationships**: For each changed file, identify imports, exports, function calls, and data flow to/from other changed files using Grep.
+2. **Map edges**: Record directional relationships — `A imports B`, `A calls B.func()`, `A extends B`, `A emits → B consumes`.
+3. **Group by module**: If changed files exceed 7, group by parent directory into logical modules (subgraph nodes). Individual files become child nodes.
+4. **Construct Mermaid source**: Build a `flowchart LR` diagram. Nodes = changed files (or module groups). Edges = relationships found in step 2, labeled with relationship type.
+
+**Skip condition**: If no edges (relationships) are found between changed files after step 2, skip graph generation entirely. Omit the graph section from the PR description silently.
+
+Graph rules:
+- Mermaid direction: `flowchart LR` (left-to-right).
+- Node labels: filename only (no full path). Use `[filename.ts]` format.
+- Edge labels: relationship type — `imports`, `calls`, `extends`, `emits/consumes`, `reads/writes`.
+- Module grouping: When changed files > 7, group by parent directory using `subgraph`. When ≤ 7, show individual file nodes without subgraph.
 
 ## Determine PR Type
 
@@ -144,6 +167,20 @@ Apply this template for feature, fix, refactor, and other non-release PRs.
 - {Specific change and its purpose}
 - 관련 PR: #{number}
 
+
+{if -g flag set:}
+## 📊 변경 흐름
+
+```mermaid
+flowchart LR
+  subgraph {module_name}[{Module Display Name}]
+    {file_node_id}[{filename}]
+  end
+  {source_node} -->|{relationship_label}| {target_node}
+```
+
+{end if}
+
 ## 참고 사항
 
 - {Points reviewers should focus on}
@@ -189,6 +226,20 @@ Title format: `Release: {default-base} → {release-base} 통합 (vX.Y.Z)`
 
 - {Key change}
 - 관련 PR: #{PR number}
+
+
+{if -g flag set:}
+## 📊 변경 흐름
+
+```mermaid
+flowchart LR
+  subgraph {module_name}[{Module Display Name}]
+    {file_node_id}[{filename}]
+  end
+  {source_node} -->|{relationship_label}| {target_node}
+```
+
+{end if}
 
 ## 참고 사항
 

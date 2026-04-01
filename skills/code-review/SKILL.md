@@ -41,7 +41,7 @@ Key behaviors:
 | Flag | Default | Description |
 |------|---------|-------------|
 | `-y\|--yes\|--force\|-f` | off | Publish without approval |
-| `-g\|--graph` | off | Enable code graph analysis (dependency map) |
+| `-g\|--graph` | off | Generate a visual change-flow graph (Mermaid on GitHub, summary in terminal) |
 | `-d\|--domain` | auto | Override domain selection (e.g., `-d security,perf`) |
 | `-s\|--sub` | off | Use sub-agents instead of team agents for domain analysis |
 | `--pr` | — | Explicit PR mode (e.g., `--pr 42`). Use when path arguments contain digits |
@@ -107,10 +107,18 @@ git log --oneline -10 -- {path}
 
 For each changed file, read sufficient surrounding context (at least 30 lines around each change hunk) to understand the code's purpose. Use Read to examine files directly.
 
-If `-g` (graph) flag is set, additionally analyze import/dependency relationships:
-- Trace imports/exports of changed files
-- Identify callers and callees using Grep
-- Build a mental dependency map of affected modules
+If `-g` (graph) flag is set **and the mode is PR Review**, build a **change-flow graph** for the GitHub review output. In Working Dir / Path mode, `-g` is ignored — the terminal cannot render Mermaid and there is no GitHub publishing target.
+
+1. **Trace relationships**: For each changed file, identify imports, exports, function calls, and data flow to/from other changed files using Grep.
+2. **Map edges**: Record directional relationships — `A imports B`, `A calls B.func()`, `A extends B`, `A emits → B consumes`.
+3. **Group by module**: If changed files exceed 7, group by parent directory into logical modules (subgraph nodes). Individual files become child nodes.
+4. **Construct Mermaid source**: Build a `flowchart LR` diagram. Nodes = changed files (or module groups). Edges = relationships found in step 2, labeled with relationship type.
+
+**Skip condition**: If no edges (relationships) are found between changed files after step 2, skip graph generation entirely. In the terminal preview, show: `📊 Change Graph: 파일 간 관계가 감지되지 않아 그래프를 생략합니다`. In the GitHub format, omit the graph section silently.
+
+The graph is rendered differently per output format (see Step 5):
+- **GitHub**: Full Mermaid code block (native rendering).
+- **Terminal (PR preview only)**: One-line summary with module/file counts and primary flow path.
 
 ---
 
@@ -399,6 +407,13 @@ Finding title comes first (renders as bold/bright in terminal), file path second
 
 Domains: {activated domains joined by " • "}{if Codex enabled: " · Codex 🤖"}
 Findings: 🔴 {critical_count} critical · 🟡 {warning_count} warnings · 🟢 {info_count} info
+{if -g flag set AND PR mode:}
+📊 Change Graph: GitHub 게시 시 Mermaid 플로우차트 포함
+   {module_count} modules · {file_count} files · 주요 흐름: {primary_flow_path}
+{end if}
+{if -g flag set AND PR mode AND no relationships found:}
+📊 Change Graph: 파일 간 관계가 감지되지 않아 그래프를 생략합니다
+{end if}
 
 ────────────────────
 
@@ -482,6 +497,20 @@ Posted as the pull request review `body`. Contains the severity counts, key chan
 - {개념적 변경 2}
 - {개념적 변경 3}
 
+{if -g flag set:}
+
+### 📊 Change Graph
+
+```mermaid
+flowchart LR
+  subgraph {module_name}[{Module Display Name}]
+    {file_node_id}[{filename}]
+  end
+  {source_node} -->|{relationship_label}| {target_node}
+```
+
+{end if}
+
 {if unmapped findings exist:}
 
 ---
@@ -558,6 +587,14 @@ Use GitHub `suggestion` blocks when the fix is a concrete, localized code change
 - Omit severity sections that have 0 findings.
 - **Bullet management**: If a single finding has more than 5 sub-points, consolidate.
 - **Commit SHA references**: Never use backticks around SHAs. Use plain text or markdown links.
+
+**Graph rules (when `-g` flag is set)**:
+- Mermaid direction: `flowchart LR` (left-to-right) for readability.
+- Node labels: filename only (no full path). Use `[filename.ts]` format.
+- Edge labels: relationship type — `imports`, `calls`, `extends`, `emits/consumes`, `reads/writes`.
+- Module grouping: When changed files > 7, group by parent directory using `subgraph`. When ≤ 7, show individual file nodes without subgraph.
+- Terminal: One-line summary only — module count, file count, primary flow path (longest chain of connected nodes, max 4 nodes joined by ` → `).
+- GitHub: Full Mermaid code block placed after Key Changes, before General Findings.
 
 **Terminal-specific rules**:
 - No `<details>` or HTML tags — they don't render in CLI.

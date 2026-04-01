@@ -130,6 +130,15 @@ Markdown 원문과 터미널 표시가 다른 주요 케이스:
 약: 빈 줄                                              → 항목 내부
 ```
 
+## 스킬 간 공유 로직
+
+일부 로직이 여러 SKILL.md에 동일하게 기술되어 있다. 각 스킬은 self-contained여야 하므로 중복은 의도된 설계이나, 한쪽 수정 시 반드시 cross-check해야 한다.
+
+| 공유 로직 | 관련 스킬 | 비고 |
+|----------|----------|------|
+| `-g`/`--graph` Mermaid 분석 (4단계 프로세스 + graph rules) | `code-review`, `pr` | 분석 절차, skip condition, Mermaid 포맷 동일 |
+| Label System (type labels, color hex) | `pr`, `issue` | 이미 각 SKILL.md에 명시됨 |
+
 ## 새 스킬 추가 체크리스트
 
 새 스킬 디렉토리(`skills/{name}/`) 생성 시 아래 파일을 반드시 함께 업데이트한다:
