@@ -92,8 +92,8 @@ fix/feat 브랜치의 SKILL.md 변경을 merge 전에 테스트하려면 로컬 
 /plugin marketplace add /Users/chanmuzi/coding/workspace/git-conventions
 /reload-plugins
 
-# 2. 스킬 테스트 수행
-/handoff    # 또는 수정한 스킬 실행
+# 2. 수정한 스킬 테스트 수행
+/{수정한 스킬}    # 예: /handoff, /commit, /code-review 등
 
 # 3. 테스트 완료 후 remote로 복원
 /plugin marketplace add chanmuzi/git-conventions
