@@ -207,7 +207,7 @@ Used when `-s`/`--sub` flag is NOT set. Each domain agent gets its own context w
 1. `TeamCreate` — name: `code-review`.
 2. For each activated domain:
    - `TaskCreate` — subject: `"{Domain} domain analysis"`. Description: changed files relevant to this domain and domain-specific focus areas.
-   - Spawn teammate via `Agent` with `team_name: "code-review"`, `name` set to domain name (lowercase, e.g., `"security"`, `"architecture"`), `subagent_type` per Domain Definitions. Prompt includes: full diff from Step 1, changed file context, domain focus areas, and finding format (title, file path, occurrence count, description, and action line per severity).
+   - Spawn teammate via `Agent` with `team_name: "code-review"`, `name` set to domain name (lowercase, e.g., `"security"`, `"architecture"`), `subagent_type` per Domain Definitions. Prompt includes: full diff from Step 1, changed file context, domain focus areas, and finding format (title, file path, primary line number, occurrence count, description, and action line per severity).
    - `TaskUpdate` — set `owner` to the agent name.
 3. Monitor `TaskList` until all domain tasks complete. Collect findings from agent messages.
 4. Shut down agents via `SendMessage` with `shutdown_request`.
