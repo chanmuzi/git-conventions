@@ -65,7 +65,7 @@ npx skills add ./  # 로컬 경로에서 설치
 
 # 각 command 테스트
 /commit             → diff 분석 후 conventional commit 메시지 제안 확인
-/commit             → 커밋 후 동일 파일 재수정 시 amend 자동 실행 확인
+/commit             → (직전 커밋 파일을 재수정 후) amend 자동 실행 확인
 /commit --no-amend  → amend 감지 건너뛰고 항상 새 커밋 생성
 /pr            → Individual PR 템플릿 생성 확인
 /pr release    → Release PR 템플릿 생성 확인
