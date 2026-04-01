@@ -1,5 +1,23 @@
 # Change Log
 
+### 2026-04-01: /handoff 스킬 추가 — 세션 이관 handoff 프롬프트 생성
+
+**Handoff 스킬 신규 추가 (handoff)**
+- `/handoff` slash command 신규 생성
+- Detection Cascade: 아티팩트(.omc/specs/, .omc/plans/) → Git 상태 → 대화 컨텍스트 우선순위 자동 감지
+- Reference-not-repeat 원칙: 아티팩트 내용을 반복하지 않고 경로만 참조하여 노이즈 최소화
+- Sentinel 기반 스킬 추천: code-review의 Codex zero-cost detection 패턴 재사용 — OMC, Codex, git-conventions 스킬 자동 감지 후 다음 세션에 적합한 스킬 추천
+- 3-zone 출력 구조: Meta Zone(터미널 전용) + Handoff Zone(/copy 대상) 분리
+- 확인 흐름: 아티팩트 존재 시 즉시 출력, 대화 요약 시 사용자 확인 후 출력
+- `-y` 플래그: 확인 없이 즉시 출력
+- Topic 필터: `/handoff auth 리팩토링`으로 특정 주제에 집중한 handoff 생성
+- Read-only 스킬: git 상태 변경 없음, 파일 생성 없음
+
+**문서 업데이트**
+- CLAUDE.md: 프로젝트 개요(7개 slash command), 아키텍처 트리, 로컬 테스트, 스킬 공통 규칙에 handoff 반영
+- marketplace.json: skills 배열 및 description 업데이트
+- README.md, README.ko.md: 스킬 소개, 설치 명령어, CLAUDE.md 연동 섹션 업데이트
+
 ### 2026-04-01: `-g`/`--graph` Mermaid 변경 흐름 그래프 기능 추가
 
 **code-review**
