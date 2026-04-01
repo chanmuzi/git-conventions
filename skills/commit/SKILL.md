@@ -15,6 +15,61 @@ Otherwise, run them to understand the current state:
 1. `git status` — check current status and untracked files
 2. `git diff HEAD` — review all changes
 
+## Flag Detection
+
+| Flag | Effect |
+|------|--------|
+| `--no-amend` | Skip amend detection; always create a new commit |
+
+Parse `$ARGUMENTS` for flags before proceeding. Natural language equivalents: "새 커밋으로", "amend 하지 말고" → `--no-amend`.
+
+## Amend Detection
+
+> Skip this section if any of the following is true:
+> - `--no-amend` is set
+> - This is the very first commit (`HEAD~1` does not exist)
+> - The last commit is a merge commit (`git rev-parse --verify HEAD^2 2>/dev/null` succeeds)
+
+Before creating a new commit, check whether the current changes should amend the last commit.
+
+**Step 1 — Check file overlap:**
+
+Run both commands and compare the file lists:
+```bash
+git diff HEAD~1 HEAD --name-only      # files changed in the last commit
+git diff HEAD --name-only             # files currently modified (vs HEAD)
+```
+
+If **no file appears in both lists** (intersection is empty) → proceed to Task (new commit).
+If **any file** appears in both lists → proceed to Step 2 (amend).
+
+**Step 2 — Amend with push-status awareness:**
+
+If files overlap, amend the last commit:
+
+```bash
+# Check whether the last commit has been pushed
+git log @{u}..HEAD --oneline 2>/dev/null
+# - Command fails (no upstream): NOT pushed
+# - Non-empty output: NOT pushed (unpushed commits exist)
+# - Empty output: already pushed → force push required after amend
+```
+
+- Stage the relevant files and run `git commit --amend`.
+  - Use `--no-edit` if the change is a minor fix within the same intent.
+  - Update the commit message if the scope or meaning has changed.
+- Display a hint:
+
+> **⚡ Amend** — overlapping files with the last commit detected
+
+- If the last commit was already pushed, also run `git push --force-with-lease` and display:
+
+> **⚡ Force pushed** (`--force-with-lease`)
+
+**After amend:**
+- If all changed files were covered by the amend → done. Do not proceed to Task.
+- If some files were NOT in the last commit → proceed to Task for remaining files only.
+
 ## Commit Message Convention
 
 Format: `{type}: {description}` or `{type}({scope}): {description}`
@@ -94,6 +149,8 @@ refactor: Gather Context 불필요한 명령 및 중복 step 제거
 ```
 
 ## Task
+
+> If Amend Detection already committed some or all files, only process the remaining uncommitted changes below. If nothing remains, skip this section.
 
 1. Analyze the diff and identify logical units of change. If there are multiple units, plan separate commits for each.
 2. For each commit unit:

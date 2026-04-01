@@ -91,10 +91,11 @@ npx skills update
 
 ### `/commit` — Create a Git Commit
 
-Analyzes your staged/unstaged changes and proposes a commit message following the conventional commit format.
+Analyzes your staged/unstaged changes and proposes a commit message following the conventional commit format. Automatically detects when the current changes overlap with the last commit and amends instead of creating a new commit.
 
 ```
-/commit
+/commit              # Analyze and commit (with amend auto-detection)
+/commit --no-amend   # Skip amend detection; always create a new commit
 ```
 
 **Commit message format:**

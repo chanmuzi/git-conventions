@@ -91,10 +91,11 @@ npx skills update
 
 ### `/commit` — Git 커밋 생성
 
-staged/unstaged 변경 사항을 분석하고, conventional commit 형식에 맞는 커밋 메시지를 제안합니다.
+staged/unstaged 변경 사항을 분석하고, conventional commit 형식에 맞는 커밋 메시지를 제안합니다. 직전 커밋과 파일이 겹치면 자동으로 amend하여 불필요한 커밋 증가를 방지합니다.
 
 ```
-/commit
+/commit              # 분석 후 커밋 (amend 자동 감지 포함)
+/commit --no-amend   # amend 감지 건너뛰고 항상 새 커밋 생성
 ```
 
 **커밋 메시지 형식:**
