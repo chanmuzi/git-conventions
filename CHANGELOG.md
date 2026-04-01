@@ -1,5 +1,18 @@
 # Change Log
 
+### 2026-04-02: /code-review Quick 모드 추가
+
+**code-review**
+- `--quick` / `-q` 플래그 추가: 단일 패스 분석 모드 (에이전트 spawn 없음)
+- Quick 모드 시 auto-detect 도메인을 우선순위(Security > Domain Logic > Architecture > Performance) 기반 최대 2개로 cap
+- Codex, Graph(`-g`) 자동 비활성화
+- Critical/Warning 존재 시 Info 생략, 없으면 Info fallback 표시
+- Cross-Validation 경량화: context 15줄 + sanity check만 수행 (git history, PR description 교차 생략)
+- 개발/테스트 시 빠른 반복을 위한 용도
+- Terminal format zero-findings 메시지 추가 (Quick/Normal 공통: `✅ No issues found.`)
+
+---
+
 ### 2026-04-02: /code-review Info finding에 Recommendation 추가
 
 **code-review**

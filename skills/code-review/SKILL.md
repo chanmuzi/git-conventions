@@ -4,7 +4,7 @@ description: >-
   Review code changes using context-aware multi-agent pipeline with severity-based findings.
   TRIGGER when: user asks to review code, analyze PR quality, check for issues, run code review, or audit changes (e.g., "코드 리뷰해줘", "review this PR", "코드 분석해줘", "리뷰 돌려줘").
   DO NOT TRIGGER when: user is replying to review comments (use review-reply), creating PRs, committing, or performing git operations without review intent.
-argument-hint: "[PR번호|경로] [-d|--domain security,perf] [-y|--yes] [-g|--graph] [-s|--sub] [--wd] [--no-codex|--codex|--codex-general]"
+argument-hint: "[PR번호|경로] [-d|--domain security,perf] [-y|--yes] [-g|--graph] [-s|--sub] [-q|--quick] [--wd] [--no-codex|--codex|--codex-general]"
 version: "1.7.0"
 allowed-tools: Bash(git *), Bash(gh *), Bash(node *), Bash(find *), Read, Grep, Glob, Agent, TeamCreate, TaskCreate, TaskList, TaskUpdate, TaskGet, SendMessage
 ---
@@ -46,6 +46,7 @@ Key behaviors:
 | `-s\|--sub` | off | Use sub-agents instead of team agents for domain analysis |
 | `--pr` | — | Explicit PR mode (e.g., `--pr 42`). Use when path arguments contain digits |
 | `--wd` | off | Force Working Dir mode, skipping PR auto-detection |
+| `-q\|--quick` | off | Quick mode: single-pass analysis without agent spawn. Auto-detected domains capped at 2, Codex disabled, Info findings omitted, graph skipped. Designed for fast iteration during development/testing. |
 | `--no-codex` | off | Disable Codex integration entirely (skip Codex detection and execution) |
 | `--codex` | off | Run both Codex general review and adversarial review in parallel |
 | `--codex-general` | off | Use Codex general review (`codex:review`) only, without adversarial review |
@@ -54,6 +55,19 @@ Codex flag precedence: `--no-codex` > `--codex` > `--codex-general` > default (a
 Only one Codex mode flag should be used at a time. If multiple are present, the highest-precedence flag wins.
 
 If `$ARGUMENTS` contains explicit publish intent ("comment 달아", "바로 올려", "게시해", "post it"), treat as `-y`.
+
+### Quick Mode Implicit Effects
+
+When `--quick` is set, the following flags are implicitly forced regardless of other arguments:
+
+| Implicit Override | Effect |
+|-------------------|--------|
+| `--no-codex` | Codex always disabled |
+| `-g` / `--graph` ignored | Graph generation skipped |
+
+Display hint immediately after flag parsing:
+
+> **⚡ Quick mode** — 단일 패스 분석, Critical/Warning 우선 (없으면 Info fallback)
 
 ---
 
@@ -146,11 +160,25 @@ If `--domain` flag is provided, use ONLY the specified domains regardless of fil
 
 Collect the union of all activated domains from all changed files. Deduplicate.
 
+### Quick Mode Domain Cap
+
+When `--quick` is set (and `--domain` is NOT provided), cap the auto-detected domains to **at most 2** using this priority:
+
+```
+Security > Domain Logic > Architecture > Performance
+```
+
+Process: run auto-detection as normal, then sort by priority and take the top 2. If auto-detection returns ≤ 2, use all of them as-is.
+
+When `--domain` is explicitly provided alongside `--quick`, respect the override — do not cap.
+
 ---
 
 ## Step 2.5: Codex Detection
 
 Determine whether the Codex plugin is available and resolve the Codex execution mode.
+
+**Quick mode**: Skip this entire step. Codex mode is already forced to **disabled** (see Quick Mode Implicit Effects). Proceed directly to Step 3.
 
 ### Companion Detection
 
@@ -193,7 +221,18 @@ Store the resolved mode for use in Steps 3, 4, and 5. Each spawned Codex agent r
 
 Launch activated domain agents in parallel. Each agent receives the full diff and context from Step 1.
 
-### Execution Mode
+### Quick Mode: Single-Pass Analysis
+
+When `--quick` is set, skip all agent spawning (team and sub-agent). Instead, perform the analysis directly in the main context:
+
+1. For each activated domain (max 2 from Step 2), analyze the diff using that domain's focus areas (see Domain Definitions below).
+2. Produce findings in the same format as agent results: title, file path, primary line number, occurrence count, description, and action line.
+3. Produce findings for **all severity levels** (Critical, Warning, Info). The output step decides which severities to display based on results (see Step 5 Quick Mode Output).
+4. Skip Codex execution entirely (mode is **disabled**).
+
+This eliminates the overhead of agent creation, context window allocation, and inter-agent communication. Proceed directly to Step 4 after analysis.
+
+### Execution Mode (Normal)
 
 | Mode | Condition | Description |
 |------|-----------|-------------|
@@ -331,6 +370,17 @@ If neither team agents nor sub-agents are available (e.g., Codex CLI, Gemini CLI
 
 This is the quality gate. Review ALL findings from domain agents against the full context to filter false positives.
 
+### Quick Mode: Lightweight Validation
+
+When `--quick` is set, perform a reduced validation pass:
+
+1. **Expanded context**: Read at least 15 lines around the flagged location using Read (half of normal).
+2. **Sanity check**: Verify the finding references real code (not a false match from diff noise).
+
+Skip git history, comments/docs search, and PR description cross-reference. Apply Confirmed / Dismissed verdicts only (no Demoted). This trades thoroughness for speed — obvious false positives are still caught, but edge cases may pass through.
+
+### Normal Mode
+
 For each finding:
 
 1. **Expanded context**: Read at least 30 lines around the flagged location using Read.
@@ -372,6 +422,20 @@ When multiple agents (domain or Codex) flag the same code location:
 ## Step 5: Output Generator
 
 Produce severity-first structured output.
+
+### Quick Mode Output
+
+When `--quick` is set, the output severity is determined by results:
+
+- **Critical/Warning 1건 이상**: Critical/Warning만 출력, Info 생략. Summary: `Findings: 🔴 {n} critical · 🟡 {n} warnings`.
+- **Critical/Warning 0건, Info 1건 이상**: Info findings를 fallback으로 출력 (Recommendation labels 포함). Summary: `Findings: 🟢 {n} info`.
+- **전체 0건**: Terminal/GitHub 공통 zero-findings 규칙 적용 (`✅ No issues found.`).
+
+Common rules:
+- **Source Tags** — same as Normal mode, using domain names.
+- **Graph** — always omitted (see Quick Mode Implicit Effects).
+- **Codex tags** — not applicable (Codex disabled).
+- **GitHub format**: If publishing in PR mode, use the same GitHub format with the same severity filtering rules above.
 
 ### Severity Levels
 
@@ -642,6 +706,7 @@ Use GitHub `suggestion` blocks when the fix is a concrete, localized code change
 - Finding title first (bold — renders bright in CLI), file path second.
 - Action line by severity: Critical/Warning use `> **Fix**: ...` (natural language, referencing by section/pattern). Info uses `> **Recommendation**: {Accept | Monitor | Won't Fix} — {reason}` to convey whether action is needed.
 - Domains with no findings: omit entirely (no "✅ ... No issues found" line).
+- Zero findings overall: display `## Code Review: {target}\n\n✅ No issues found.` — severity sections, summary line 모두 생략.
 - Codex failure notice (if applicable): append after the summary line per the error classification in Step 3 Codex Failure Handling (`⚠️` for auth errors, `ℹ️` for other failures). Only shown when Codex mode was NOT disabled but companion returned non-zero exit. Do NOT include in GitHub format.
 
 **GitHub-specific rules (inline review comments)**:
@@ -658,6 +723,8 @@ Use GitHub `suggestion` blocks when the fix is a concrete, localized code change
 ## Step 6: Publisher
 
 Based on the mode and flags, publish the review output.
+
+**Quick mode**: No changes to publishing behavior. The same Working Dir / PR mode flow applies.
 
 ### Working Dir / Path Mode
 
@@ -766,13 +833,13 @@ If the Review API call fails (e.g., 422 due to invalid line mapping):
 
 ## Task
 
-1. Parse `$ARGUMENTS` to determine mode (PR / Working Dir / Path) and flags (including Codex flags).
+1. Parse `$ARGUMENTS` to determine mode (PR / Working Dir / Path) and flags (including Codex flags and `--quick`).
 2. **Context Builder**: Gather diff, commit history, related files, and PR description (if applicable).
-3. **Domain Router**: Analyze changed file types and activate relevant domains. Respect `--domain` override.
-4. **Codex Detection**: Resolve companion path via `find`, and determine Codex mode (adversarial / review / both / disabled).
-5. **Domain Agents + Codex**: Launch activated domain agents in parallel. If Codex is enabled, launch Codex agent(s) via companion runtime concurrently. Collect all findings. If Codex fails (non-zero exit), proceed with domain findings only.
-6. **Cross-Validation**: Verify each finding (domain + Codex) against expanded context, git history, comments, and PR intent. Classify as Confirmed / Demoted / Dismissed.
-7. **Output Generator**: Produce severity-first structured output with source tags (domain names + Codex tags per mode).
+3. **Domain Router**: Analyze changed file types and activate relevant domains. Respect `--domain` override. If `--quick`, cap to 2 domains by priority.
+4. **Codex Detection**: If `--quick`, skip (Codex disabled). Otherwise, resolve companion path via `find`, and determine Codex mode (adversarial / review / both / disabled).
+5. **Domain Agents + Codex**: If `--quick`, perform single-pass analysis in main context (no agent spawn, all severities). Otherwise, launch activated domain agents in parallel. If Codex is enabled, launch Codex agent(s) via companion runtime concurrently. Collect all findings. If Codex fails (non-zero exit), proceed with domain findings only.
+6. **Cross-Validation**: If `--quick`, lightweight validation (context check + sanity only). Otherwise, verify each finding (domain + Codex) against expanded context, git history, comments, and PR intent. Classify as Confirmed / Demoted / Dismissed.
+7. **Output Generator**: Produce severity-first structured output with source tags. If `--quick`, show Critical/Warning only; if none, fallback to Info; graph always omitted.
 8. **Publisher**:
    - **Working Dir / Path mode**: Display Terminal format output directly. Done.
    - **PR mode without `-y`/`-f`**: Show Terminal format preview → ask "PR에 게시할까요?" → resolve line targets → build inline review payload → publish via Review API ONLY if approved.
