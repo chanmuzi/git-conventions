@@ -4,7 +4,7 @@ description: >-
   Review code changes using context-aware multi-agent pipeline with severity-based findings.
   TRIGGER when: user asks to review code, analyze PR quality, check for issues, run code review, or audit changes (e.g., "코드 리뷰해줘", "review this PR", "코드 분석해줘", "리뷰 돌려줘").
   DO NOT TRIGGER when: user is replying to review comments (use review-reply), creating PRs, committing, or performing git operations without review intent.
-argument-hint: "[PR번호|경로] [-d|--domain security,perf] [-y|--yes] [-g|--graph] [-s|--sub] [--wd] [--no-codex|--codex-review|--codex-both]"
+argument-hint: "[PR번호|경로] [-d|--domain security,perf] [-y|--yes] [-g|--graph] [-s|--sub] [--wd] [--no-codex|--codex|--codex-general]"
 version: "1.7.0"
 allowed-tools: Bash(git *), Bash(gh *), Bash(node *), Bash(find *), Read, Grep, Glob, Agent, TeamCreate, TaskCreate, TaskList, TaskUpdate, TaskGet, SendMessage
 ---
@@ -47,10 +47,10 @@ Key behaviors:
 | `--pr` | — | Explicit PR mode (e.g., `--pr 42`). Use when path arguments contain digits |
 | `--wd` | off | Force Working Dir mode, skipping PR auto-detection |
 | `--no-codex` | off | Disable Codex integration entirely (skip Codex detection and execution) |
-| `--codex-review` | off | Use Codex general review (`codex:review`) instead of adversarial review |
-| `--codex-both` | off | Run both Codex general review and adversarial review in parallel |
+| `--codex` | off | Run both Codex general review and adversarial review in parallel |
+| `--codex-general` | off | Use Codex general review (`codex:review`) only, without adversarial review |
 
-Codex flag precedence: `--no-codex` > `--codex-both` > `--codex-review` > default (adversarial only).
+Codex flag precedence: `--no-codex` > `--codex` > `--codex-general` > default (adversarial only).
 Only one Codex mode flag should be used at a time. If multiple are present, the highest-precedence flag wins.
 
 If `$ARGUMENTS` contains explicit publish intent ("comment 달아", "바로 올려", "게시해", "post it"), treat as `-y`.
@@ -150,37 +150,42 @@ Collect the union of all activated domains from all changed files. Deduplicate.
 
 ## Step 2.5: Codex Detection
 
-Determine whether the Codex plugin is available and resolve the Codex execution mode. This step is zero-cost: it relies on the skills already listed in the current session's system prompt — no hooks, environment variables, or CLI checks needed.
+Determine whether the Codex plugin is available and resolve the Codex execution mode.
 
-### Detection
+### Companion Detection
 
-Check if the skill `codex:codex-cli-runtime` is listed among the available skills in the current session. If yes, the Codex plugin is installed and the companion runtime is available.
-
-Note: `codex:adversarial-review` and `codex:review` have `disable-model-invocation: true`, so they do NOT appear in the session skill list. Detection must use `codex:codex-cli-runtime` instead, which has no such restriction.
-
-### Companion Path Resolution
-
-When Codex is detected, resolve the companion script path at runtime:
+Resolve the companion script path at runtime:
 
 ```bash
 COMPANION=$(find ~/.claude/plugins/cache/openai-codex -name "codex-companion.mjs" 2>/dev/null | sort -V | tail -1)
 ```
 
-If no companion is found, treat Codex as **disabled**.
+- Companion found → Codex **available**
+- Companion not found → Codex **unavailable**
+
+This is the single detection gate. No introspection, skill list checks, or environment variable probing needed.
 
 ### Mode Resolution
 
-| Condition | Codex Mode | Companion Subcommand |
-|-----------|-----------|---------------------|
-| `--no-codex` flag is set | **disabled** | None |
-| Codex not available | **disabled** | None |
-| `--codex-both` flag is set | **both** | `review --wait` + `adversarial-review --wait` |
-| `--codex-review` flag is set | **review** | `review --wait` |
-| Default (no Codex flag) | **adversarial** | `adversarial-review --wait` |
+| Priority | Condition | Codex Mode | Hint |
+|----------|-----------|-----------|------|
+| 1 | `--no-codex` flag is set | **disabled** | None |
+| 2 | Codex unavailable + `--codex` or `--codex-general` flag set | **disabled** | `⚠️ Codex unavailable` — {flag} 요청했으나 companion을 찾을 수 없습니다 |
+| 3 | Codex unavailable + no Codex flag | **disabled** | None |
+| 4 | `--codex` flag is set | **both** | `💡 Codex detected` — review + adversarial 병렬 실행 |
+| 5 | `--codex-general` flag is set | **review** | `💡 Codex detected` — general review 실행 |
+| 6 | Default (no Codex flag) | **adversarial** | `💡 Codex detected` — adversarial review 실행 |
+
+Companion subcommands per mode:
+- **adversarial**: `adversarial-review --wait`
+- **review**: `review --wait`
+- **both**: `review --wait` + `adversarial-review --wait`
 
 In PR mode, append `--base {baseRefName}` to each subcommand to scope the review to the PR diff.
 
-Store the resolved mode for use in Steps 3, 4, and 5. Note: the companion path is resolved here for validation only. Each spawned Codex agent re-resolves the path independently via `find` since agents run in separate contexts. If mode is **disabled**, skip all Codex-related logic in subsequent steps and proceed exactly as before (full backward compatibility).
+Display the resolved Hint (if any) immediately after detection, before launching domain agents. Hints follow the project's Hint 패턴 (`> **{icon} {action}** — {reason}`).
+
+Store the resolved mode for use in Steps 3, 4, and 5. Each spawned Codex agent re-resolves the companion path independently via `find` since agents run in separate contexts. If mode is **disabled**, skip all Codex-related logic in subsequent steps and proceed exactly as before (full backward compatibility).
 
 ---
 
@@ -283,7 +288,7 @@ For each Codex subcommand to invoke (per the mode table in Step 2.5):
 1. `TaskCreate` — subject: `"Codex {mode} review"` (e.g., `"Codex adversarial review"`).
 2. Spawn teammate via `Agent` with:
    - `team_name: "code-review"`
-   - `name: "codex"` (or `"codex-review"` / `"codex-adversarial"` when mode is **both**, to distinguish the two)
+   - `name: "codex"` (or `"codex-general"` / `"codex-adversarial"` when mode is **both**, to distinguish the two)
    - Prompt: Instruct the agent to run the companion via Bash and return the findings. The Bash command:
      ```
      COMPANION=$(find ~/.claude/plugins/cache/openai-codex -name "codex-companion.mjs" 2>/dev/null | sort -V | tail -1) && node "$COMPANION" {subcommand} --wait
@@ -297,7 +302,7 @@ The Codex agent(s) run in parallel with domain agents (Security, Architecture, e
 
 For each Codex subcommand to invoke:
 
-- Launch via `Agent` with `name: "codex"` (or `"codex-review"` / `"codex-adversarial"` for **both** mode). No `team_name`. The agent runs the companion via Bash (same command as Team Agent Mode) and returns findings.
+- Launch via `Agent` with `name: "codex"` (or `"codex-general"` / `"codex-adversarial"` for **both** mode). No `team_name`. The agent runs the companion via Bash (same command as Team Agent Mode) and returns findings.
 
 Launch Codex agents at the same time as domain agents — do NOT wait for domain agents to finish first.
 
@@ -307,7 +312,13 @@ If a Codex agent reports a non-zero exit code or returns an error (e.g., quota e
 
 1. **Do NOT retry** — treat the Codex contribution as unavailable for this run.
 2. **Findings = empty** — proceed with domain agent findings only. Do not attempt to parse error output as findings.
-3. **Terminal notice** — append `ℹ️ Codex: unavailable (skipped)` to the Terminal format output (see Step 5).
+3. **Terminal notice** — classify the error and display the appropriate message:
+
+| Error Signal | Terminal Notice |
+|-------------|----------------|
+| stderr contains `auth`, `login`, `API key`, `unauthorized`, `401` | `⚠️ Codex auth required` — `!codex setup` 실행 권장 |
+| Any other non-zero exit | `ℹ️ Codex: unavailable (skipped)` |
+
 4. **GitHub format** — do NOT include any Codex failure notice. Codex availability is an internal infrastructure detail, not relevant to PR reviewers.
 
 ### Fallback (non-Claude Code runners)
@@ -378,8 +389,8 @@ Each finding displays a source tag after the title (e.g., `**Finding title** —
 |-----------|-----------|--------|
 | **disabled** | Domain agents only | Domain name (e.g., `Security`, `Architecture`) |
 | **adversarial** (default) | Domain agents + Codex adversarial | Domain name / `Codex` |
-| **review** (`--codex-review`) | Domain agents + Codex review | Domain name / `Codex` |
-| **both** (`--codex-both`) | Domain agents + Codex review + Codex adversarial | Domain name / `Codex` (review findings) / `Codex Adv` (adversarial findings) |
+| **review** (`--codex-general`) | Domain agents + Codex review | Domain name / `Codex` |
+| **both** (`--codex`) | Domain agents + Codex review + Codex adversarial | Domain name / `Codex` (review findings) / `Codex Adv` (adversarial findings) |
 
 When Codex mode is **adversarial** or **review** (single source), all Codex findings are tagged `— Codex`.
 When Codex mode is **both** (dual source), review findings are tagged `— Codex` and adversarial findings are tagged `— Codex Adv` to distinguish the two sources.
@@ -605,7 +616,7 @@ Use GitHub `suggestion` blocks when the fix is a concrete, localized code change
 - Finding title first (bold — renders bright in CLI), file path second.
 - Fix is always natural language in a blockquote (`> **Fix**: ...`), referencing by section/pattern.
 - Domains with no findings: omit entirely (no "✅ ... No issues found" line).
-- Codex failure notice (if applicable): append `ℹ️ Codex: unavailable (skipped)` after the summary line. Only shown when Codex mode was NOT disabled but companion returned non-zero exit. Do NOT include in GitHub format.
+- Codex failure notice (if applicable): append after the summary line per the error classification in Step 3 Codex Failure Handling (`⚠️` for auth errors, `ℹ️` for other failures). Only shown when Codex mode was NOT disabled but companion returned non-zero exit. Do NOT include in GitHub format.
 
 **GitHub-specific rules (inline review comments)**:
 - Review Summary: severity counts and key changes at the top. Unmapped findings (after contextual mapping) included below under "General Findings" as fallback only.
@@ -731,7 +742,7 @@ If the Review API call fails (e.g., 422 due to invalid line mapping):
 1. Parse `$ARGUMENTS` to determine mode (PR / Working Dir / Path) and flags (including Codex flags).
 2. **Context Builder**: Gather diff, commit history, related files, and PR description (if applicable).
 3. **Domain Router**: Analyze changed file types and activate relevant domains. Respect `--domain` override.
-4. **Codex Detection**: Check `codex:codex-cli-runtime` availability, resolve companion path, and determine Codex mode (adversarial / review / both / disabled).
+4. **Codex Detection**: Resolve companion path via `find`, and determine Codex mode (adversarial / review / both / disabled).
 5. **Domain Agents + Codex**: Launch activated domain agents in parallel. If Codex is enabled, launch Codex agent(s) via companion runtime concurrently. Collect all findings. If Codex fails (non-zero exit), proceed with domain findings only.
 6. **Cross-Validation**: Verify each finding (domain + Codex) against expanded context, git history, comments, and PR intent. Classify as Confirmed / Demoted / Dismissed.
 7. **Output Generator**: Produce severity-first structured output with source tags (domain names + Codex tags per mode).

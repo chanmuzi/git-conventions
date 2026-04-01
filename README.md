@@ -161,20 +161,25 @@ Analyzes PR or local code changes using a multi-agent pipeline with domain-speci
 - `-y` / `-f` — Publish without approval
 - `-g` — Generate Mermaid change-flow graph (PR mode only)
 - `--no-codex` — Disable Codex integration
-- `--codex-review` — Use Codex general review instead of adversarial
-- `--codex-both` — Run both Codex review and adversarial review
+- `--codex` — Run both Codex review and adversarial review
+- `--codex-general` — Use Codex general review only (without adversarial)
 
 **Natural language:** You can use flags or natural language — Claude translates your intent into the appropriate flags before invoking the skill.
 
 ```
 /code-review 42 바로 올려줘             # → /code-review 42 -y
 /code-review security만 봐줘            # → /code-review --domain security
-/code-review codex 둘 다 돌려줘         # → /code-review --codex-both
+/code-review codex 둘 다 돌려줘         # → /code-review --codex
 /code-review codex 없이 리뷰해줘        # → /code-review --no-codex
 /code-review working dir로 봐줘         # → /code-review --wd
 ```
 
-**Codex integration:** When the [Codex plugin](https://github.com/anthropics/codex) is installed, `/code-review` automatically runs Codex adversarial review in parallel with domain agents. Findings are cross-validated and merged with source tags. Use `--no-codex` to opt out.
+**Codex integration (optional, recommended):** When the [Codex plugin](https://github.com/openai/codex) is installed and authenticated, `/code-review` automatically runs Codex adversarial review in parallel with domain agents. Findings are cross-validated and merged with source tags. Use `--no-codex` to opt out.
+
+To set up Codex integration:
+1. Install the Codex plugin: `claude plugin add codex`
+2. Run `!codex setup` in Claude Code to authenticate with your OpenAI API key
+3. `/code-review` will automatically detect and use Codex — no additional flags needed
 
 **Inline review comments:** In PR mode, findings are published as inline review comments attached to specific diff lines via the GitHub Review API. Each finding becomes an independent conversation thread — reply, resolve, or apply suggestions individually. A severity summary table is included in the review body. Findings outside the diff are included as "General Findings" in the summary.
 
