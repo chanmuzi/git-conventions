@@ -4,7 +4,7 @@ description: >-
   Generate a copy-ready handoff prompt for transferring work context to a new session.
   TRIGGER when: user asks to hand off work, create a handoff prompt, transfer context, wrap up session, prepare for next session (e.g., "handoff 해줘", "다음 세션으로 넘겨줘", "작업 이관해줘", "handoff prompt 만들어줘").
   DO NOT TRIGGER when: user is committing, creating PRs, reviewing code, or performing other git operations without handoff intent.
-version: "1.0.0"
+version: "1.8.0"
 allowed-tools: Bash(git *), Read, Glob, Grep
 ---
 
