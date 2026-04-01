@@ -134,8 +134,6 @@ Separate the Meta Zone and Handoff Zone with a clear `---` divider.
 When Layer 4 found a relevant artifact:
 
 ```markdown
-## Handoff
-
 ### Context
 {conversation summary — what this session worked on}
 - Spec: `{artifact_path}`
@@ -166,8 +164,6 @@ Example Next Action without OMC:
 When no relevant artifact was found (Layer 2 conversation context only):
 
 ```markdown
-## Handoff
-
 ### Context
 {conversation summary — topic, key decisions, agreed direction}
 - Branch: `{current_branch}`
@@ -216,14 +212,14 @@ Conversation analyzed → Relevant artifact found? ──yes──→ Output dir
                               │
                               no
                               │
-                              └── Show draft → "이 내용으로 handoff 하면 될까요?" → [확인] / [수정]
+                              └── Show draft → user reviews and uses `/copy` or requests modifications
 ```
 
 - **Relevant artifact found**: Skip confirmation. The handoff is a straightforward reference + thin delta.
-- **No relevant artifact, no -y**: Show draft and ask for user confirmation. Prevents incorrect summaries from misleading the next session.
+- **No relevant artifact, no -y**: Show draft directly. The user reviews the output and either uses `/copy` to accept, or requests modifications.
 - **-y flag**: Always skip confirmation regardless of artifact presence.
 
-When the user requests modifications after seeing the draft, adjust the handoff accordingly and output the final version.
+Do NOT append confirmation questions like "이 내용으로 handoff 하면 될까요?" — the code block output is self-evident. If the user wants changes, they will ask.
 
 ## Output
 
