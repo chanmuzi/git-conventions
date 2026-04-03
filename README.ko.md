@@ -162,15 +162,16 @@ PR 또는 로컬 코드 변경사항을 도메인별 전문 agent(Security, Perf
 - `-g` — Mermaid 변경 흐름 그래프 생성 (PR 모드 전용)
 - `-q` / `--quick` — Quick 모드: 단일 패스 분석 (에이전트 미사용), 도메인 최대 2개, Critical/Warning 우선 (없으면 Info fallback)
 - `--no-codex` — Codex 통합 비활성화
-- `--codex` — Codex 일반 리뷰 + adversarial 동시 실행
+- `--codex` — Codex 강제 활성화 (adversarial only, default와 동일)
 - `--codex-general` — Codex 일반 리뷰만 사용 (adversarial 없이)
+- `--codex-both` — Codex 일반 리뷰 + adversarial 동시 실행
 
 **자연어 지원:** 플래그 또는 자연어 모두 사용 가능합니다 — Claude가 의도를 해석하여 적절한 플래그로 변환합니다.
 
 ```
 /code-review 42 바로 올려줘             # → /code-review 42 -y
 /code-review security만 봐줘            # → /code-review --domain security
-/code-review codex 둘 다 돌려줘         # → /code-review --codex
+/code-review codex 둘 다 돌려줘         # → /code-review --codex-both
 /code-review codex 없이 리뷰해줘        # → /code-review --no-codex
 /code-review working dir로 봐줘         # → /code-review --wd
 /code-review 간단하게 봐줘              # → /code-review --quick

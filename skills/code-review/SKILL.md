@@ -4,7 +4,7 @@ description: >-
   Review code changes using context-aware multi-agent pipeline with severity-based findings.
   TRIGGER when: user asks to review code, analyze PR quality, check for issues, run code review, or audit changes (e.g., "코드 리뷰해줘", "review this PR", "코드 분석해줘", "리뷰 돌려줘").
   DO NOT TRIGGER when: user is replying to review comments (use review-reply), creating PRs, committing, or performing git operations without review intent.
-argument-hint: "[PR번호|경로] [-d|--domain security,perf] [-y|--yes] [-g|--graph] [-s|--sub] [-q|--quick] [--wd] [--no-codex|--codex|--codex-general]"
+argument-hint: "[PR번호|경로] [-d|--domain security,perf] [-y|--yes] [-g|--graph] [-s|--sub] [-q|--quick] [--wd] [--no-codex|--codex|--codex-general|--codex-both]"
 version: "1.7.0"
 allowed-tools: Bash(git *), Bash(gh *), Bash(node *), Bash(find *), Read, Grep, Glob, Agent, TeamCreate, TaskCreate, TaskList, TaskUpdate, TaskGet, SendMessage
 ---
@@ -48,11 +48,12 @@ Key behaviors:
 | `--wd` | off | Force Working Dir mode, skipping PR auto-detection |
 | `-q\|--quick` | off | Quick mode: single-pass analysis without agent spawn. Auto-detected domains capped at 2, Codex disabled, Info findings omitted, graph skipped. Designed for fast iteration during development/testing. |
 | `--no-codex` | off | Disable Codex integration entirely (skip Codex detection and execution) |
-| `--codex` | off | Run both Codex general review and adversarial review in parallel |
+| `--codex` | off | Force enable Codex with default behavior (adversarial only). Use when auto-detection is unreliable |
 | `--codex-general` | off | Use Codex general review (`codex:review`) only, without adversarial review |
+| `--codex-both` | off | Run both Codex general review and adversarial review in parallel. Shorthand for `--codex --codex-general` |
 
-Codex flag precedence: `--no-codex` > `--codex` > `--codex-general` > default (adversarial only).
-Only one Codex mode flag should be used at a time. If multiple are present, the highest-precedence flag wins.
+Codex flag precedence: `--no-codex` > `--codex-both` > `--codex` + `--codex-general` (combo = **both**) > `--codex-general` alone > `--codex` alone > default.
+When `--codex` and `--codex-general` are both present, the combined effect is **both** mode (equivalent to `--codex-both`).
 
 If `$ARGUMENTS` contains explicit publish intent ("comment 달아", "바로 올려", "게시해", "post it"), treat as `-y`.
 
@@ -198,11 +199,12 @@ COMPANION=$(find ~/.claude/plugins/cache/openai-codex -name "codex-companion.mjs
 | Priority | Condition | Codex Mode | Hint |
 |----------|-----------|-----------|------|
 | 1 | `--no-codex` flag is set | **disabled** | None |
-| 2 | Codex unavailable + `--codex` or `--codex-general` flag set | **disabled** | `⚠️ Codex unavailable` — {flag} 요청했으나 companion을 찾을 수 없습니다 |
+| 2 | Codex unavailable + any Codex flag set (`--codex`, `--codex-general`, `--codex-both`) | **disabled** | `⚠️ Codex unavailable` — {flag} 요청했으나 companion을 찾을 수 없습니다 |
 | 3 | Codex unavailable + no Codex flag | **disabled** | None |
-| 4 | `--codex` flag is set | **both** | `💡 Codex detected` — review + adversarial 병렬 실행 |
-| 5 | `--codex-general` flag is set | **review** | `💡 Codex detected` — general review 실행 |
-| 6 | Default (no Codex flag) | **adversarial** | `💡 Codex detected` — adversarial review 실행 |
+| 4 | `--codex-both` flag is set, OR `--codex` + `--codex-general` both present | **both** | `💡 Codex detected` — review + adversarial 병렬 실행 |
+| 5 | `--codex-general` flag is set (without `--codex`) | **review** | `💡 Codex detected` — general review 실행 |
+| 6 | `--codex` flag is set (without `--codex-general`) | **adversarial** | `💡 Codex detected` — adversarial review (강제 활성화) |
+| 7 | Default (no Codex flag) | **adversarial** | `💡 Codex detected` — adversarial review 실행 |
 
 Companion subcommands per mode:
 - **adversarial**: `adversarial-review --wait`
@@ -518,9 +520,9 @@ Each finding displays a source tag after the title (e.g., `**Finding title** —
 | Codex Mode | Source(s) | Tag(s) |
 |-----------|-----------|--------|
 | **disabled** | Domain agents only | Domain name (e.g., `Security`, `Architecture`) |
-| **adversarial** (default) | Domain agents + Codex adversarial | Domain name / `Codex` |
+| **adversarial** (default / `--codex`) | Domain agents + Codex adversarial | Domain name / `Codex` |
 | **review** (`--codex-general`) | Domain agents + Codex review | Domain name / `Codex` |
-| **both** (`--codex`) | Domain agents + Codex review + Codex adversarial | Domain name / `Codex` (review findings) / `Codex Adv` (adversarial findings) |
+| **both** (`--codex-both` / `--codex --codex-general`) | Domain agents + Codex review + Codex adversarial | Domain name / `Codex` (review findings) / `Codex Adv` (adversarial findings) |
 
 When Codex mode is **adversarial** or **review** (single source), all Codex findings are tagged `— Codex`.
 When Codex mode is **both** (dual source), review findings are tagged `— Codex` and adversarial findings are tagged `— Codex Adv` to distinguish the two sources.
