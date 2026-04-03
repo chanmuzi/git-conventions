@@ -262,6 +262,11 @@ git commit -m "chore: release vX.Y.Z"
 
 # 2. 태그 생성 및 푸시
 git tag vX.Y.Z && git push origin main vX.Y.Z
+
+# 3. marketplace 로컬 캐시 동기화
+#    /reload-plugins가 shallow clone을 제대로 업데이트하지 못하는 버그 workaround
+#    (anthropics/claude-code#42983 해결 시 제거)
+git -C ~/.claude/plugins/marketplaces/git-conventions pull
 ```
 
 ### 릴리스에 포함되는 파일
