@@ -79,8 +79,9 @@ npx skills add ./  # 로컬 경로에서 설치
 /code-review --wd         → PR 브랜치에서도 working dir 리뷰 강제
 /code-review --quick         → Quick 모드: 단일 패스, 도메인 2개 cap, Critical/Warning 우선 (없으면 Info fallback)
 /code-review --no-codex      → Codex 통합 비활성화
-/code-review --codex         → Codex review + adversarial 동시 실행
+/code-review --codex         → Codex 강제 활성화 (adversarial only, default와 동일)
 /code-review --codex-general → Codex 일반 리뷰만 사용 (adversarial 없이)
+/code-review --codex-both    → Codex review + adversarial 동시 실행
 /handoff              → 세션 컨텍스트 분석 후 handoff 프롬프트 생성
 /handoff -y           → 확인 없이 즉시 출력
 /handoff auth 리팩토링 → 특정 주제 필터링된 handoff 생성

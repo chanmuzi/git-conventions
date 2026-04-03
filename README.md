@@ -162,15 +162,16 @@ Analyzes PR or local code changes using a multi-agent pipeline with domain-speci
 - `-g` — Generate Mermaid change-flow graph (PR mode only)
 - `-q` / `--quick` — Quick mode: single-pass analysis (no agent spawn), max 2 domains, Critical/Warning first (Info fallback when none found)
 - `--no-codex` — Disable Codex integration
-- `--codex` — Run both Codex review and adversarial review
+- `--codex` — Force enable Codex (adversarial only, same as default)
 - `--codex-general` — Use Codex general review only (without adversarial)
+- `--codex-both` — Run both Codex review and adversarial review
 
 **Natural language:** You can use flags or natural language — Claude translates your intent into the appropriate flags before invoking the skill.
 
 ```
 /code-review 42 바로 올려줘             # → /code-review 42 -y
 /code-review security만 봐줘            # → /code-review --domain security
-/code-review codex 둘 다 돌려줘         # → /code-review --codex
+/code-review codex 둘 다 돌려줘         # → /code-review --codex-both
 /code-review codex 없이 리뷰해줘        # → /code-review --no-codex
 /code-review working dir로 봐줘         # → /code-review --wd
 /code-review 간단하게 봐줘              # → /code-review --quick

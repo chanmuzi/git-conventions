@@ -1,5 +1,19 @@
 # Change Log
 
+### 2026-04-04: /code-review Codex 플래그 의미 정정
+
+**code-review**
+- `--codex` 플래그 의미 변경: "both (review + adversarial)" → "강제 활성화 (adversarial only, default와 동일)"
+- `--codex-both` 플래그 신규 추가: review + adversarial 병렬 실행 (기존 `--codex` 동작)
+- `--codex` + `--codex-general` 조합 시 **both** 모드 (= `--codex-both`)로 동작
+- Mode Resolution 테이블 7단계로 확장 (기존 6단계)
+- Source Tags 테이블 플래그 표기 동기화
+
+**docs**
+- CLAUDE.md, README.md, README.ko.md 플래그 설명 및 자연어 예시 동기화
+
+---
+
 ### 2026-04-04: /code-review Codex companion 감지 안정성 강화
 
 **code-review**
