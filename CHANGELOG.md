@@ -1,5 +1,21 @@
 # Change Log
 
+### 2026-04-04: /code-review OMC 의존성 제거, prompt-only 도메인 에이전트 전환
+
+**code-review**
+- OMC(`oh-my-claudecode:*`) subagent_type 의존성 완전 제거 — OMC 미설치 환경에서 Error throw로 리뷰 실패하던 문제 해결
+- 4개 도메인 에이전트(Security, Performance, Architecture, Domain Logic)를 prompt-only 방식으로 전환
+- 각 도메인에 구조화된 Investigation Protocol 도입: 단계별 분석 절차 + Evidence Gate (근거 없는 finding 차단)
+- Security: OWASP 기반 8단계 프로토콜 (secrets, injection, auth/authz, crypto, dependency CVE, CORS/CSP, logging)
+- Performance: 6단계 프로토콜 (algorithmic complexity, N+1, async blocking, memory, caching, resource management)
+- Architecture: 6단계 프로토콜 (pattern consistency, SOLID, coupling, API contracts, module boundaries, tech debt)
+- Domain Logic: 7단계 프로토콜 (intent verification, business rules, error handling, edge cases, race conditions, type safety, state management)
+- Common Prompt Suffix: Constraints (read-only, 언어 매칭, no manufactured findings), Severity Criteria 3단계, Output Format 필드 명세
+- 에이전트 spawn 시 `model: "opus"` 명시
+- Fallback 지시 단순화: "subagent types are not registered" 조건 제거
+
+---
+
 ### 2026-04-02: /code-review Quick 모드 추가
 
 **code-review**
