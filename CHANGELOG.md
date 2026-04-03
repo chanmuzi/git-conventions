@@ -3,7 +3,7 @@
 ### 2026-04-04: /code-review Codex companion 감지 안정성 강화
 
 **code-review**
-- `find | sort -V | tail -1` → `find -print | head -1`로 변경: `sort -V` (version sort)가 macOS 기본 coreutils에서 미지원되어 불안정했던 문제 해결
+- `find | sort -V | tail -1` → `find -print | sort | tail -1`로 변경: `sort -V` (version sort)가 macOS 기본 `sort`(BSD sort)에서 미지원되어 불안정했던 문제 해결
 - Step 2.5, Step 3 두 곳 모두 동일하게 수정
 - Companion Detection을 명령형 gate 패턴으로 재작성: 실행 → 평가 → 진행 순서를 강제하여 Claude가 감지를 건너뛰는 문제 방지
 

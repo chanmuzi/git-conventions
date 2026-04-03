@@ -185,11 +185,11 @@ Determine whether the Codex plugin is available and resolve the Codex execution 
 **REQUIRED: Run this command before proceeding to Mode Resolution.**
 
 ```bash
-COMPANION=$(find ~/.claude/plugins/cache/openai-codex -name "codex-companion.mjs" -print 2>/dev/null | head -1)
+COMPANION=$(find ~/.claude/plugins/cache/openai-codex -name "codex-companion.mjs" -print 2>/dev/null | sort | tail -1)
 ```
 
-- Output is non-empty → Codex **available**, store path as COMPANION_PATH
-- Output is empty → Codex **unavailable**
+- `COMPANION` is non-empty → Codex **available**
+- `COMPANION` is empty → Codex **unavailable**
 
 **Do not proceed to Mode Resolution until this command has been executed and the result evaluated.**
 
@@ -386,7 +386,7 @@ For each Codex subcommand to invoke (per the mode table in Step 2.5):
    - `name: "codex"` (or `"codex-general"` / `"codex-adversarial"` when mode is **both**, to distinguish the two)
    - Prompt: Instruct the agent to run the companion via Bash and return the findings. The Bash command:
      ```
-     COMPANION=$(find ~/.claude/plugins/cache/openai-codex -name "codex-companion.mjs" -print 2>/dev/null | head -1) && node "$COMPANION" {subcommand} --wait
+     COMPANION=$(find ~/.claude/plugins/cache/openai-codex -name "codex-companion.mjs" -print 2>/dev/null | sort | tail -1) && node "$COMPANION" {subcommand} --wait
      ```
      Where `{subcommand}` is `adversarial-review` or `review` per the mode table. Use `--base {baseRefName}` for PR mode.
 3. `TaskUpdate` — set `owner` to the agent name.
