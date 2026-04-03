@@ -138,6 +138,7 @@ cp -r ~/.claude/plugins/marketplaces/git-conventions/skills/ "$CACHE/skills/"
 - 파일 staging 시 `git add -A` 금지, 개별 파일 지정
 - 커밋 승인은 세션의 tool permission 설정에 따름
 - PR merge 시 squash 금지 — 커밋 히스토리를 보존하여 agent/reviewer 추적성 유지
+- main push 후 marketplace 동기화: `git -C ~/.claude/plugins/marketplaces/git-conventions pull` — `/reload-plugins` shallow clone 버그 workaround (anthropics/claude-code#42983 해결 시 제거)
 
 ## 스킬 공통 규칙
 
@@ -262,11 +263,6 @@ git commit -m "chore: release vX.Y.Z"
 
 # 2. 태그 생성 및 푸시
 git tag vX.Y.Z && git push origin main vX.Y.Z
-
-# 3. marketplace 로컬 캐시 동기화
-#    /reload-plugins가 shallow clone을 제대로 업데이트하지 못하는 버그 workaround
-#    (anthropics/claude-code#42983 해결 시 제거)
-git -C ~/.claude/plugins/marketplaces/git-conventions pull
 ```
 
 ### 릴리스에 포함되는 파일
