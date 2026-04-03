@@ -13,7 +13,7 @@ Agent Skills 오픈 표준(agentskills.io)을 따르며, Claude Code 외에도 C
 Claude Code skill 표준 구조(`anthropics/skills` 기준)를 따른다.
 
 ```
-git-conventions/
+git-claw/
 ├── .claude-plugin/marketplace.json   # marketplace 등록 메타데이터
 ├── skills/
 │   ├── commit/
@@ -47,8 +47,8 @@ git-conventions/
 
 두 가지 설치 방식을 지원한다:
 
-- **Skills CLI (크로스 플랫폼)**: `npx skills add chanmuzi/git-conventions`
-- **Claude Code Plugin**: `/plugin marketplace add chanmuzi/git-conventions`
+- **Skills CLI (크로스 플랫폼)**: `npx skills add chanmuzi/git-claw`
+- **Claude Code Plugin**: `/plugin marketplace add chanmuzi/git-claw`
 
 ## 로컬 테스트
 
@@ -57,8 +57,8 @@ git-conventions/
 npx skills add ./  # 로컬 경로에서 설치
 
 # 방법 2: Claude Code Plugin (초기 설치 전용, 브랜치 테스트는 아래 '브랜치 테스트' 섹션 참조)
-/plugin marketplace add /Users/chanmuzi/coding/workspace/git-conventions
-/plugin install git-conventions@git-conventions
+/plugin marketplace add /Users/chanmuzi/coding/workspace/git-claw
+/plugin install git-claw@git-claw
 
 # SKILL.md 수정 후 반영 (캐시 갱신 — 새 세션 불필요)
 /reload-plugins
@@ -88,7 +88,7 @@ npx skills add ./  # 로컬 경로에서 설치
 
 ### 브랜치 테스트 (merge 전 스킬 검증)
 
-플러그인이 GitHub remote(`chanmuzi/git-conventions`)에서 설치된 경우, `/reload-plugins`는 **main 브랜치**에서 가져온다.
+플러그인이 GitHub remote(`chanmuzi/git-claw`)에서 설치된 경우, `/reload-plugins`는 **main 브랜치**에서 가져온다.
 fix/feat 브랜치의 SKILL.md 변경을 merge 전에 테스트하려면 아래 방법을 사용한다.
 
 > **참고**: `/plugin marketplace add /local/path` → remote 복원 방식은 Claude Code 버그([#9537](https://github.com/anthropics/claude-code/issues/9537))로 `settings.json`에 `path` 잔여물이 남아 사용하지 않는다.
@@ -99,11 +99,11 @@ marketplace 디렉토리가 아닌 **cache 디렉토리**에 복사해야 동작
 **중요**: `installed_plugins.json`의 `installPath`와 실제 로드되는 cache 경로가 다를 수 있다 (`/reload-plugins`가 새 hash를 생성하면서 `installed_plugins.json`을 갱신하지 않음). 가장 최근에 수정된 cache 디렉토리가 활성 경로이므로, `ls -td`로 탐색한다. 복사는 반드시 `/reload-plugins` **전에** 수행한다.
 
 > `/reload-plugins` 실행마다 새 cache 디렉토리가 생겨 누적될 수 있다. 오래된 cache는 주기적으로 정리한다:
-> `ls -td ~/.claude/plugins/cache/git-conventions/git-conventions/*/ | tail -n +2 | xargs rm -rf`
+> `ls -td ~/.claude/plugins/cache/git-claw/git-claw/*/ | tail -n +2 | xargs rm -rf`
 
 ```bash
 # 1. 최신 cache 경로 탐색 + 로컬 스킬 복사
-CACHE=$(ls -td ~/.claude/plugins/cache/git-conventions/git-conventions/*/ | head -1)
+CACHE=$(ls -td ~/.claude/plugins/cache/git-claw/git-claw/*/ | head -1)
 cp -r skills/ "$CACHE/skills/"
 
 # 2. (이 세션에서 실행) /reload-plugins   ← 수정된 스킬 메모리 로드
@@ -112,8 +112,8 @@ cp -r skills/ "$CACHE/skills/"
 /{수정한 스킬}    # 예: /handoff, /commit, /code-review 등
 
 # 4. 테스트 완료 후 복원 (marketplace는 main 상태이므로 여기서 복사)
-CACHE=$(ls -td ~/.claude/plugins/cache/git-conventions/git-conventions/*/ | head -1)
-cp -r ~/.claude/plugins/marketplaces/git-conventions/skills/ "$CACHE/skills/"
+CACHE=$(ls -td ~/.claude/plugins/cache/git-claw/git-claw/*/ | head -1)
+cp -r ~/.claude/plugins/marketplaces/git-claw/skills/ "$CACHE/skills/"
 
 # 5. (이 세션에서 실행) /reload-plugins   ← 원본 복원
 ```
@@ -138,7 +138,7 @@ cp -r ~/.claude/plugins/marketplaces/git-conventions/skills/ "$CACHE/skills/"
 - 파일 staging 시 `git add -A` 금지, 개별 파일 지정
 - 커밋 승인은 세션의 tool permission 설정에 따름
 - PR merge 시 squash 금지 — 커밋 히스토리를 보존하여 agent/reviewer 추적성 유지
-- main push 후 marketplace 동기화: `git -C ~/.claude/plugins/marketplaces/git-conventions pull` — `/reload-plugins` shallow clone 버그 workaround (anthropics/claude-code#42983 해결 시 제거)
+- main push 후 marketplace 동기화: `git -C ~/.claude/plugins/marketplaces/git-claw pull` — `/reload-plugins` shallow clone 버그 workaround (anthropics/claude-code#42983 해결 시 제거)
 
 ## 스킬 공통 규칙
 
@@ -212,7 +212,7 @@ Markdown 원문과 터미널 표시가 다른 주요 케이스:
 | 공유 로직 | 관련 스킬 | 비고 |
 |----------|----------|------|
 | `-g`/`--graph` Mermaid 분석 (4단계 프로세스 + graph rules) | `code-review`, `pr` | 분석 절차, skip condition, Mermaid 포맷 동일 |
-| Label System (type labels, color hex) | `pr`, `issue` | 각 SKILL.md에 inline 정의. Agent Skills 배포 독립성(`npx skills add chanmuzi/git-conventions --skill issue` 등 개별 설치) 제약으로 중앙화하지 않음 |
+| Label System (type labels, color hex) | `pr`, `issue` | 각 SKILL.md에 inline 정의. Agent Skills 배포 독립성(`npx skills add chanmuzi/git-claw --skill issue` 등 개별 설치) 제약으로 중앙화하지 않음 |
 
 ## 새 스킬 추가 체크리스트
 

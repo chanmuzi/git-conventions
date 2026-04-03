@@ -95,7 +95,7 @@
 - `/handoff` slash command 신규 생성
 - Detection Cascade: 아티팩트(.omc/specs/, .omc/plans/) → Git 상태 → 대화 컨텍스트 우선순위 자동 감지
 - Reference-not-repeat 원칙: 아티팩트 내용을 반복하지 않고 경로만 참조하여 노이즈 최소화
-- Sentinel 기반 스킬 추천: code-review의 Codex zero-cost detection 패턴 재사용 — OMC, Codex, git-conventions 스킬 자동 감지 후 다음 세션에 적합한 스킬 추천
+- Sentinel 기반 스킬 추천: code-review의 Codex zero-cost detection 패턴 재사용 — OMC, Codex, git-claw 스킬 자동 감지 후 다음 세션에 적합한 스킬 추천
 - 2-zone 출력 구조: Meta Zone(터미널 전용) + Handoff Zone(/copy 대상) 분리
 - 확인 흐름: 아티팩트 존재 시 즉시 출력, 대화 요약 시 사용자 확인 후 출력
 - `-y` 플래그: 확인 없이 즉시 출력

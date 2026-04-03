@@ -1,12 +1,12 @@
 <p align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:6366F1,50:8B5CF6,100:A855F7&height=220&section=header&text=git-conventions&fontSize=52&fontColor=ffffff&fontAlignY=38&desc=Agent%20Skills%20for%20consistent%20Git%20workflows&descSize=18&descColor=E2E8F0&descAlignY=58&animation=fadeIn" alt="git-conventions" width="100%" />
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:6366F1,50:8B5CF6,100:A855F7&height=220&section=header&text=git-claw&fontSize=52&fontColor=ffffff&fontAlignY=38&desc=Agent%20Skills%20for%20consistent%20Git%20workflows&descSize=18&descColor=E2E8F0&descAlignY=58&animation=fadeIn" alt="git-claw" width="100%" />
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/skills-6-8B5CF6?logo=git&logoColor=white" alt="Skills" />
   <a href="https://agentskills.io"><img src="https://img.shields.io/badge/Agent_Skills-compatible-0EA5E9?logo=robotframework&logoColor=white" alt="Agent Skills" /></a>
-  <img src="https://img.shields.io/github/license/chanmuzi/git-conventions?color=blue" alt="License" />
-  <img src="https://img.shields.io/github/last-commit/chanmuzi/git-conventions?color=orange" alt="Last Commit" />
+  <img src="https://img.shields.io/github/license/chanmuzi/git-claw?color=blue" alt="License" />
+  <img src="https://img.shields.io/github/last-commit/chanmuzi/git-claw?color=orange" alt="Last Commit" />
 </p>
 
 <p align="center">
@@ -25,16 +25,16 @@ Works with Claude Code, Codex CLI, Gemini CLI, Cursor, GitHub Copilot, Amp, and 
 
 ```bash
 # Add marketplace
-/plugin marketplace add chanmuzi/git-conventions
+/plugin marketplace add chanmuzi/git-claw
 
 # Install plugin
-/plugin install git-conventions@git-conventions
+/plugin install git-claw@git-claw
 ```
 
 ### Option 2: Skills CLI (All Agents)
 
 ```bash
-npx skills add chanmuzi/git-conventions
+npx skills add chanmuzi/git-claw
 ```
 
 **Included skills:**
@@ -52,7 +52,7 @@ The interactive installer lets you select skills, target agents, scope (project/
 
 > To install all skills at once without prompts:
 > ```bash
-> npx skills add chanmuzi/git-conventions --skill commit --skill pr --skill issue --skill review-reply --skill code-review --skill handoff -g
+> npx skills add chanmuzi/git-claw --skill commit --skill pr --skill issue --skill review-reply --skill code-review --skill handoff -g
 > ```
 
 ## Update
@@ -64,7 +64,7 @@ The interactive installer lets you select skills, target agents, scope (project/
 
 ```bash
 # Update the plugin
-/plugin update git-conventions@git-conventions
+/plugin update git-claw@git-claw
 ```
 
 Or enable auto-update for hands-free upgrades (recommended):

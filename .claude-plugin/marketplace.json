@@ -1,5 +1,5 @@
 {
-  "name": "git-conventions",
+  "name": "git-claw",
   "owner": { "name": "chanmuzi" },
   "metadata": {
     "description": "Git commit, PR, review conventions for consistent workflows",
@@ -7,7 +7,7 @@
   },
   "plugins": [
     {
-      "name": "git-conventions",
+      "name": "git-claw",
       "description": "Enforce consistent commit messages, PR templates, issue tracking, code review (with optional Codex plugin integration), review triage & reply, and session handoff",
       "source": "./",
       "skills": [

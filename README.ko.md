@@ -1,12 +1,12 @@
 <p align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:6366F1,50:8B5CF6,100:A855F7&height=220&section=header&text=git-conventions&fontSize=52&fontColor=ffffff&fontAlignY=38&desc=Agent%20Skills%20for%20consistent%20Git%20workflows&descSize=18&descColor=E2E8F0&descAlignY=58&animation=fadeIn" alt="git-conventions" width="100%" />
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:6366F1,50:8B5CF6,100:A855F7&height=220&section=header&text=git-claw&fontSize=52&fontColor=ffffff&fontAlignY=38&desc=Agent%20Skills%20for%20consistent%20Git%20workflows&descSize=18&descColor=E2E8F0&descAlignY=58&animation=fadeIn" alt="git-claw" width="100%" />
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/skills-6-8B5CF6?logo=git&logoColor=white" alt="Skills" />
   <a href="https://agentskills.io"><img src="https://img.shields.io/badge/Agent_Skills-compatible-0EA5E9?logo=robotframework&logoColor=white" alt="Agent Skills" /></a>
-  <img src="https://img.shields.io/github/license/chanmuzi/git-conventions?color=blue" alt="License" />
-  <img src="https://img.shields.io/github/last-commit/chanmuzi/git-conventions?color=orange" alt="Last Commit" />
+  <img src="https://img.shields.io/github/license/chanmuzi/git-claw?color=blue" alt="License" />
+  <img src="https://img.shields.io/github/last-commit/chanmuzi/git-claw?color=orange" alt="Last Commit" />
 </p>
 
 <p align="center">
@@ -25,16 +25,16 @@ Claude Code, Codex CLI, Gemini CLI, Cursor, GitHub Copilot, Amp 등 [40개 이�
 
 ```bash
 # marketplace 추가
-/plugin marketplace add chanmuzi/git-conventions
+/plugin marketplace add chanmuzi/git-claw
 
 # plugin 설치
-/plugin install git-conventions@git-conventions
+/plugin install git-claw@git-claw
 ```
 
 ### 방법 2: Skills CLI (모든 Agent 공용)
 
 ```bash
-npx skills add chanmuzi/git-conventions
+npx skills add chanmuzi/git-claw
 ```
 
 **포함된 스킬:**
@@ -52,7 +52,7 @@ npx skills add chanmuzi/git-conventions
 
 > 프롬프트 없이 한번에 설치하려면:
 > ```bash
-> npx skills add chanmuzi/git-conventions --skill commit --skill pr --skill issue --skill review-reply --skill code-review --skill handoff -g
+> npx skills add chanmuzi/git-claw --skill commit --skill pr --skill issue --skill review-reply --skill code-review --skill handoff -g
 > ```
 
 ## 업데이트
@@ -64,7 +64,7 @@ npx skills add chanmuzi/git-conventions
 
 ```bash
 # plugin 업데이트
-/plugin update git-conventions@git-conventions
+/plugin update git-claw@git-claw
 ```
 
 또는 auto-update를 활성화하면 자동으로 최신 버전이 적용됩니다 (권장):

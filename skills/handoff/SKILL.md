@@ -44,8 +44,8 @@ Check if these sentinel skill names exist in the current session's available ski
 | Sentinel | Plugin | What it enables |
 |----------|--------|-----------------|
 | `oh-my-claudecode:autopilot` | OMC | Recommend `/autopilot` or `/ralph` for spec/plan-based execution |
-| `git-conventions:commit` | git-conventions (self) | Recommend `/commit` for uncommitted changes |
-| `git-conventions:pr` | git-conventions (self) | Recommend `/pr` for committed changes without PR |
+| `git-claw:commit` | git-claw (self) | Recommend `/commit` for uncommitted changes |
+| `git-claw:pr` | git-claw (self) | Recommend `/pr` for committed changes without PR |
 
 Store detected sentinels for use in the skill recommendation step.
 
