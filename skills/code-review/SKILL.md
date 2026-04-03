@@ -225,7 +225,7 @@ Launch activated domain agents in parallel. Each agent receives the full diff an
 
 When `--quick` is set, skip all agent spawning (team and sub-agent). Instead, perform the analysis directly in the main context:
 
-1. For each activated domain (max 2 from Step 2), analyze the diff using that domain's focus areas (see Domain Definitions below).
+1. For each activated domain (max 2 from Step 2), analyze the diff using that domain's Investigation Protocol (see Domain Definitions below).
 2. Produce findings in the same format as agent results: title, file path, primary line number, occurrence count, description, and action line.
 3. Produce findings for **all severity levels** (Critical, Warning, Info). The output step decides which severities to display based on results (see Step 5 Quick Mode Output).
 4. Skip Codex execution entirely (mode is **disabled**).
@@ -245,8 +245,8 @@ Used when `-s`/`--sub` flag is NOT set. Each domain agent gets its own context w
 
 1. `TeamCreate` — name: `code-review`.
 2. For each activated domain:
-   - `TaskCreate` — subject: `"{Domain} domain analysis"`. Description: changed files relevant to this domain and domain-specific focus areas.
-   - Spawn teammate via `Agent` with `team_name: "code-review"`, `name` set to domain name (lowercase, e.g., `"security"`, `"architecture"`), `subagent_type` per Domain Definitions. Prompt includes: full diff from Step 1, changed file context, domain focus areas, and finding format (title, file path, primary line number, occurrence count, description, and action line per severity).
+   - `TaskCreate` — subject: `"{Domain} domain analysis"`. Description: changed files relevant to this domain and the domain-specific prompt/protocol from Domain Definitions.
+   - Spawn teammate via `Agent` with `team_name: "code-review"`, `name` set to domain name (lowercase, e.g., `"security"`, `"architecture"`), `model: "opus"`. Prompt: domain-specific prompt from Domain Definitions (including Common Prompt Suffix), full diff from Step 1, changed file context, and finding format (title, file path, primary line number, occurrence count, description, and action line per severity).
    - `TaskUpdate` — set `owner` to the agent name.
 3. Monitor `TaskList` until all domain tasks complete. Collect findings from agent messages.
 4. Shut down agents via `SendMessage` with `shutdown_request`.
@@ -256,59 +256,115 @@ Fallback: if `TeamCreate` is unavailable, switch to Sub-agent mode.
 
 ### Sub-agent Mode
 
-Used when `-s`/`--sub` flag IS set, or as fallback. Launch each domain agent via `Agent` in parallel. Results return to the main context.
+Used when `-s`/`--sub` flag IS set, or as fallback. For each activated domain, launch an agent via `Agent` in parallel with `model: "opus"`. Prompt: domain-specific prompt from Domain Definitions (including Common Prompt Suffix), full diff from Step 1, changed file context, and finding format. Results return to the main context.
 
 ### Domain Definitions
 
-Each domain agent — whether team or sub — receives the same prompt structure: diff, changed file contents, and domain-specific analysis instructions.
+Each domain agent — whether team or sub — receives its domain-specific prompt via the Agent tool's `prompt` parameter. All agents are spawned with `model: "opus"`. The prompt for each domain consists of: the domain-specific prompt below, followed by the Common Prompt Suffix.
+
+#### Common Prompt Suffix
+
+Append the following sections to every domain agent prompt:
+
+```
+## Constraints
+- You are read-only. Do not attempt to modify any files.
+- Write findings in the language configured in the project's CLAUDE.md. If no language is configured, follow the user's conversational language.
+- If no issues are found, return an empty findings list (no items) and state "No issues found." Do not manufacture findings.
+
+## Severity Criteria
+- Critical: Security vulnerability, data loss risk, or crash-inducing bug
+- Warning: Potential bug, performance issue, or maintainability concern
+- Info: Suggestion, minor improvement, or style note
+
+## Output Format
+Return findings as a structured list. Each finding must contain:
+- title: Short descriptive name (do not repeat the file name)
+- file_path: Exact file path
+- primary_line: Line number in the NEW version of the file where the issue is most visible; this is the canonical line-reference field for evidence requirements
+- occurrence_count: Number of instances of this pattern in the diff
+- description: Issue explanation (reference locations by function name or code pattern; do not repeat line numbers here, since `primary_line` provides the line-based evidence)
+- action: For Critical/Warning — suggested fix. For Info — one of: Accept (intentional, no action needed) / Monitor (could become an issue at scale) / Won't Fix (known limitation, not worth addressing), with reason.
+```
 
 #### 🛡️ Security
 
-Agent type: `oh-my-claudecode:security-reviewer`
+```
+You are a security engineer conducting a focused security audit of code changes.
+You specialize in identifying exploitable vulnerabilities before they reach production.
+Prioritize findings by: severity × exploitability × blast radius.
 
-Focus areas:
-- Authentication/authorization flaws
-- Input validation gaps
-- SQL injection, XSS, command injection
-- Secret/credential exposure
-- Dependency vulnerabilities (if package files changed)
-- Insecure configurations
+## Investigation Protocol (follow this order)
+1. Scan for hardcoded secrets (API keys, passwords, tokens, connection strings)
+2. Check input validation: all user inputs sanitized? Parameterized queries?
+3. Identify injection vectors: SQL, XSS, command injection, path traversal, SSRF
+4. Review authentication/authorization: session management, JWT validation, CSRF protection on state-changing operations, access control on every route
+5. Verify cryptographic choices: strong algorithms (AES-256, bcrypt/argon2), proper key management, PII encrypted at rest
+6. Audit dependency changes: known CVEs in added/updated packages, lock file integrity
+7. Check security configuration: CORS, CSP headers, debug flags, TLS, file upload validation (type/size/content)
+8. Assess security logging: auth failures and access denials logged? No sensitive data in logs?
+
+## Evidence Gate
+Every finding MUST cite the exact file path and line number. If you cannot point to a specific line in the diff or surrounding context, do not report it.
+```
 
 #### ⚡ Performance
 
-Agent type: `oh-my-claudecode:scientist`
+```
+You are a performance engineer analyzing code changes for runtime efficiency issues.
+Focus on issues that degrade under real-world load, not micro-optimizations.
 
-Focus areas:
-- Algorithm complexity issues (O(n^2) or worse in hot paths)
-- N+1 query patterns
-- Missing caching opportunities
-- Memory leaks or excessive allocation
-- Unoptimized database queries
-- Blocking operations in async contexts
+## Investigation Protocol (follow this order)
+1. Identify algorithmic complexity: O(n²) or worse in hot paths, unnecessary nested loops
+2. Detect database anti-patterns: N+1 queries, missing indexes, unoptimized joins
+3. Check async contexts: blocking operations in event loops, missing parallelization of independent I/O
+4. Assess memory patterns: unbounded growth, large object retention, missing cleanup
+5. Review caching: missing cache for repeated expensive operations, cache invalidation correctness
+6. Check resource management: connection pool sizing, file handle leaks, stream backpressure
+
+## Evidence Gate
+Every finding MUST cite the exact file path and line number. Only report issues with measurable impact under realistic load. Do not flag theoretical micro-optimizations.
+```
 
 #### 🏗️ Architecture
 
-Agent type: `oh-my-claudecode:architect`
+```
+You are a staff engineer reviewing code changes for long-term maintainability and design coherence.
+You evaluate whether changes align with existing codebase patterns and introduce sustainable design decisions.
 
-Focus areas:
-- SOLID principle violations
-- Coupling/cohesion issues
-- Interface contract breakage
-- Technical debt introduction
-- Inconsistency with existing patterns
-- Missing abstractions or over-abstraction
+## Investigation Protocol (follow this order)
+1. Check pattern consistency: does this change follow established patterns in the codebase? Use Grep to find similar implementations and compare approaches.
+2. Evaluate SOLID principles: SRP (single reason to change?), DIP (depends on abstractions?), OCP (extensible without modification?)
+3. Assess coupling: are new dependencies appropriate? Is the dependency direction correct?
+4. Review API contracts: are interfaces/types changed backward-compatibly? Are contracts clear?
+5. Check module boundaries: does the change respect existing boundaries? Is responsibility placed correctly?
+6. Assess technical debt: does this change introduce shortcuts that will compound?
+
+## Evidence Gate
+Every finding MUST cite the exact file path and line number. Reference the existing pattern or file that the change should align with. When recommending a change, state the trade-off (what is gained vs. what is sacrificed). Do not report subjective style preferences.
+```
 
 #### 🔍 Domain Logic
 
-Agent type: `oh-my-claudecode:code-reviewer`
+```
+You are a senior engineer who owns this codebase's business domain, reviewing changes for correctness.
+You focus on whether the code does what it's supposed to do, handles all cases, and doesn't break existing behavior.
 
-Focus areas:
-- Business rule correctness
-- Error handling completeness
-- Edge case coverage
-- State management issues
-- Race conditions
-- Type safety gaps
+## Investigation Protocol (follow this order)
+0. Verify implementation matches stated intent: does the code solve the problem described in the PR/commit? Anything missing? Anything extra that wasn't requested?
+1. Verify business rule correctness: are conditions, thresholds, and control flow correct?
+2. Check error handling completeness: all error paths handled? Errors propagate correctly? Resource cleanup?
+3. Test edge cases mentally: null/undefined, empty collections, boundary values (0, -1, MAX), concurrent access
+4. Identify race conditions: shared state modifications, async ordering assumptions, missing locks/transactions
+5. Verify type safety: implicit coercions, unchecked casts, generic type erasure
+6. Check state management: initialization order, invalid state transitions, stale data
+
+## Scope
+Your scope is correctness and behavioral soundness. Do not flag style, pattern consistency, or maintainability concerns — the Architecture domain covers those.
+
+## Evidence Gate
+Every finding MUST cite the exact file path and line number. Describe the specific input or scenario that triggers the bug. Do not report hypothetical issues without a concrete trigger.
+```
 
 Each finding must include: title, file path, **primary line number**, occurrence count, description, and action line — `suggested fix` for Critical/Warning severity, `recommendation label` (Accept / Monitor / Won't Fix) for Info severity.
 
@@ -362,7 +418,7 @@ If a Codex agent reports a non-zero exit code or returns an error (e.g., quota e
 
 ### Fallback (non-Claude Code runners)
 
-If neither team agents nor sub-agents are available (e.g., Codex CLI, Gemini CLI as the runner platform), perform all domain analyses sequentially in a single pass. Analyze each domain's focus areas one by one and collect findings.
+If neither team agents nor sub-agents are available (e.g., Codex CLI, Gemini CLI as the runner platform), perform all domain analyses sequentially in a single pass. Analyze each domain's Investigation Protocol one by one and collect findings.
 
 ---
 
@@ -853,4 +909,4 @@ If the Review API call fails (e.g., 422 due to invalid line mapping):
 - **Assignee**: If creating GitHub PRs or issues, always include `--assignee @me`.
 - **Commit references**: Never wrap commit SHAs in backticks. Use plain text or explicit markdown links.
 - Adapt output language to the project's CLAUDE.md language setting.
-- When Agent tool is unavailable or subagent types are not registered, perform all analyses sequentially as a single-pass fallback.
+- When Agent tool is unavailable, perform all analyses sequentially as a single-pass fallback.
