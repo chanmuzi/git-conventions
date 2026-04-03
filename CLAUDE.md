@@ -147,6 +147,7 @@ cp -r ~/.claude/plugins/marketplaces/git-conventions/skills/ "$CACHE/skills/"
 - **참조 라벨 구분**: "관련" 표기 시 유형을 명시 — `관련 커밋:` (SHA), `관련 PR:` (#번호). 단독 `관련:`은 사용 금지
 - **Bullet 관리**: 카테고리당 bullet 5개 초과 시 관련 항목을 통합하여 가독성 유지
 - **Commit SHA 표기**: backtick 금지 (GitHub 링크화 방지됨). plain text 또는 markdown link 사용
+- **이슈 제안 자제**: 분석 중 발견한 개선 가능성을 바로 "이슈로 만들어둘까요?"라고 제안하지 않는다. 실제 pain point가 구체화된 경우에만 이슈 생성을 제안한다
 
 ## 터미널 렌더링 가이드라인
 
@@ -210,7 +211,7 @@ Markdown 원문과 터미널 표시가 다른 주요 케이스:
 | 공유 로직 | 관련 스킬 | 비고 |
 |----------|----------|------|
 | `-g`/`--graph` Mermaid 분석 (4단계 프로세스 + graph rules) | `code-review`, `pr` | 분석 절차, skip condition, Mermaid 포맷 동일 |
-| Label System (type labels, color hex) | `pr`, `issue` | 이미 각 SKILL.md에 명시됨 |
+| Label System (type labels, color hex) | `pr`, `issue` | 각 SKILL.md에 inline 정의. Agent Skills 배포 독립성(`npx skills add chanmuzi/git-conventions --skill issue` 등 개별 설치) 제약으로 중앙화하지 않음 |
 
 ## 새 스킬 추가 체크리스트
 
