@@ -27,7 +27,6 @@ Parse `$ARGUMENTS` for flags before proceeding. Natural language equivalents: "a
 
 > Skip this section if any of the following is true:
 > - `--amend` is NOT set
-> - This is the very first commit (`HEAD~1` does not exist)
 > - The last commit is a merge commit (`git rev-parse --verify HEAD^2 2>/dev/null` succeeds)
 
 When `--amend` is set, amend the last commit with the current changes.
