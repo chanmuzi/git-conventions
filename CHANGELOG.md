@@ -1,5 +1,19 @@
 # Change Log
 
+### 2026-04-04: /commit amend 기본값 반전 — opt-out → opt-in
+
+**commit**
+- `--no-amend` 플래그 제거, `--amend` 플래그로 대체 — 기본 동작이 항상 새 커밋 생성으로 변경
+- 파일 겹침 기반 자동 amend 감지 제거 — 예측 불가능한 히스토리 변경 방지
+- `--amend` 사용 시 push 상태 확인: 미push → 즉시 amend, push됨 → 경고 후 사용자 확인
+- 자연어 매핑 업데이트: "amend해줘", "직전 커밋에 합쳐줘", "마지막 커밋 수정" → `--amend`
+
+**docs**
+- CLAUDE.md 테스트 케이스 업데이트
+- README.md, README.ko.md `/commit` 섹션 동기화
+
+---
+
 ### 2026-04-04: /code-review Codex 플래그 의미 정정
 
 **code-review**
