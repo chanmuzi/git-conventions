@@ -62,8 +62,8 @@ git log @{u}..HEAD --oneline 2>/dev/null
   - If declined: fall through to Task (new commit).
 
 **After amend:**
-- If all changed files were covered by the amend → done. Do not proceed to Task.
-- If some files were NOT in the last commit → proceed to Task for remaining files only.
+- If no unstaged or untracked changes remain → done. Do not proceed to Task.
+- If any changes remain → proceed to Task for the remaining changes.
 
 ## Commit Message Convention
 
