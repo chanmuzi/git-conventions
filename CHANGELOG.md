@@ -1,5 +1,20 @@
 # Change Log
 
+### 2026-04-05: README 내용 구조 개편
+
+**docs**
+- Hero Zone 도입: Value Proposition 문구 + 차별화 포인트 3-bullet + 스킬 테이블 요약
+- 언어 전환 링크를 상단 우측(`align="right"`)으로 이동하여 Hero 흐름 유지
+- Update 섹션을 Installation 하위(`###`)로 통합
+- Label System을 하단(License 위)으로 이동
+- `/code-review` 상세 축소: 자연어 예시 블록 제거, Codex 설정·플래그를 `<details>`로 접힘 처리
+- `/handoff` 상세(감지 cascade, 스킬 추천)를 `<details>`로 접힘 처리
+- Label 테이블을 `<details>`로 접힘 처리
+- `/commit` 커밋 메시지 형식 블록 제거, 타입 한 줄 나열로 간소화
+- README.ko.md 동기화
+
+---
+
 ### 2026-04-05: Claw'd 브랜드 배너 도입
 
 **assets**
