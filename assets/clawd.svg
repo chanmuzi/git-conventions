@@ -2,14 +2,12 @@
   <style>
     .char{animation:jump .7s ease-in-out infinite}
     .shadow{animation:sh .7s ease-in-out infinite;transform-origin:296px 350px}
-    .eyes{animation:blink 3.5s ease-in-out infinite}
     .left-arm{animation:wl .6s ease-in-out infinite;transform-origin:97px 180px}
     .right-arm{animation:wr .6s ease-in-out infinite;transform-origin:494px 180px}
     .left-leg{animation:step .8s ease-in-out infinite}
     .right-leg{animation:step .8s ease-in-out infinite .4s}
     @keyframes jump{0%,100%{transform:translateY(0)}40%{transform:translateY(-28px)}55%{transform:translateY(-30px)}85%{transform:translateY(-5px)}}
     @keyframes sh{0%,100%{transform:scaleX(1);opacity:.18}50%{transform:scaleX(.45);opacity:.05}}
-    @keyframes blink{0%,42%,48%,100%{opacity:1}45%{opacity:0}}
     @keyframes wl{0%,100%{transform:rotate(0deg)}50%{transform:rotate(-25deg)}}
     @keyframes wr{0%,100%{transform:rotate(0deg)}50%{transform:rotate(25deg)}}
     @keyframes step{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
