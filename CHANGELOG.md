@@ -1,5 +1,17 @@
 # Change Log
 
+### 2026-04-05: Claw'd 브랜드 배너 도입
+
+**assets**
+- Claw'd 캐릭터 + Git 브랜치 시각화 배너 SVG 추가 (dark/light)
+- 독립 Claw'd 캐릭터 SVG 추가 (점프, 눈깜빡, 팔흔들기 애니메이션)
+
+**docs**
+- README.md, README.ko.md 헤더 배너를 capsule-render → 로컬 SVG로 교체
+- `<picture>` 태그로 GitHub dark/light mode 자동 전환
+
+---
+
 ### 2026-04-04: /commit amend 기본값 반전 — opt-out → opt-in
 
 **commit**
