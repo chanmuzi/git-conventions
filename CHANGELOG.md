@@ -1,5 +1,34 @@
 # Change Log
 
+## v1.8.0 (2026-04-05)
+
+새 스킬 `/handoff` 도입, `/code-review` 아키텍처 전환(OMC → prompt-only), `/commit` amend opt-in 전환, Claw'd 브랜드 배너 도입, 터미널 출력 포맷 전면 개선.
+
+**New**
+- `/handoff` 스킬 신규 추가 — 세션 이관 프롬프트 생성 (PR #10, #11, #15)
+- `-g`/`--graph` Mermaid 변경 흐름 그래프 — code-review, pr (PR #9)
+- `/code-review` Quick 모드 `--quick` / `-q` (PR #19)
+- `/code-review` Info finding에 Recommendation 행동 지침 (PR #18)
+- `/commit` `--amend` 플래그 (PR #14)
+- `--codex-both` 플래그 신규 (PR #23)
+- 외부 레포 권한 부족 시 graceful fallback (PR #5)
+- Claw'd 브랜드 배너 SVG — dark/light mode 자동 전환 (PR #25)
+
+**Changed**
+- `/code-review` OMC 의존성 제거, prompt-only 도메인 에이전트 전환 (PR #21)
+- `/commit` amend 기본값 반전: 자동 감지(opt-out) → 명시적 요청(opt-in) (PR #24)
+- `--codex` 플래그 의미 변경: both → 강제 활성화 (PR #23)
+- 터미널 출력 Unicode 위계 체계 도입 (PR #6, #8)
+- review-reply 출력 포맷 가독성 개선 (PR #8)
+- README Hero Zone 도입 및 구조 개편 (PR #26)
+
+**Fixed**
+- Codex Detection을 find 기반 결정적 탐지로 전환 (PR #17, #22)
+- `/handoff` Detection 순서 수정 및 `/copy` 호환성 (PR #11)
+- `/commit` initial commit에서 `--amend` 무시되는 문제 (PR #24)
+
+---
+
 ### 2026-04-05: README 내용 구조 개편
 
 **docs**

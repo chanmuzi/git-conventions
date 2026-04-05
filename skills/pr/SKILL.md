@@ -5,7 +5,7 @@ description: >-
   TRIGGER when: user asks to create/open a PR, push and create PR, or any workflow that includes PR creation (e.g., "PR 올려줘", "푸시하고 PR 만들어줘", "commit, push, and create PR").
   DO NOT TRIGGER when: user is viewing or listing existing PRs, or performing git operations without PR intent.
 argument-hint: "[release] [--base <branch>] [-g|--graph]"
-version: "1.3.1"
+version: "1.4.0"
 allowed-tools: Bash(git *), Bash(gh pr *), Bash(gh label *), Read, Grep, Glob
 ---
 
