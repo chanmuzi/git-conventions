@@ -1,5 +1,12 @@
 # Change Log
 
+## Unreleased
+
+**New**
+- `/code-review` Context-Aware Scope Adjustment — 대화 맥락 기반 리뷰 범위 자동 결정 및 변경사항 없을 때 코드베이스 리뷰 fallback
+
+---
+
 ## v1.8.0 (2026-04-05)
 
 새 스킬 `/handoff` 도입, `/code-review` 아키텍처 전환(OMC → prompt-only), `/commit` amend opt-in 전환, Claw'd 브랜드 배너 도입, 터미널 출력 포맷 전면 개선.

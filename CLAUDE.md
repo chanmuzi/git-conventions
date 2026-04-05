@@ -74,7 +74,7 @@ npx skills add ./  # 로컬 경로에서 설치
 /issue bug     → Bug Report 템플릿 확인
 /review-reply        → AI 리뷰 코멘트 수집/분석 확인
 /review-reply 42     → 특정 PR 번호로 리뷰 확인
-/code-review              → PR 자동 감지 또는 working directory 리뷰
+/code-review              → PR 자동 감지 → 변경사항 리뷰 → 코드베이스 분석 (대화 맥락 반영)
 /code-review 42           → 특정 PR 코드 리뷰
 /code-review src/         → 특정 경로 코드 리뷰
 /code-review --wd         → PR 브랜치에서도 working dir 리뷰 강제

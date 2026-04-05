@@ -137,10 +137,10 @@ Collects review comments (CodeRabbit, Copilot, teammates, etc.) from a PR, analy
 
 ### `/code-review` — Context-Aware Code Review
 
-Analyzes PR or local code changes using a multi-agent pipeline with domain-specific agents (Security, Performance, Architecture, Domain Logic). Cross-validates findings to filter false positives, then produces severity-based output (🔴 Critical · 🟡 Warning · 🟢 Info).
+Analyzes PR or local code changes using a multi-agent pipeline with domain-specific agents (Security, Performance, Architecture, Domain Logic). Cross-validates findings to filter false positives, then produces severity-based output (🔴 Critical · 🟡 Warning · 🟢 Info). When no changes are detected, automatically transitions to codebase review. Conversation context is used to determine the optimal review scope.
 
 ```
-/code-review           # Auto-detect PR or review working dir
+/code-review           # Auto-detect PR, review changes, or analyze codebase (context-aware)
 /code-review 42        # Review PR #42
 /code-review src/auth/ # Review specific path
 ```

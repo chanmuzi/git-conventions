@@ -21,7 +21,7 @@ Parse `$ARGUMENTS` to determine the review mode and flags.
 | 2 | **Working Dir (forced)** | `--wd` flag is set | Force working directory review, even on a PR branch |
 | 3 | **Path Review** | `$ARGUMENTS` contains a file/directory path | Review code at the specified path |
 | 4 | **PR Review (auto)** | `$ARGUMENTS` is empty → auto-detect (see below) | Auto-detected PR on current branch |
-| 5 | **Working Dir** | `$ARGUMENTS` is empty and no PR detected | Review current working directory changes (staged + unstaged) |
+| 5 | **Working Dir** | `$ARGUMENTS` is empty and no PR detected | Review current working directory changes (staged + unstaged). If no changes, falls through to Path Review (cwd) |
 
 ### PR Auto-Detection
 
@@ -35,6 +35,21 @@ Key behaviors:
 - `--author "@me"` ensures only the current user's PRs are matched, skipping bot PRs (dependabot, renovate, etc.)
 - If a PR is found → enter **PR Review (auto)** mode with the detected PR number
 - If no PR is found (empty result, detached HEAD, or `main`/`master` branch) → fall through to **Working Dir** mode
+
+### Context-Aware Scope Adjustment
+
+After resolving the initial mode, review the conversation history to assess the user's actual intent. This applies ONLY when `$ARGUMENTS` is empty (no explicit path or PR number).
+
+Evaluate whether the user wants a **diff-focused review** (changes only) or a **codebase-level review** (broader analysis). Consider:
+
+- **Broaden to Path Review (cwd)**: User's conversation implies analysis, diagnosis, exploration, or state assessment of existing code — not just reviewing recent changes. Examples: "분석해줘", "현재 상태 봐줘", "진단해줘", "코드 살펴봐", "조사해줘", codebase onboarding context
+- **Keep Working Dir**: User is actively developing and wants feedback on their changes. Examples: "수정한 거 봐줘", "변경사항 리뷰", iterating on feature branch with substantial diff
+
+If broadening, display:
+
+> **💡 Scope adjusted** — 대화 맥락에 따라 현재 디렉토리 코드 리뷰로 전환합니다
+
+When both changes and broader analysis are relevant, use Path Review mode with the diff included as supplementary context for the domain agents.
 
 ### Flag Detection
 
@@ -106,7 +121,11 @@ git diff HEAD
 git log --oneline -5
 ```
 
-If there are no changes (no staged or unstaged diffs), inform the user and stop.
+If there are no changes (no staged or unstaged diffs), transition to **Path Review mode** targeting the current working directory. Display hint:
+
+> **💡 변경사항 없음** — 현재 디렉토리 코드 리뷰로 전환합니다
+
+Then proceed with Path Review Mode logic below.
 
 Note: `git diff HEAD` only includes tracked files. Untracked (new) files are not included. If the user wants new files reviewed, they should stage them first (`git add`) before running `/code-review`.
 
