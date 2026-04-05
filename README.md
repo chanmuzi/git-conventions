@@ -1,3 +1,7 @@
+<p align="right">
+  <a href="README.md">English</a> · <a href="README.ko.md">한국어</a>
+</p>
+
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="assets/banner-dark.svg">
@@ -16,19 +20,32 @@
   <img src="https://img.shields.io/github/last-commit/chanmuzi/git-claw?color=orange" alt="Last Commit" />
 </p>
 
-<p align="center">
-  <a href="README.md">English</a> · <a href="README.ko.md">한국어</a>
-</p>
+---
+
+A consistent Git history that's easy to read — for both humans and agents.
+
+git-claw is an [Agent Skill](https://agentskills.io) that keeps your commits, PRs, issues, and code reviews in a unified format. Install once, and every collaboration artifact follows the same conventions — whether you're working solo or in a team.
+
+- **Readable history** — Structured commits, PRs, and issues that anyone (or any agent) can follow at a glance
+- **Multi-model code review** — Domain agents + Codex adversarial analysis, cross-validated and severity-ranked
+- **Session continuity** — `/handoff` captures work context so the next session picks up where you left off
 
 ---
 
-An [Agent Skill](https://agentskills.io) that enforces consistent Git commit messages, PR templates, and AI review analysis across projects.
+### Skills
 
-Works with Claude Code, Codex CLI, Gemini CLI, Cursor, GitHub Copilot, Amp, and [40+ agents](https://skills.sh).
+| | Skill | What it does |
+|:---:|---|---|
+| 📝 | `/commit` | Conventional commits from your diff |
+| 🔀 | `/pr` | Structured PRs with auto-labeling |
+| 📋 | `/issue` | Templated issues with priority labels |
+| 💬 | `/review-reply` | Analyze and reply to review comments |
+| 🔍 | `/code-review` | Multi-agent severity-based code review |
+| 🤝 | `/handoff` | Session transfer prompt generation |
 
 ## Installation
 
-### Option 1: Claude Code Plugin (Recommended)
+### Claude Code Plugin (Recommended)
 
 ```bash
 # Add marketplace
@@ -38,59 +55,41 @@ Works with Claude Code, Codex CLI, Gemini CLI, Cursor, GitHub Copilot, Amp, and 
 /plugin install git-claw@git-claw
 ```
 
-### Option 2: Skills CLI (All Agents)
+### Skills CLI
 
 ```bash
 npx skills add chanmuzi/git-claw
 ```
 
-**Included skills:**
-
-| Skill | Description |
-|-------|-------------|
-| `commit` | Create a git commit following project conventions |
-| `pr` | Create a pull request following project conventions |
-| `issue` | Create a GitHub issue with templates and auto-labeling |
-| `review-reply` | Review AI-generated PR review comments and reply |
-| `code-review` | Context-aware multi-agent code review with severity-based findings |
-| `handoff` | Generate a copy-ready handoff prompt for session transfer |
-
 The interactive installer lets you select skills, target agents, scope (project/global), and install method.
 
-> To install all skills at once without prompts:
-> ```bash
-> npx skills add chanmuzi/git-claw --skill commit --skill pr --skill issue --skill review-reply --skill code-review --skill handoff -g
-> ```
-
-## Update
-
-> **Recommended:** Enable auto-update to receive new features and fixes automatically.
-> See platform-specific instructions below.
-
-### Claude Code Plugin
+<details>
+<summary>Install all skills at once without prompts</summary>
 
 ```bash
-# Update the plugin
+npx skills add chanmuzi/git-claw --skill commit --skill pr --skill issue --skill review-reply --skill code-review --skill handoff -g
+```
+
+</details>
+
+### Update
+
+**Claude Code Plugin:**
+
+```bash
 /plugin update git-claw@git-claw
 ```
 
-Or enable auto-update for hands-free upgrades (recommended):
+Or enable auto-update: `/plugin` → **Marketplaces** tab → select marketplace → **Enable auto-update**
 
-`/plugin` → **Marketplaces** tab → select marketplace → **Enable auto-update**
-
-### Skills CLI
+**Skills CLI:**
 
 ```bash
-# Check for available updates
-npx skills check
-
-# Update all installed skills
-npx skills update
+npx skills check    # Check for updates
+npx skills update   # Update all installed skills
 ```
 
-> If you installed with Symlink (recommended), a single update applies to all agents at once. Copy installs require updating each copy individually.
->
-> Skills CLI does not auto-update. Run `npx skills check` periodically, or after major releases announced in the [changelog](CHANGELOG.md).
+> Symlink installs (recommended) apply updates to all agents at once. Copy installs require updating each copy individually.
 
 ## Skills
 
@@ -102,31 +101,19 @@ Analyzes your staged/unstaged changes and proposes a commit message following th
 
 ```
 /commit              # Analyze and commit
-/commit --amend      # Amend the last commit instead of creating a new one
+/commit --amend      # Amend the last commit
 ```
 
-**Commit message format:**
-```
-{type}: {description}
-{type}({scope}): {description}
-```
-
-Types: `feat`, `fix`, `refactor`, `style`, `docs`, `test`, `perf`, `chore`, `hotfix`
+Types: `feat` · `fix` · `refactor` · `style` · `docs` · `test` · `perf` · `chore` · `hotfix`
 
 ### `/pr` — Create a Pull Request
 
-Creates a PR with a structured template. Automatically detects whether to use the Individual PR template or the Release PR template.
+Creates a PR with a structured template. Automatically detects Individual or Release mode.
 
 ```
 /pr              # Individual PR (Feat, Fix, Refactor, etc.)
 /pr -g           # Include Mermaid change-flow graph
 /pr release      # Release PR (dev → main integration)
-```
-
-**PR title format:**
-```
-{Type}: {description}               # Individual (e.g., Feat: add new feature)
-Release: dev → main 통합 (vX.Y.Z)  # Release
 ```
 
 ### `/issue` — Create a GitHub Issue
@@ -139,9 +126,6 @@ Creates a structured issue with the appropriate template and auto-assigns type/p
 /issue feature     # Feature request
 ```
 
-**Templates:** Bug Report, Feature Request, General
-**Auto-labeling:** `bug`, `feature`, `enhancement`, `critical`/`high`/`medium`/`low`, etc.
-
 ### `/review-reply` — Review & Reply to PR Comments
 
 Collects review comments (CodeRabbit, Copilot, teammates, etc.) from a PR, analyzes their validity against the actual code, and discusses findings with you.
@@ -153,47 +137,35 @@ Collects review comments (CodeRabbit, Copilot, teammates, etc.) from a PR, analy
 
 ### `/code-review` — Context-Aware Code Review
 
-Analyzes PR or local code changes using a multi-agent pipeline with domain-specific agents (Security, Performance, Architecture, Domain Logic). Cross-validates findings against code context to filter false positives, then produces severity-based structured output.
+Analyzes PR or local code changes using a multi-agent pipeline with domain-specific agents (Security, Performance, Architecture, Domain Logic). Cross-validates findings to filter false positives, then produces severity-based output (🔴 Critical · 🟡 Warning · 🟢 Info).
 
 ```
-/code-review           # Auto-detect PR on current branch, or review working dir
+/code-review           # Auto-detect PR or review working dir
 /code-review 42        # Review PR #42
 /code-review src/auth/ # Review specific path
-/code-review --wd      # Force working dir review (skip PR auto-detection)
 ```
 
-**Flags:**
+In PR mode, findings are published as inline review comments on specific diff lines via the GitHub Review API.
+
+<details>
+<summary>Flags</summary>
+
 - `--wd` — Force working directory mode, even on a PR branch
 - `--domain security,perf` — Override auto-detected domains
 - `-y` / `-f` — Publish without approval
 - `-g` — Generate Mermaid change-flow graph (PR mode only)
-- `-q` / `--quick` — Quick mode: single-pass analysis (no agent spawn), max 2 domains, Critical/Warning first (Info fallback when none found)
+- `-q` / `--quick` — Quick mode: single-pass, max 2 domains, Critical/Warning first
 - `--no-codex` — Disable Codex integration
-- `--codex` — Force enable Codex (adversarial only, same as default)
-- `--codex-general` — Use Codex general review only (without adversarial)
-- `--codex-both` — Run both Codex review and adversarial review
+- `--codex-both` — Run both Codex general review and adversarial review
 
-**Natural language:** You can use flags or natural language — Claude translates your intent into the appropriate flags before invoking the skill.
+</details>
 
-```
-/code-review 42 바로 올려줘             # → /code-review 42 -y
-/code-review security만 봐줘            # → /code-review --domain security
-/code-review codex 둘 다 돌려줘         # → /code-review --codex-both
-/code-review codex 없이 리뷰해줘        # → /code-review --no-codex
-/code-review working dir로 봐줘         # → /code-review --wd
-/code-review 간단하게 봐줘              # → /code-review --quick
-```
+<details>
+<summary>Codex integration (optional)</summary>
 
-**Codex integration (optional, recommended):** When the [Codex plugin](https://github.com/openai/codex) is installed and authenticated, `/code-review` automatically runs Codex adversarial review in parallel with domain agents. Findings are cross-validated and merged with source tags. Use `--no-codex` to opt out.
+When the [Codex plugin](https://github.com/openai/codex) is installed (`claude plugin add codex` + `!codex setup`), `/code-review` automatically runs Codex adversarial review in parallel with domain agents. Findings are cross-validated and merged with source tags. Use `--no-codex` to opt out.
 
-To set up Codex integration:
-1. Install the Codex plugin: `claude plugin add codex`
-2. Run `!codex setup` in Claude Code to authenticate with your OpenAI API key
-3. `/code-review` will automatically detect and use Codex — no additional flags needed
-
-**Inline review comments:** In PR mode, findings are published as inline review comments attached to specific diff lines via the GitHub Review API. Each finding becomes an independent conversation thread — reply, resolve, or apply suggestions individually. A severity summary table is included in the review body. Findings outside the diff are included as "General Findings" in the summary.
-
-**Severity levels:** 🔴 Critical, 🟡 Warning, 🟢 Info
+</details>
 
 ### `/handoff` — Session Handoff Prompt
 
@@ -202,8 +174,11 @@ Generates a copy-ready handoff prompt that transfers work context to a new sessi
 ```
 /handoff                   # Auto-detect and generate handoff prompt
 /handoff -y                # Skip confirmation, output directly
-/handoff auth refactoring  # Focus handoff on a specific topic
+/handoff auth refactoring  # Focus on a specific topic
 ```
+
+<details>
+<summary>Details</summary>
 
 **Detection cascade:** Artifacts (`.omc/specs/`, `.omc/plans/`) → Git state → Conversation context
 
@@ -211,36 +186,11 @@ Generates a copy-ready handoff prompt that transfers work context to a new sessi
 
 **Output:** Terminal text optimized for `/copy`. Never repeats artifact content — references file paths instead.
 
+</details>
+
 ## Language Behavior
 
-All commands write output (commit messages, PR titles/body) in the language configured in your project's `CLAUDE.md`. If no language is set, the user's conversational language is used.
-
-Technical terms are kept in their original form to preserve clarity — no forced translations.
-
-## Label System
-
-`/pr` and `/issue` share a unified label scheme. Labels are auto-created on first use — if a label already exists, it is left unchanged.
-
-| Label | Color | Source |
-|-------|-------|--------|
-| `bug` | 🔴 `d73a4a` | GitHub default |
-| `feature` | 🔵 `0075ca` | GitHub default |
-| `enhancement` | 🩵 `a2eeef` | GitHub default |
-| `docs` | 🟣 `5319e7` | GitHub default |
-| `chore` | 🟡 `e4e669` | Standard |
-| `refactor` | 🟪 `d4c5f9` | Standard |
-| `test` | 🟢 `bfd4f2` | Standard |
-| `perf` | 🟠 `f9d0c4` | Standard |
-| `hotfix` | 🔴 `b60205` | Standard |
-| `release` | 🔵 `1d76db` | Standard |
-| `critical` | 🔴 `b60205` | Priority |
-| `high` | 🟠 `d93f0b` | Priority |
-| `medium` | 🟡 `fbca04` | Priority |
-| `low` | 🟢 `0e8a16` | Priority |
-
-- **No namespace prefix** — clean, simple names (`bug` instead of `type: bug`)
-- **GitHub-standard colors** — matches GitHub's default palette where applicable
-- **Conflict-safe** — `gh label create ... 2>/dev/null || true` (create if missing, skip if exists)
+All commands write output (commit messages, PR titles/body) in the language configured in your project's `CLAUDE.md`. If no language is set, the user's conversational language is used. Technical terms are kept in their original form.
 
 ## Conventions at a Glance
 
@@ -263,6 +213,36 @@ Add the following to your global `~/.claude/CLAUDE.md` to reference these conven
 - Release PR: `Release: dev → main 통합 (vX.Y.Z)`
 - Use `/commit`, `/pr`, `/pr release`, `/issue`, `/review-reply`, `/code-review`, `/handoff` commands for full workflows
 ```
+
+## Label System
+
+`/pr` and `/issue` share a unified label scheme. Labels are auto-created on first use — if a label already exists, it is left unchanged.
+
+<details>
+<summary>Label reference</summary>
+
+| Label | Color | Source |
+|-------|-------|--------|
+| `bug` | 🔴 `d73a4a` | GitHub default |
+| `feature` | 🔵 `0075ca` | GitHub default |
+| `enhancement` | 🩵 `a2eeef` | GitHub default |
+| `docs` | 🟣 `5319e7` | GitHub default |
+| `chore` | 🟡 `e4e669` | Standard |
+| `refactor` | 🟪 `d4c5f9` | Standard |
+| `test` | 🟢 `bfd4f2` | Standard |
+| `perf` | 🟠 `f9d0c4` | Standard |
+| `hotfix` | 🔴 `b60205` | Standard |
+| `release` | 🔵 `1d76db` | Standard |
+| `critical` | 🔴 `b60205` | Priority |
+| `high` | 🟠 `d93f0b` | Priority |
+| `medium` | 🟡 `fbca04` | Priority |
+| `low` | 🟢 `0e8a16` | Priority |
+
+- **No namespace prefix** — clean, simple names (`bug` instead of `type: bug`)
+- **GitHub-standard colors** — matches GitHub's default palette where applicable
+- **Conflict-safe** — `gh label create ... 2>/dev/null || true` (create if missing, skip if exists)
+
+</details>
 
 ## License
 
