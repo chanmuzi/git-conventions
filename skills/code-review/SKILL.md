@@ -38,9 +38,11 @@ Key behaviors:
 
 ### Context-Aware Scope Adjustment
 
-After resolving the initial mode, review the conversation history to assess the user's actual intent. This applies ONLY when `$ARGUMENTS` is empty (no explicit path or PR number).
+After resolving the initial mode, review the conversation history to assess the user's actual intent. This applies ONLY when the resolved mode is **Working Dir** (Priority 5) — i.e., no positional arguments and no PR detected. Explicit flags like `--wd` (Priority 2) and PR modes (Priority 1, 4) are not subject to this adjustment.
 
-Evaluate whether the user wants a **diff-focused review** (changes only) or a **codebase-level review** (broader analysis). Consider:
+This adjustment operates before Step 1 (Context Builder) and complements the no-changes fallback in Working Dir Mode: Context-Aware decides based on conversation signals pre-diff; the no-changes fallback decides based on actual diff results in Step 1.
+
+Evaluate whether the user wants a **diff-focused review** (changes only) or a **broader directory review**. Consider:
 
 - **Broaden to Path Review (cwd)**: User's conversation implies analysis, diagnosis, exploration, or state assessment of existing code — not just reviewing recent changes. Examples: "분석해줘", "현재 상태 봐줘", "진단해줘", "코드 살펴봐", "조사해줘", codebase onboarding context
 - **Keep Working Dir**: User is actively developing and wants feedback on their changes. Examples: "수정한 거 봐줘", "변경사항 리뷰", iterating on feature branch with substantial diff
@@ -127,7 +129,7 @@ If there are no changes (no staged or unstaged diffs), transition to **Path Revi
 
 Then proceed with Path Review Mode logic below.
 
-Note: `git diff HEAD` only includes tracked files. Untracked (new) files are not included. If the user wants new files reviewed, they should stage them first (`git add`) before running `/code-review`.
+Note: In **diff review mode**, `git diff HEAD` only includes tracked files. Untracked (new) files are not included — stage them first (`git add`) to include. In the **Path Review fallback** (no changes detected → cwd review), files are read directly from the filesystem, so untracked files are typically included.
 
 ### Path Review Mode
 

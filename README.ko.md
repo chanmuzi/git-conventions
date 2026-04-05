@@ -137,10 +137,10 @@ PR의 리뷰 코멘트(CodeRabbit, Copilot, 팀원 등)를 수집하고, 실제 
 
 ### `/code-review` — Context-Aware 코드 리뷰
 
-PR 또는 로컬 코드 변경사항을 도메인별 전문 agent(Security, Performance, Architecture, Domain Logic)로 병렬 분석합니다. false positive를 필터링한 뒤, severity 기반 구조화된 리뷰를 생성합니다 (🔴 Critical · 🟡 Warning · 🟢 Info). 변경사항이 없으면 자동으로 코드베이스 리뷰로 전환하며, 대화 맥락을 반영하여 최적의 리뷰 범위를 결정합니다.
+PR 또는 로컬 코드 변경사항을 도메인별 전문 agent(Security, Performance, Architecture, Domain Logic)로 병렬 분석합니다. false positive를 필터링한 뒤, severity 기반 구조화된 리뷰를 생성합니다 (🔴 Critical · 🟡 Warning · 🟢 Info). 변경사항이 없으면 자동으로 현재 작업 디렉토리 리뷰로 전환하며, 대화 맥락을 반영하여 최적의 리뷰 범위를 결정합니다.
 
 ```
-/code-review           # PR 자동 감지 → 변경사항 리뷰 → 코드베이스 분석 (대화 맥락 반영)
+/code-review           # PR 자동 감지 → 변경사항 리뷰 → 현재 디렉토리 리뷰 (대화 맥락 반영)
 /code-review 42        # PR #42 코드 리뷰
 /code-review src/auth/ # 특정 경로 코드 리뷰
 ```
