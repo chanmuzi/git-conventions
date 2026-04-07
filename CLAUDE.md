@@ -79,6 +79,7 @@ npx skills add ./  # 로컬 경로에서 설치
 /code-review src/         → 특정 경로 코드 리뷰
 /code-review --wd         → PR 브랜치에서도 working dir 리뷰 강제
 /code-review --quick         → Quick 모드: 단일 패스, 도메인 2개 cap, Critical/Warning 우선 (없으면 Info fallback)
+/code-review --full-scan     → PR 리뷰 시 diff 외부 pre-existing issue도 포함
 /code-review --no-codex      → Codex 통합 비활성화
 /code-review --codex         → Codex 강제 활성화 (adversarial only, default와 동일)
 /code-review --codex-general → Codex 일반 리뷰만 사용 (adversarial 없이)

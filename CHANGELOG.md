@@ -3,6 +3,9 @@
 ## Unreleased
 
 **New**
+- `/code-review` PR Purpose Injection — 도메인 에이전트에 PR 목적을 전달하여 목적 기반 누락/불완전 감지
+- `/code-review` Out-of-Diff Causality Filter — diff 외부 finding에 인과관계 판정 적용, pre-existing issue 자동 제외
+- `/code-review` `--full-scan` 플래그 — PR과 무관한 기존 이슈도 General Findings에 포함
 - `/code-review` Context-Aware Scope Adjustment — 대화 맥락 기반 리뷰 범위 자동 결정 및 변경사항 없을 때 코드베이스 리뷰 fallback
 
 ---

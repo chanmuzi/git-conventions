@@ -137,7 +137,7 @@ PR의 리뷰 코멘트(CodeRabbit, Copilot, 팀원 등)를 수집하고, 실제 
 
 ### `/code-review` — Context-Aware 코드 리뷰
 
-PR 또는 로컬 코드 변경사항을 도메인별 전문 agent(Security, Performance, Architecture, Domain Logic)로 병렬 분석합니다. false positive를 필터링한 뒤, severity 기반 구조화된 리뷰를 생성합니다 (🔴 Critical · 🟡 Warning · 🟢 Info). 변경사항이 없으면 자동으로 현재 작업 디렉토리 리뷰로 전환하며, 대화 맥락을 반영하여 최적의 리뷰 범위를 결정합니다.
+PR 또는 로컬 코드 변경사항을 도메인별 전문 agent(Security, Performance, Architecture, Domain Logic)로 병렬 분석합니다. PR 모드에서는 PR의 목적을 리뷰의 핵심 렌즈로 활용하여 불완전한 구현, 일관성 누락, 목적 불일치를 감지합니다. diff 외부 finding에 대해 인과관계 필터를 적용하여 PR과 무관한 기존 이슈를 자동 제외합니다. severity 기반 구조화된 리뷰를 생성합니다 (🔴 Critical · 🟡 Warning · 🟢 Info). 변경사항이 없으면 자동으로 현재 작업 디렉토리 리뷰로 전환하며, 대화 맥락을 반영하여 최적의 리뷰 범위를 결정합니다.
 
 ```
 /code-review           # PR 자동 감지 → 변경사항 리뷰 → 현재 디렉토리 리뷰 (대화 맥락 반영)
@@ -155,6 +155,7 @@ PR 모드에서 findings는 GitHub Review API를 통해 diff의 특정 라인에
 - `-y` / `-f` — 승인 없이 즉시 게시
 - `-g` — Mermaid 변경 흐름 그래프 생성 (PR 모드 전용)
 - `-q` / `--quick` — Quick 모드: 단일 패스, 도메인 최대 2개, Critical/Warning 우선
+- `--full-scan` — diff 외부 pre-existing issue도 General Findings에 포함 (PR 모드 전용)
 - `--no-codex` — Codex 통합 비활성화
 - `--codex-both` — Codex 일반 리뷰 + adversarial 동시 실행
 

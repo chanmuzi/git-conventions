@@ -4,7 +4,7 @@ description: >-
   Review code changes using context-aware multi-agent pipeline with severity-based findings.
   TRIGGER when: user asks to review code, analyze PR quality, check for issues, run code review, or audit changes (e.g., "코드 리뷰해줘", "review this PR", "코드 분석해줘", "리뷰 돌려줘").
   DO NOT TRIGGER when: user is replying to review comments (use review-reply), creating PRs, committing, or performing git operations without review intent.
-argument-hint: "[PR번호|경로] [-d|--domain security,perf] [-y|--yes] [-g|--graph] [-s|--sub] [-q|--quick] [--wd] [--no-codex|--codex|--codex-general|--codex-both]"
+argument-hint: "[PR번호|경로] [-d|--domain security,perf] [-y|--yes] [-g|--graph] [-s|--sub] [-q|--quick] [--wd] [--full-scan] [--no-codex|--codex|--codex-general|--codex-both]"
 version: "1.8.0"
 allowed-tools: Bash(git *), Bash(gh *), Bash(node *), Bash(find *), Read, Grep, Glob, Agent, TeamCreate, TaskCreate, TaskList, TaskUpdate, TaskGet, SendMessage
 ---
@@ -68,6 +68,7 @@ When both changes and broader analysis are relevant, use Path Review mode with t
 | `--codex` | off | Force enable Codex with default behavior (adversarial only). Use when auto-detection is unreliable |
 | `--codex-general` | off | Use Codex general review (`codex:review`) only, without adversarial review |
 | `--codex-both` | off | Run both Codex general review and adversarial review in parallel. Shorthand for `--codex --codex-general` |
+| `--full-scan` | off | Include pre-existing issues (unrelated to PR changes) in General Findings. By default, out-of-diff findings without causal relationship to the PR are dismissed. PR mode only; ignored in Working Dir / Path mode. |
 
 Codex flag precedence: `--no-codex` > `--codex-both` > `--codex` + `--codex-general` (combo = **both**) > `--codex-general` alone > `--codex` alone > default.
 When `--codex` and `--codex-general` are both present, the combined effect is **both** mode (equivalent to `--codex-both`).
@@ -108,6 +109,8 @@ git log --oneline {baseRefName}..{headRefName} 2>/dev/null | head -30
 ```
 
 Read the PR description to understand the author's intent. This is critical for cross-validation.
+
+Extract a 1-2 sentence **PR Purpose** summary from the title, description, and commit messages. If the PR description is empty or minimal, derive the purpose from the title and commit messages alone. This summary is injected into the domain agent prompts via `## PR Context` in Step 3's Common Prompt Suffix.
 
 ### Working Dir Mode
 
@@ -290,6 +293,20 @@ Each domain agent — whether team or sub — receives its domain-specific promp
 Append the following sections to every domain agent prompt:
 
 ```
+## PR Context (PR Review Mode only — omit this section in Working Dir / Path Review mode)
+
+**PR Purpose**: {1-2 sentence summary of the PR's goal, extracted from the PR title, description, and commit messages gathered in Step 1}
+
+When reviewing code, use this PR purpose as your primary lens:
+- Check whether all changes are consistent with the stated purpose
+- Look for incomplete implementations: if the PR aims to do X, are there
+  places where X is only partially done? (e.g., i18n PR that leaves hardcoded
+  strings in some files)
+- Identify files in the diff that were changed but not fully aligned with the
+  PR's goal
+- For data files (YAML, JSON, config), verify cross-language/cross-environment
+  consistency when the PR's purpose involves such concerns
+
 ## Constraints
 - You are read-only. Do not attempt to modify any files.
 - Write findings in the language configured in the project's CLAUDE.md. If no language is configured, follow the user's conversational language.
@@ -457,6 +474,33 @@ When `--quick` is set, perform a reduced validation pass:
 2. **Sanity check**: Verify the finding references real code (not a false match from diff noise).
 
 Skip git history, comments/docs search, and PR description cross-reference. Apply Confirmed / Dismissed verdicts only (no Demoted). This trades thoroughness for speed — obvious false positives are still caught, but edge cases may pass through.
+
+Out-of-Diff Finding Filter (see below) applies identically in Quick mode.
+
+### Out-of-Diff Finding Filter (PR Mode Only)
+
+For findings that reference files NOT in the PR diff, apply a causality test
+before proceeding to the normal verdict process:
+
+**Causality Test**: Does this finding have a direct causal relationship with
+the PR's changes?
+
+| Causality Type | Description | Verdict |
+|---------------|-------------|---------|
+| **Consistency gap** | The PR introduces or modifies a pattern, but the same pattern remains not yet updated in other files. The PR is incomplete without this change. | → Proceed to normal verdict (Confirmed/Demoted/Dismissed) |
+| **Side effect** | A function/API/contract changed in the PR is called or depended on by code outside the diff, and that code will break or behave incorrectly. | → Proceed to normal verdict |
+| **Pre-existing issue** | A code defect that existed before this PR and is unrelated to the PR's changes. Discovered incidentally during review. | → If `--full-scan`: proceed to normal verdict. Otherwise: **Dismissed** (not in scope for this review). |
+
+To determine causality:
+1. Identify what the PR changed (from Step 1 context).
+2. For the out-of-diff finding, ask: "Would this finding exist even if this PR
+   had never been created?" If yes → pre-existing issue.
+3. If no → check whether it's a consistency gap or side effect, and proceed
+   to normal verdict.
+
+Findings that pass the causality test (or are included via `--full-scan`)
+retain their original severity and are included via contextual mapping
+(Step 6 tier 2) or General Findings (tier 3) as appropriate.
 
 ### Normal Mode
 
