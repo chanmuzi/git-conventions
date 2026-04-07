@@ -4,7 +4,7 @@ description: >-
   Review code changes using context-aware multi-agent pipeline with severity-based findings.
   TRIGGER when: user asks to review code, analyze PR quality, check for issues, run code review, or audit changes (e.g., "코드 리뷰해줘", "review this PR", "코드 분석해줘", "리뷰 돌려줘").
   DO NOT TRIGGER when: user is replying to review comments (use review-reply), creating PRs, committing, or performing git operations without review intent.
-argument-hint: "[PR번호|경로] [-d|--domain security,perf] [-y|--yes] [-g|--graph] [-s|--sub] [-q|--quick] [--wd] [--no-codex|--codex|--codex-general|--codex-both]"
+argument-hint: "[PR번호|경로] [-d|--domain security,perf] [-y|--yes] [-g|--graph] [-s|--sub] [-q|--quick] [--wd] [--full-scan] [--no-codex|--codex|--codex-general|--codex-both]"
 version: "1.8.0"
 allowed-tools: Bash(git *), Bash(gh *), Bash(node *), Bash(find *), Read, Grep, Glob, Agent, TeamCreate, TaskCreate, TaskList, TaskUpdate, TaskGet, SendMessage
 ---
@@ -110,7 +110,7 @@ git log --oneline {baseRefName}..{headRefName} 2>/dev/null | head -30
 
 Read the PR description to understand the author's intent. This is critical for cross-validation.
 
-Extract a 1-2 sentence **PR Purpose** summary from the title, description, and commit messages. This summary is injected into the domain agent prompts via `## PR Context` in Step 3's Common Prompt Suffix.
+Extract a 1-2 sentence **PR Purpose** summary from the title, description, and commit messages. If the PR description is empty or minimal, derive the purpose from the title and commit messages alone. This summary is injected into the domain agent prompts via `## PR Context` in Step 3's Common Prompt Suffix.
 
 ### Working Dir Mode
 
@@ -295,8 +295,7 @@ Append the following sections to every domain agent prompt:
 ```
 ## PR Context (PR Review Mode only — omit this section in Working Dir / Path Review mode)
 
-**PR Purpose**: {1-2 sentence summary of the PR's goal, extracted from the PR
-title, description, and commit messages gathered in Step 1}
+**PR Purpose**: {1-2 sentence summary of the PR's goal, extracted from the PR title, description, and commit messages gathered in Step 1}
 
 When reviewing code, use this PR purpose as your primary lens:
 - Check whether all changes are consistent with the stated purpose
@@ -476,7 +475,7 @@ When `--quick` is set, perform a reduced validation pass:
 
 Skip git history, comments/docs search, and PR description cross-reference. Apply Confirmed / Dismissed verdicts only (no Demoted). This trades thoroughness for speed — obvious false positives are still caught, but edge cases may pass through.
 
-Out-of-Diff Finding Filter (see Normal Mode below) applies identically in Quick mode.
+Out-of-Diff Finding Filter (see below) applies identically in Quick mode.
 
 ### Out-of-Diff Finding Filter (PR Mode Only)
 
@@ -488,7 +487,7 @@ the PR's changes?
 
 | Causality Type | Description | Verdict |
 |---------------|-------------|---------|
-| **Consistency gap** | The PR introduces or modifies a pattern, but the same pattern remains un-updated in other files. The PR is incomplete without this change. | → Proceed to normal verdict (Confirmed/Demoted/Dismissed) |
+| **Consistency gap** | The PR introduces or modifies a pattern, but the same pattern remains not yet updated in other files. The PR is incomplete without this change. | → Proceed to normal verdict (Confirmed/Demoted/Dismissed) |
 | **Side effect** | A function/API/contract changed in the PR is called or depended on by code outside the diff, and that code will break or behave incorrectly. | → Proceed to normal verdict |
 | **Pre-existing issue** | A code defect that existed before this PR and is unrelated to the PR's changes. Discovered incidentally during review. | → If `--full-scan`: proceed to normal verdict. Otherwise: **Dismissed** (not in scope for this review). |
 
