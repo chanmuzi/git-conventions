@@ -83,13 +83,13 @@ Comments: ✅ {valid_count} valid · 🤔 {debatable_count} debatable · ❌ {ig
 
 ---
 
-**1. [{file}:{line}]** {summary}
+**V1. [{file}:{line}]** {summary}
 - Reviewer ({reviewer_name}): {brief quote}
 - Assessment: {why this is valid, what the fix should be}
 
 ---
 
-**2. [{file}:{line}]** {summary}
+**V2. [{file}:{line}]** {summary}
 - Reviewer ({reviewer_name}): {brief quote}
 - Assessment: {why this is valid, what the fix should be}
 
@@ -99,7 +99,7 @@ Comments: ✅ {valid_count} valid · 🤔 {debatable_count} debatable · ❌ {ig
 
 ---
 
-**1. [{file}:{line}]** {summary} **(추천: {Apply | Won't Fix | Follow-up})**
+**D1. [{file}:{line}]** {summary} **(추천: {Apply | Won't Fix | Follow-up})**
 - Reviewer ({reviewer_name}): {brief quote}
 - Pros: {benefits of applying}
 - Cons: {reasons to skip}
@@ -107,7 +107,7 @@ Comments: ✅ {valid_count} valid · 🤔 {debatable_count} debatable · ❌ {ig
 
 ---
 
-**2. [{file}:{line}]** {summary} **(추천: {Apply | Won't Fix | Follow-up})**
+**D2. [{file}:{line}]** {summary} **(추천: {Apply | Won't Fix | Follow-up})**
 - Reviewer ({reviewer_name}): {brief quote}
 - Pros: {benefits of applying}
 - Cons: {reasons to skip}
@@ -119,18 +119,18 @@ Comments: ✅ {valid_count} valid · 🤔 {debatable_count} debatable · ❌ {ig
 
 ---
 
-**1. [{file}:{line}]** {summary}
+**X1. [{file}:{line}]** {summary}
 - Reviewer ({reviewer_name}): {brief quote}
 - Why: {reason this is not applicable — e.g., misunderstood context, project convention differs}
 
 ---
 
-**2. [{file}:{line}]** {summary}
+**X2. [{file}:{line}]** {summary}
 - Reviewer ({reviewer_name}): {brief quote}
 - Why: {reason}
 ```
 
-Use bold paragraphs (`**1. ...**`) instead of numbered lists so that blank lines between items render correctly in terminal.
+Use bold paragraphs with category prefix (`**V1. ...**`, `**D1. ...**`, `**X1. ...**`) instead of numbered lists so that blank lines between items render correctly in terminal. Prefixes: V = Valid, D = Debatable, X = Ignore. Each category numbers independently (V1, V2, …; D1, D2, …; X1, X2, …).
 Three-level visual hierarchy: `────────────────────` (Unicode thin × 20) between categories, `---` between items within the same category, blank lines within items.
 Category headers use `### < {icon} Category ({n}) >` format with count.
 Omit categories that have 0 items.
