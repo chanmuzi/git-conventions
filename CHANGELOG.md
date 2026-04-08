@@ -3,6 +3,7 @@
 ## Unreleased
 
 **New**
+- `/review-reply` 카테고리별 고유 prefix (V/D/X) — 교차 참조 시 모호성 제거
 - `/code-review` PR Purpose Injection — 도메인 에이전트에 PR 목적을 전달하여 목적 기반 누락/불완전 감지
 - `/code-review` Out-of-Diff Causality Filter — diff 외부 finding에 인과관계 판정 적용, pre-existing issue 자동 제외
 - `/code-review` `--full-scan` 플래그 — PR과 무관한 기존 이슈도 General Findings에 포함
