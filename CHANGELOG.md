@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+**Fixed**
+- `/code-review` 도메인 에이전트 spawn 시 외부 agent type 사용 방지 — prompt-only 방식 명시적 강제
+
 **New**
 - `/review-reply` 카테고리별 고유 prefix (V/D/X) — 교차 참조 시 모호성 제거
 - `/code-review` PR Purpose Injection — 도메인 에이전트에 PR 목적을 전달하여 목적 기반 누락/불완전 감지
