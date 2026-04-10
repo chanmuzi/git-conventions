@@ -286,7 +286,7 @@ Used when `-s`/`--sub` flag IS set, or as fallback. For each activated domain, l
 
 ### Domain Definitions
 
-Each domain agent — whether team or sub — receives its domain-specific prompt via the Agent tool's `prompt` parameter. All agents are spawned with `model: "opus"`. The prompt for each domain consists of: the domain-specific prompt below, followed by the Common Prompt Suffix.
+Each domain agent — whether team or sub — receives its domain-specific prompt via the Agent tool's `prompt` parameter. All agents are spawned with `model: "opus"` and **without `subagent_type`** (general-purpose). Domain specialization is handled entirely through the prompt — do not delegate to external agent types. The prompt for each domain consists of: the domain-specific prompt below, followed by the Common Prompt Suffix.
 
 #### Common Prompt Suffix
 
