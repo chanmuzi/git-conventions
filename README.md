@@ -97,7 +97,7 @@ npx skills update   # Update all installed skills
 
 ### `/commit` — Create a Git Commit
 
-Analyzes your staged/unstaged changes and proposes a commit message following the conventional commit format.
+Analyzes your staged/unstaged changes, splits independent work into separate commit units when needed, and proposes conventional commit messages.
 
 ```
 /commit              # Analyze and commit

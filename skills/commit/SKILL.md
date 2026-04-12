@@ -146,12 +146,36 @@ refactor: Gather Context 불필요한 명령 및 중복 step 제거
 
 > If Amend already committed some or all files, only process the remaining uncommitted changes below. If nothing remains, skip this section.
 
-1. Analyze the diff and identify logical units of change. If there are multiple units, plan separate commits for each.
+1. Analyze the diff and identify commit units using the heuristics below. If there are multiple units, plan separate commits for each.
+
+### Commit Unit Heuristics
+
+- Split work into commits that are independently revertable and cherry-pickable.
+- A commit is too large if reverting it would also remove unrelated intent.
+- A commit is too small if cherry-picking it would leave the codebase broken, incomplete, or missing required validation.
+- Keep dependent changes in the same commit when splitting them would break a working intermediate state.
+  - Example: schema/model change + code that reads or writes the new field
+  - Example: function signature change + all required call-site updates
+  - Example: production code change + the tests required to validate that change
+- Split changes into separate commits when they have different intent or can be rolled back independently.
+  - Example: refactor vs feature addition
+  - Example: runtime/app behavior vs seed/tooling/docs updates
+  - Example: mechanical rename/formatting vs behavioral changes
+- Do not use layer boundaries alone as the rule.
+  - Backend and frontend may stay together when both are required for one valid end-to-end change.
+  - Backend and frontend should be split when they can be verified, reverted, or cherry-picked independently.
+- When uncertain, evaluate each candidate unit with these checks:
+  - If this unit alone is reverted, does it remove only one intended change?
+  - If this unit alone is cherry-picked, does the result still build, run, and test coherently?
+  - Are these changes driven by one reason, or are multiple motivations mixed together?
+  - Would this unit make root-cause isolation easier if a regression appears later?
+
 2. For each commit unit:
    - Stage the relevant files individually.
    - Show the proposed commit message.
+   - Use a multi-line body if the commit is intentionally broad but still one cohesive unit.
    - Create the commit. Follow the session's tool permission settings for approval.
-3. Repeat step 2 until all logical units are committed. Do NOT stop after the first commit — handle all units within this single skill invocation.
+3. Repeat step 2 until all commit units are committed. Do NOT stop after the first commit — handle all units within this single skill invocation.
 
 **Important:**
 - Do NOT use `git add -A` or `git add .` — stage specific files by name.
