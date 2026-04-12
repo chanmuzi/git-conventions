@@ -175,7 +175,7 @@ refactor: Gather Context 불필요한 명령 및 중복 step 제거
    - Show the proposed commit message.
    - Use a multi-line body if the commit is intentionally broad but still one cohesive unit.
    - Create the commit. Follow the session's tool permission settings for approval.
-3. Repeat step 2 until all logical units are committed. Do NOT stop after the first commit — handle all units within this single skill invocation.
+3. Repeat step 2 until all commit units are committed. Do NOT stop after the first commit — handle all units within this single skill invocation.
 
 **Important:**
 - Do NOT use `git add -A` or `git add .` — stage specific files by name.
