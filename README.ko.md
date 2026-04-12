@@ -97,7 +97,7 @@ npx skills update   # 전체 업데이트
 
 ### `/commit` — Git 커밋 생성
 
-staged/unstaged 변경 사항을 분석하고, conventional commit 형식에 맞는 커밋 메시지를 제안합니다.
+staged/unstaged 변경 사항을 분석하고, 필요하면 독립적으로 되돌리거나 가져갈 수 있는 단위로 나눈 뒤 conventional commit 형식에 맞는 커밋 메시지를 제안합니다.
 
 ```
 /commit              # 분석 후 커밋

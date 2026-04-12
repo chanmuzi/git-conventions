@@ -12,6 +12,10 @@
 - `/code-review` `--full-scan` 플래그 — PR과 무관한 기존 이슈도 General Findings에 포함
 - `/code-review` Context-Aware Scope Adjustment — 대화 맥락 기반 리뷰 범위 자동 결정 및 변경사항 없을 때 코드베이스 리뷰 fallback
 
+**Changed**
+- `/commit` 커밋 분리 기준 구체화 — `logical unit` 추상 표현을 `revert`/`cherry-pick` 기준과 의존성 휴리스틱으로 보강
+- `/commit` README 설명 보강 — 필요 시 독립적인 commit unit으로 분리한다는 동작을 명시
+
 ---
 
 ## v1.8.0 (2026-04-05)
