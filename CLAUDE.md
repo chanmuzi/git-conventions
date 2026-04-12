@@ -144,11 +144,13 @@ cp -r ~/.claude/plugins/marketplaces/git-claw/skills/ "$CACHE/skills/"
 - main push 후 플러그인 동기화 (anthropics/claude-code#42983 해결 시 제거):
   1. `git -C ~/.claude/plugins/marketplaces/git-claw pull` — marketplace 최신화
   2. 이 세션에서 `/reload-plugins` 실행 — 최신 cache 생성
-  3. `installed_plugins.json`의 git-claw `installPath`를 새 cache 경로로 업데이트 — 다른 프로젝트 세션에서도 최신 버전 로드 보장
+  3. `installed_plugins.json`(예: `~/.claude/plugins/installed_plugins.json`)의 git-claw `installPath`를 새 cache 경로로 업데이트
+     - 새로 시작하는 다른 프로젝트 세션은 수정된 `installPath`를 자동으로 사용
+     - 이미 실행 중인 다른 프로젝트 세션은 자동 반영되지 않으므로 `/reload-plugins` 실행 또는 세션 재시작 필요
   ```bash
   # 새 cache 경로 확인
   ls -td ~/.claude/plugins/cache/git-claw/git-claw/*/ | head -1
-  # installed_plugins.json의 git-claw installPath를 위 경로로 수정
+  # 예: ~/.claude/plugins/installed_plugins.json 에서 git-claw의 installPath를 위 경로로 수정
   ```
 
 ## 스킬 공통 규칙
