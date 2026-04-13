@@ -29,6 +29,7 @@ gh label create "{label}" --color "{hex}" 2>/dev/null || true
 | `docs` | `5319e7` | Documentation |
 | `chore` | `e4e669` | Maintenance, config, dependencies |
 | `refactor` | `d4c5f9` | Code restructuring |
+| `style` | `c5def5` | Formatting, linting, whitespace (no code change) |
 | `test` | `bfd4f2` | Test-related |
 | `perf` | `f9d0c4` | Performance improvement |
 | `hotfix` | `b60205` | Urgent production fix |

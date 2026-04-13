@@ -230,6 +230,7 @@ PR 모드에서 findings는 GitHub Review API를 통해 diff의 특정 라인에
 | `docs` | 🟣 `5319e7` | GitHub 기본 |
 | `chore` | 🟡 `e4e669` | 표준 |
 | `refactor` | 🟪 `d4c5f9` | 표준 |
+| `style` | 🩵 `c5def5` | 표준 |
 | `test` | 🟢 `bfd4f2` | 표준 |
 | `perf` | 🟠 `f9d0c4` | 표준 |
 | `hotfix` | 🔴 `b60205` | 표준 |
