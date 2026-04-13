@@ -230,6 +230,7 @@ Add the following to your global `~/.claude/CLAUDE.md` to reference these conven
 | `docs` | 🟣 `5319e7` | GitHub default |
 | `chore` | 🟡 `e4e669` | Standard |
 | `refactor` | 🟪 `d4c5f9` | Standard |
+| `style` | 🩵 `c5def5` | Standard |
 | `test` | 🟢 `bfd4f2` | Standard |
 | `perf` | 🟠 `f9d0c4` | Standard |
 | `hotfix` | 🔴 `b60205` | Standard |

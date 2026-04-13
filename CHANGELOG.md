@@ -6,6 +6,7 @@
 - `/code-review` 도메인 에이전트 spawn 시 외부 agent type 사용 방지 — prompt-only 방식 명시적 강제
 
 **New**
+- `/pr`, `/issue` `Style:` type / `style` label 추가 — 포맷팅·공백·코드 스타일 변경을 위한 type prefix 및 label (`c5def5`)
 - `/review-reply` 카테고리별 고유 prefix (V/D/X) — 교차 참조 시 모호성 제거
 - `/code-review` PR Purpose Injection — 도메인 에이전트에 PR 목적을 전달하여 목적 기반 누락/불완전 감지
 - `/code-review` Out-of-Diff Causality Filter — diff 외부 finding에 인과관계 판정 적용, pre-existing issue 자동 제외

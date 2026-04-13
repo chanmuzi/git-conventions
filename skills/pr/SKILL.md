@@ -88,6 +88,7 @@ Format: `{Type}: {description}`
 | `Feat:` | New feature |
 | `Fix:` | Bug fix |
 | `Refactor:` | Code restructuring |
+| `Style:` | Formatting, linting, whitespace (no code change) |
 | `Perf:` | Performance improvement |
 | `Docs:` | Documentation |
 | `Test:` | Test changes |
@@ -111,6 +112,7 @@ Assign a type label to the PR based on its title prefix. This label scheme is sh
 | `feature` | `0075ca` | `Feat:` |
 | `bug` | `d73a4a` | `Fix:` |
 | `refactor` | `d4c5f9` | `Refactor:` |
+| `style` | `c5def5` | `Style:` |
 | `perf` | `f9d0c4` | `Perf:` |
 | `docs` | `5319e7` | `Docs:` |
 | `test` | `bfd4f2` | `Test:` |
