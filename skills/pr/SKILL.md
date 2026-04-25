@@ -310,5 +310,5 @@ flowchart LR
 - Adapt section headers and content language to the project's CLAUDE.md language setting.
 - Do NOT create files that don't already exist in the project. Only update existing files.
 - Always prioritize the project's own conventions and release process over the defaults above.
-- **Assignee**: Always include `--assignee @me` in `gh pr create`. If it fails due to insufficient permissions, retry without it and explicitly notify the user that assignee was dropped due to permission, so they can add it manually if needed.
+- **Assignee / Label**: Always include `--assignee @me` and `--label "{type_label}"` in `gh pr create`. If either flag fails due to insufficient permissions, retry without the failing flag(s) and explicitly notify the user which flag(s) were dropped and why, so they can add the assignee/label manually if needed.
 - **Commit references**: Never wrap commit SHAs in backticks (e.g., `` `abc1234` ``). Backtick-wrapped SHAs render as inline code and are not clickable on GitHub. Use plain text (GitHub auto-links SHAs) or explicit markdown links: `[{short_sha}](https://github.com/{owner}/{repo}/commit/{sha})`.
