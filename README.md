@@ -91,6 +91,13 @@ npx skills update   # Update all installed skills
 
 > Symlink installs (recommended) apply updates to all agents at once. Copy installs require updating each copy individually.
 
+> **Skill renames are not auto-tracked.** When a skill is renamed upstream, the Skills CLI keeps the old folder under `~/.codex/skills/{old-name}/` (or the equivalent agent dir), so you may see two skills with the same description, or the skill may surface under its old name. Remove the stale folder manually:
+> ```bash
+> npx skills remove {old-name} -g     # or
+> rm -rf ~/.codex/skills/{old-name}
+> ```
+> Then restart your Codex CLI session so the skill list is re-cached.
+
 ## Skills
 
 > **Skill prefix by agent:** Claude Code uses `/` (e.g., `/commit`), Codex CLI uses `$` (e.g., `$commit`).

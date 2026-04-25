@@ -141,7 +141,7 @@ cp -r ~/.claude/plugins/marketplaces/git-claw/skills/ "$CACHE/skills/"
 - 파일 staging 시 `git add -A` 금지, 개별 파일 지정
 - 커밋 승인은 세션의 tool permission 설정에 따름
 - PR merge 시 squash 금지 — 커밋 히스토리를 보존하여 agent/reviewer 추적성 유지
-- main push 후 플러그인 동기화 (anthropics/claude-code#42983 해결 시 제거):
+- main push 후 Claude Code 플러그인 동기화 (anthropics/claude-code#42983 해결 시 제거):
   1. `git -C ~/.claude/plugins/marketplaces/git-claw pull` — marketplace 최신화
   2. 이 세션에서 `/reload-plugins` 실행 — 최신 cache 생성
   3. `installed_plugins.json`(예: `~/.claude/plugins/installed_plugins.json`)의 git-claw `installPath`를 새 cache 경로로 업데이트
@@ -152,6 +152,25 @@ cp -r ~/.claude/plugins/marketplaces/git-claw/skills/ "$CACHE/skills/"
   ls -td ~/.claude/plugins/cache/git-claw/git-claw/*/ | head -1
   # 예: ~/.claude/plugins/installed_plugins.json 에서 git-claw의 installPath를 위 경로로 수정
   ```
+- main push 후 Codex(Skills CLI) 동기화:
+  - `npx skills`는 자동 갱신되지 않음. `~/.codex/skills/{name}/.installed-ref`에 저장된 commit SHA 기준 수동 update 필요.
+  - Codex CLI는 세션 시작 시 skill 목록을 캐싱하므로 update 후 세션 재시작 필요.
+  ```bash
+  # 1. 동기화 상태 확인 (각 skill의 마지막 install commit SHA 출력)
+  for d in ~/.codex/skills/{commit,pr,issue,review-reply,code-review,handoff}/; do
+    printf "%-15s " "$(basename "$d"):"; cat "$d.installed-ref" 2>/dev/null; echo
+  done
+  # 2. 최신 main으로 업데이트
+  npx skills update -g chanmuzi/git-claw
+  ```
+- 스킬 rename / 제거 시 stale 폴더 cleanup:
+  - `npx skills` CLI는 rename·제거를 추적하지 않아 옛 디렉터리(`~/.codex/skills/{old-name}/`)가 잔존한다. 사용자에게 동일 description의 skill이 두 개로 보이거나, 옛 이름으로 노출되는 문제가 발생함.
+  - rename/제거 PR의 CHANGELOG 항목에 반드시 다음 cleanup 안내를 포함한다:
+    ```bash
+    npx skills remove {old-name} -g          # 또는
+    rm -rf ~/.codex/skills/{old-name}
+    ```
+  - Claude Code plugin 쪽은 cache가 marketplace 트리를 그대로 미러링하므로 rename 시 자동 정리됨 (별도 cleanup 불필요).
 
 ## 스킬 공통 규칙
 
