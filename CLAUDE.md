@@ -156,9 +156,11 @@ cp -r ~/.claude/plugins/marketplaces/git-claw/skills/ "$CACHE/skills/"
   - `npx skills`는 자동 갱신되지 않음. `~/.codex/skills/{name}/.installed-ref`에 저장된 commit SHA 기준 수동 update 필요.
   - Codex CLI는 세션 시작 시 skill 목록을 캐싱하므로 update 후 세션 재시작 필요.
   ```bash
-  # 1. 동기화 상태 확인 (각 skill의 마지막 install commit SHA 출력)
-  for d in ~/.codex/skills/{commit,pr,issue,review-reply,code-review,handoff}/; do
-    printf "%-15s " "$(basename "$d"):"; cat "$d.installed-ref" 2>/dev/null; echo
+  # 1. 동기화 상태 확인 (Skills CLI가 설치한 모든 skill의 마지막 install commit SHA 출력)
+  #    .installed-ref가 있는 디렉터리만 골라내므로 stale/누락 폴더도 함께 노출됨
+  for d in ~/.codex/skills/*/; do
+    [ -f "$d.installed-ref" ] || continue
+    printf "%-15s " "$(basename "$d"):"; cat "$d.installed-ref"; echo
   done
   # 2. 최신 main으로 업데이트
   npx skills update -g chanmuzi/git-claw
