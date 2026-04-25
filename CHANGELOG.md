@@ -4,6 +4,7 @@
 
 **Fixed**
 - `/code-review` 도메인 에이전트 spawn 시 외부 agent type 사용 방지 — prompt-only 방식 명시적 강제
+- `/pr` `--assignee`/`--label` 권한 fallback 시 silent drop 방지 — 누락된 플래그를 사용자에게 명시적으로 고지하여 수동 보완 가능하도록 변경
 
 **New**
 - `/pr`, `/issue` `Style:` type / `style` label 추가 — 포맷팅·공백·코드 스타일 변경을 위한 type prefix 및 label (`c5def5`)
