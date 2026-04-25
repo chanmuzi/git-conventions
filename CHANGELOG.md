@@ -18,6 +18,10 @@
 - `/commit` 커밋 분리 기준 구체화 — `logical unit` 추상 표현을 `revert`/`cherry-pick` 기준과 의존성 휴리스틱으로 보강
 - `/commit` README 설명 보강 — 필요 시 독립적인 commit unit으로 분리한다는 동작을 명시
 
+**Docs**
+- README.md / README.ko.md / CLAUDE.md에 Codex(Skills CLI) 동기화 절차 및 stale skill cleanup 안내 추가 — `npx skills`가 자동 갱신·rename 추적을 하지 않아 옛 디렉터리(`~/.codex/skills/{old-name}/`)가 잔존하는 문제(예: `review` → `review-reply` rename 후 옛 `review` skill이 동시 노출되는 현상) 대응
+- CLAUDE.md Git Convention에 main push 후 Codex 동기화 명령(`npx skills update -g chanmuzi/git-claw`) 및 rename PR의 CHANGELOG cleanup 안내 의무화 명시
+
 ---
 
 ## v1.8.0 (2026-04-05)

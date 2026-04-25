@@ -91,6 +91,18 @@ npx skills update   # 전체 업데이트
 
 > Symlink(권장)으로 설치한 경우 한 번의 업데이트로 모든 agent에 즉시 반영됩니다. Copy로 설치한 경우 각 복사본을 개별 업데이트해야 합니다.
 
+> **Skill rename은 자동으로 추적되지 않습니다.** upstream에서 skill이 rename되면 Skills CLI는 옛 디렉터리를 그대로 남겨둡니다. 동일한 description을 가진 skill이 두 개로 보이거나, 옛 이름으로 노출될 수 있습니다. 옛 폴더를 수동으로 제거하세요 — **설치한 scope과 동일한 scope으로 제거해야 합니다**:
+> ```bash
+> # Global 설치 (npx skills add ... -g)  →  ~/.codex/skills/{old-name}
+> npx skills remove {old-name} -g     # 또는
+> rm -rf ~/.codex/skills/{old-name}
+>
+> # Project 설치 (-g 없이 설치)  →  ./.codex/skills/{old-name}
+> npx skills remove {old-name}        # 또는
+> rm -rf ./.codex/skills/{old-name}
+> ```
+> 이후 Codex CLI 세션을 재시작해야 skill 목록이 갱신됩니다.
+
 ## 스킬
 
 > **Agent별 호출 prefix:** Claude Code는 `/` (예: `/commit`), Codex CLI는 `$` (예: `$commit`)를 사용합니다.
