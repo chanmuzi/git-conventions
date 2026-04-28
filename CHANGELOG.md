@@ -3,6 +3,7 @@
 ## Unreleased
 
 **Fixed**
+- Codex UI에서 `/review-reply` 스킬이 `review`로 노출되던 메타데이터 불일치 수정 — `agents/openai.yaml`의 `display_name`을 실제 스킬명과 동기화
 - `/code-review` 도메인 에이전트 spawn 시 외부 agent type 사용 방지 — prompt-only 방식 명시적 강제
 - `/pr` `--assignee`/`--label` 권한 fallback 시 silent drop 방지 — 누락된 플래그를 사용자에게 명시적으로 고지하여 수동 보완 가능하도록 변경
 

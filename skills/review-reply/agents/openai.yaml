@@ -1,4 +1,4 @@
 interface:
-  display_name: "review"
+  display_name: "review-reply"
   short_description: "Review PR comments and reply with resolution status"
   default_prompt: "Collect PR review comments, analyze their validity, and reply with resolution status."
