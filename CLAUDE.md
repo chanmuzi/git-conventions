@@ -160,10 +160,11 @@ cp -r ~/.claude/plugins/marketplaces/git-claw/skills/ "$CACHE/skills/"
   #    Codex 전용 install(~/.codex/skills) + universal install(~/.agents/skills) 모두 탐색
   #    .installed-ref가 있는 디렉터리만 골라내 stale/누락 폴더와 install scope를 함께 노출
   for base in ~/.codex/skills ~/.agents/skills; do
+    [ -d "$base" ] || continue
     scope=$([ "$base" = ~/.agents/skills ] && echo "universal" || echo "codex")
     for d in "$base"/*/; do
-      [ -f "$d.installed-ref" ] || continue
-      printf "%-15s %s [%s]\n" "$(basename "$d"):" "$(cat "$d.installed-ref")" "$scope"
+      [ -f "$d/.installed-ref" ] || continue
+      printf "%-15s %s [%s]\n" "$(basename "$d"):" "$(cat "$d/.installed-ref")" "$scope"
     done
   done
   # 2. 최신 main으로 업데이트 (단, copy-mode install이면 silent no-op일 수 있음 — 함정 참고)
@@ -209,7 +210,7 @@ cp -r ~/.claude/plugins/marketplaces/git-claw/skills/ "$CACHE/skills/"
 universal install로 잘못 전환된 경우 또는 update가 동작하지 않는 경우:
 
 ```bash
-# 1. 현재 install 모두 제거 (universal source + 모든 agent symlink 한 번에 정리)
+# 1. git-claw 관련 스킬 제거 (universal source + 해당 agent symlink 정리)
 npx skills remove -g commit pr issue review-reply code-review handoff -y
 
 # 2. marketplace를 최신 main으로 pull
