@@ -4,7 +4,7 @@ description: >-
   Create a git commit following project conventions.
   TRIGGER when: user asks to commit, create a commit, stage and commit, save changes, or any workflow that includes committing (e.g., "commit and push", "commit and create PR", "커밋해줘", "커밋하고 푸시").
   DO NOT TRIGGER when: user is only checking git status/diff without intent to commit.
-version: "1.4.0"
+version: "1.5.0"
 allowed-tools: Bash(git *), Read, Grep, Glob
 ---
 
@@ -146,9 +146,52 @@ refactor: Gather Context 불필요한 명령 및 중복 step 제거
 
 > If Amend already committed some or all files, only process the remaining uncommitted changes below. If nothing remains, skip this section.
 
-1. Analyze the diff and identify commit units using the heuristics below. If there are multiple units, plan separate commits for each.
+1. **Intent Grouping (BEFORE staging)**:
+   a. List all changed files (staged + unstaged + untracked).
+   b. Map each file to one Intent Category (see Heuristics below).
+   c. Count distinct categories.
+   d. If 2+ distinct categories → you MUST create one commit per category. Push status (already pushed or not) MUST NOT influence this decision; use `git push --force-with-lease` afterward if needed.
+   e. If 2+ distinct categories, display the grouping plan to the user before staging:
+
+      ```
+      **Commit Plan**
+      1. {type}({scope}): {subject} — N files
+         - file1, file2, ...
+      2. {type}({scope}): {subject} — M files
+         - file3, file4, ...
+      ```
+
+   f. If only 1 category, no plan display is required — proceed directly.
+
+2. Within each intent group, identify commit units using the Tie-breaking heuristics below. If multiple units exist within one group, plan separate commits for each.
 
 ### Commit Unit Heuristics
+
+Apply rules in order:
+1. Map each file to an Intent Category below. Files in different categories are different intents and MUST be split into separate commits.
+2. Check Same-intent exceptions — keep dependent changes together even if they appear to span categories.
+3. Within an intent group, use the Tie-breaking heuristics to decide whether to further split.
+
+**Intent Categories**
+
+Use the file's role in the project, not its filename or directory alone, to assign a category.
+
+- `infra-deploy`   — deployment configs, environment templates, ops/setup/teardown/health/seed scripts
+- `agent-meta`     — agent instructions, hooks, permission/secret guards (e.g., AGENTS.md, CLAUDE.md, .claude/, .codex/, `.gitignore` patterns guarding secrets/credentials)
+- `app-runtime`    — production code implementing one feature or fix
+- `build-tooling`  — build/lint/format/type-check configs, dependency manifests
+- `docs`           — documentation-only changes (README, docs/, inline doc-only edits)
+- `test`           — test-only additions or updates
+
+If a file does not clearly fit, pick the category that best matches its primary effect at runtime, and note the ambiguity in the grouping plan.
+
+**Same-intent exceptions (do NOT split)**
+
+- schema/model change + code reading/writing the new field
+- function signature change + all required call-site updates
+- production code change + tests validating that exact change
+
+**Tie-breaking heuristics (within one intent group)**
 
 - Split work into commits that are independently revertable and cherry-pickable.
 - A commit is too large if reverting it would also remove unrelated intent.
@@ -170,12 +213,12 @@ refactor: Gather Context 불필요한 명령 및 중복 step 제거
   - Are these changes driven by one reason, or are multiple motivations mixed together?
   - Would this unit make root-cause isolation easier if a regression appears later?
 
-2. For each commit unit:
+3. For each commit unit:
    - Stage the relevant files individually.
    - Show the proposed commit message.
    - Use a multi-line body if the commit is intentionally broad but still one cohesive unit.
    - Create the commit. Follow the session's tool permission settings for approval.
-3. Repeat step 2 until all commit units are committed. Do NOT stop after the first commit — handle all units within this single skill invocation.
+4. Repeat step 3 until all commit units are committed. Do NOT stop after the first commit — handle all units within this single skill invocation.
 
 **Important:**
 - Do NOT use `git add -A` or `git add .` — stage specific files by name.
