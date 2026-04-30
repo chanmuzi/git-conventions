@@ -18,7 +18,7 @@
 **Changed**
 - `/commit` 커밋 분리 기준 구체화 — `logical unit` 추상 표현을 `revert`/`cherry-pick` 기준과 의존성 휴리스틱으로 보강
 - `/commit` README 설명 보강 — 필요 시 독립적인 commit unit으로 분리한다는 동작을 명시
-- `/commit` Intent Grouping 단계 추가 (1.5.0) — staging 전 변경 파일을 6종 카테고리(`infra-deploy`/`agent-meta`/`app-runtime`/`build-tooling`/`docs`/`test`)로 그룹핑하고, 2+ 카테고리 시 카테고리당 별도 commit 강제. Push 상태(이미 push 여부)가 분할 결정에 영향 주지 않도록 명시
+- `/commit` Intent Grouping 단계 추가 (commit skill v1.5.0) — staging 전 변경 파일을 6종 카테고리(`infra-deploy`/`agent-meta`/`app-runtime`/`build-tooling`/`docs`/`test`)로 그룹핑하고, 2+ 카테고리 시 카테고리당 별도 commit 강제. Push 상태(이미 push 여부)가 분할 결정에 영향 주지 않도록 명시. Force push가 필요한 경우 Amend 섹션과 동일한 confirmation 패턴 적용
 - `/commit` Same-intent exception 명시 — schema+code, function signature+call-sites, production code+validating tests는 같은 commit으로 유지
 - `/commit` `.gitignore` 카테고리 명시 — secret/credential 가드 패턴이 포함된 `.gitignore`는 `agent-meta` 카테고리로 분류 (단순 build ignore는 `build-tooling`)
 
