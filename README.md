@@ -109,7 +109,7 @@ npx skills update   # Update all installed skills
 
 ### `/commit` — Create a Git Commit
 
-Analyzes your staged/unstaged changes, splits independent work into separate commit units when needed, and proposes conventional commit messages.
+Analyzes your staged/unstaged changes and proposes conventional commit messages. Before staging, files are grouped by intent — infrastructure, agent config, app code, build tooling, docs, tests — and multi-intent changes are automatically split into separate commits with same-intent exceptions for tightly coupled changes (schema+code, signature+call-sites, code+validating tests).
 
 ```
 /commit              # Analyze and commit
