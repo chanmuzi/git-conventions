@@ -109,7 +109,7 @@ npx skills update   # 전체 업데이트
 
 ### `/commit` — Git 커밋 생성
 
-staged/unstaged 변경 사항을 분석하고, 필요하면 독립적으로 되돌리거나 가져갈 수 있는 단위로 나눈 뒤 conventional commit 형식에 맞는 커밋 메시지를 제안합니다.
+staged/unstaged 변경 사항을 분석하고 conventional commit 메시지를 제안합니다. staging 전에 변경 파일을 의도(intent)별로 그룹핑합니다 — 인프라, agent 설정, 앱 코드, 빌드 도구, 문서, 테스트. 여러 의도가 섞인 변경은 자동으로 별도 commit으로 분리되며, 강하게 의존하는 변경(스키마+코드, 시그니처+호출처, 코드+검증 테스트)은 same-intent exception으로 같은 commit에 유지됩니다.
 
 ```
 /commit              # 분석 후 커밋
