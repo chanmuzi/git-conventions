@@ -147,11 +147,11 @@ refactor: Gather Context 불필요한 명령 및 중복 step 제거
 > If Amend already committed some or all files, only process the remaining uncommitted changes below. If nothing remains, skip this section.
 
 1. **Intent Grouping (BEFORE staging)**:
-   a. List all changed files (staged + unstaged + untracked).
-   b. Map each file to one Intent Category (see Heuristics below).
-   c. Count distinct categories.
-   d. If 2+ distinct categories → you MUST create one commit per category. Push status (already pushed or not) MUST NOT influence this decision; use `git push --force-with-lease` afterward if needed.
-   e. If 2+ distinct categories, display the grouping plan to the user before staging:
+    - List all changed files (staged + unstaged + untracked).
+    - Map each file to one Intent Category (see Heuristics below).
+    - Count distinct categories.
+    - If 2+ distinct categories → you MUST create one commit per category. Push status (already pushed or not) MUST NOT influence this *splitting* decision. If force push becomes necessary after rewriting history, follow the same confirmation pattern as the Amend section (display the warning, ask the user, then `git push --force-with-lease`).
+    - If 2+ distinct categories, display the grouping plan to the user before staging:
 
       ```
       **Commit Plan**
@@ -161,7 +161,7 @@ refactor: Gather Context 불필요한 명령 및 중복 step 제거
          - file3, file4, ...
       ```
 
-   f. If only 1 category, no plan display is required — proceed directly.
+    - If only 1 category, no plan display is required — proceed directly.
 
 2. Within each intent group, identify commit units using the Tie-breaking heuristics below. If multiple units exist within one group, plan separate commits for each.
 
