@@ -58,11 +58,100 @@ git log @{u}..HEAD --oneline 2>/dev/null
 
 > **⚡ Force pushed** (`--force-with-lease`)
 
-  - If declined: fall through to Task (new commit).
+  - If declined: fall through to Intent Classification (new commit).
 
 **After amend:**
-- If no unstaged or untracked changes remain → done. Do not proceed to Task.
-- If any changes remain → proceed to Task for the remaining changes.
+- If no unstaged or untracked changes remain → done. Do not proceed further.
+- If any changes remain → proceed to Intent Classification for the remaining changes.
+
+## Intent Classification
+
+> Run this BEFORE drafting any commit message. The output of this step is the source of truth for the commit plan — it cannot be inferred silently in your head.
+
+### Step 1 — Enumerate every changed file
+
+List every changed file (staged + unstaged + untracked) using `git status --porcelain`. Do not summarize; every path must appear in the next step.
+
+### Step 2 — Map each file to exactly one Intent Category
+
+Output the mapping as a markdown list. **You MUST emit this list explicitly, even when there is only one file or only one category.** This is non-optional and non-conditional. Skipping it is the most common cause of misgrouping.
+
+Example output:
+
+```
+- web/dashboard.tsx              → app-runtime
+- web/AGENTS.md                  → agent-meta
+- web/CLAUDE.md                  → agent-meta
+- docs/ops/slurm-completing.md   → docs
+```
+
+Use the file's role in the project, not its filename or directory alone, to assign a category.
+
+**Categories:**
+
+- `infra-deploy`   — deployment configs, environment templates, ops/setup/teardown/health/seed scripts
+- `agent-meta`     — agent instructions, hooks, permission/secret guards (AGENTS.md, CLAUDE.md, .claude/, .codex/, secret-related .gitignore patterns)
+- `app-runtime`    — production code implementing one feature or fix
+- `build-tooling`  — build/lint/format/type-check configs, dependency manifests
+- `docs`           — documentation-only changes (README, docs/, ops runbooks, inline doc-only edits)
+- `test`           — test-only additions or updates
+
+If a file genuinely fits two roles, pick the category matching its primary effect at runtime, and note the ambiguity inline (e.g., `web/CLAUDE.md → agent-meta (also touches docs)`).
+
+### Step 3 — Decide commit count
+
+Count the distinct categories produced in Step 2.
+
+- **N == 1** → one commit.
+- **N >= 2** → **N commits, one per category.** Merging across categories is allowed ONLY when a Same-intent exception (closed whitelist below) literally applies.
+
+Push status (already pushed or not) MUST NOT influence this splitting decision. If force push becomes necessary after history rewriting, follow the Amend section's confirmation pattern (display the warning, ask the user, then `git push --force-with-lease`).
+
+After Step 3, display the resulting plan:
+
+```
+**Commit Plan**
+1. {type}({scope}): {subject} — N files [category]
+   - file1, file2, ...
+2. {type}({scope}): {subject} — M files [category]
+   - file3, file4, ...
+```
+
+### Same-intent exceptions (closed whitelist)
+
+Merging files from different categories into one commit is allowed ONLY when one of these exact patterns applies:
+
+1. Schema/model change + production code that reads or writes the new field.
+2. Function signature change + every required call-site update.
+3. Production code change + the tests validating exactly that change (`app-runtime` ⊕ `test`).
+
+If your justification is not literally on this list, **split**.
+
+### Anti-patterns (NOT exceptions — these mean SPLIT)
+
+When you catch yourself reasoning along any of these lines, treat it as positive evidence to split, not to merge. These are the most common failure modes of this skill:
+
+- "They tell one story / share a theme / belong together conceptually."
+- "The code change and the documentation describing the principle go hand in hand."
+- "Operations notes alongside the code that triggered them."
+- "Same feature work session / atomic from the user's point of view."
+- "Force push is needed anyway, so may as well keep it tight."
+- "Reverting them separately would feel weird."
+- "The PR description will explain the connection."
+- "It's only a few files."
+
+None of these override the category split rule.
+
+### Tie-breaking within one category
+
+When all files share a category but the diff is still large, use these checks to decide further splits:
+
+- Reverting this unit alone removes only one intended change.
+- Cherry-picking this unit alone leaves the codebase building, running, and tested.
+- One reason drives this unit, not a mix of motivations.
+- Splitting would make root-cause isolation easier on future regressions.
+
+Do not split purely along layer boundaries (frontend vs. backend) when both are required for one valid end-to-end change. Do split when each layer is independently verifiable, revertable, and cherry-pickable.
 
 ## Commit Message Convention
 
@@ -146,80 +235,29 @@ refactor: Gather Context 불필요한 명령 및 중복 step 제거
 
 > If Amend already committed some or all files, only process the remaining uncommitted changes below. If nothing remains, skip this section.
 
-1. **Intent Grouping (BEFORE staging)**:
-    - List all changed files (staged + unstaged + untracked).
-    - Map each file to one Intent Category (see Heuristics below).
-    - Count distinct categories.
-    - If 2+ distinct categories → you MUST create one commit per category. Push status (already pushed or not) MUST NOT influence this *splitting* decision. If force push becomes necessary after rewriting history, follow the same confirmation pattern as the Amend section (display the warning, ask the user, then `git push --force-with-lease`).
-    - If 2+ distinct categories, display the grouping plan to the user before staging:
+For each commit unit produced by Intent Classification:
 
-      ```
-      **Commit Plan**
-      1. {type}({scope}): {subject} — N files
-         - file1, file2, ...
-      2. {type}({scope}): {subject} — M files
-         - file3, file4, ...
-      ```
+1. **Stage**: add only the files mapped to this unit. Stage them by name; never use `git add -A` or `git add .`.
 
-    - If only 1 category, no plan display is required — proceed directly.
+2. **Pre-commit invariant** — verify staged files belong to a single category:
 
-2. Within each intent group, identify commit units using the Tie-breaking heuristics below. If multiple units exist within one group, plan separate commits for each.
+   ```bash
+   git diff --staged --name-only
+   ```
 
-### Commit Unit Heuristics
+   Cross-check against your Step 2 mapping. If files from more than one category appear (and no Same-intent exception applies), `git restore --staged <wrong-files>` and re-stage correctly. Do not commit until staged files are single-category.
 
-Apply rules in order:
-1. Map each file to an Intent Category below. Files in different categories are different intents and MUST be split into separate commits.
-2. Check Same-intent exceptions — keep dependent changes together even if they appear to span categories.
-3. Within an intent group, use the Tie-breaking heuristics to decide whether to further split.
+3. **Compose the message** per the Convention section above. Use a multi-line body when 3+ files are involved or the reasoning is non-obvious.
 
-**Intent Categories**
+4. **Commit**. Approval follows the session's tool permission settings.
 
-Use the file's role in the project, not its filename or directory alone, to assign a category.
+After all units are committed:
 
-- `infra-deploy`   — deployment configs, environment templates, ops/setup/teardown/health/seed scripts
-- `agent-meta`     — agent instructions, hooks, permission/secret guards (e.g., AGENTS.md, CLAUDE.md, .claude/, .codex/, `.gitignore` patterns guarding secrets/credentials)
-- `app-runtime`    — production code implementing one feature or fix
-- `build-tooling`  — build/lint/format/type-check configs, dependency manifests
-- `docs`           — documentation-only changes (README, docs/, inline doc-only edits)
-- `test`           — test-only additions or updates
-
-If a file does not clearly fit, pick the category that best matches its primary effect at runtime, and note the ambiguity in the grouping plan.
-
-**Same-intent exceptions (do NOT split)**
-
-- schema/model change + code reading/writing the new field
-- function signature change + all required call-site updates
-- production code change + tests validating that exact change
-
-**Tie-breaking heuristics (within one intent group)**
-
-- Split work into commits that are independently revertable and cherry-pickable.
-- A commit is too large if reverting it would also remove unrelated intent.
-- A commit is too small if cherry-picking it would leave the codebase broken, incomplete, or missing required validation.
-- Keep dependent changes in the same commit when splitting them would break a working intermediate state.
-  - Example: schema/model change + code that reads or writes the new field
-  - Example: function signature change + all required call-site updates
-  - Example: production code change + the tests required to validate that change
-- Split changes into separate commits when they have different intent or can be rolled back independently.
-  - Example: refactor vs feature addition
-  - Example: runtime/app behavior vs seed/tooling/docs updates
-  - Example: mechanical rename/formatting vs behavioral changes
-- Do not use layer boundaries alone as the rule.
-  - Backend and frontend may stay together when both are required for one valid end-to-end change.
-  - Backend and frontend should be split when they can be verified, reverted, or cherry-picked independently.
-- When uncertain, evaluate each candidate unit with these checks:
-  - If this unit alone is reverted, does it remove only one intended change?
-  - If this unit alone is cherry-picked, does the result still build, run, and test coherently?
-  - Are these changes driven by one reason, or are multiple motivations mixed together?
-  - Would this unit make root-cause isolation easier if a regression appears later?
-
-3. For each commit unit:
-   - Stage the relevant files individually.
-   - Show the proposed commit message.
-   - Use a multi-line body if the commit is intentionally broad but still one cohesive unit.
-   - Create the commit. Follow the session's tool permission settings for approval.
-4. Repeat step 3 until all commit units are committed. Do NOT stop after the first commit — handle all units within this single skill invocation.
+5. **Self-check**: confirm the number of new commits equals the distinct category count from Step 3 of Intent Classification (accounting for Same-intent exceptions you applied). If they don't match, report the mismatch explicitly and stop — do not silently continue to subsequent steps such as PR creation. Recovery options:
+   - If unpushed: `git reset --soft HEAD~N` and re-run from Intent Classification.
+   - If pushed: warn the user and ask for confirmation before history rewriting + `git push --force-with-lease`, mirroring the Amend section's confirmation pattern.
 
 **Important:**
-- Do NOT use `git add -A` or `git add .` — stage specific files by name.
-- Do NOT include files that may contain secrets (`.env`, credentials, tokens, etc.).
+- Never use `git add -A` or `git add .` — stage specific files by name.
+- Never include files that may contain secrets (`.env`, credentials, tokens, etc.).
+- When multiple commit units were planned, do NOT stop after the first commit — handle all units within this single skill invocation.
