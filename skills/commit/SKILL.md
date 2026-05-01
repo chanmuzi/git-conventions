@@ -98,16 +98,21 @@ Use the file's role in the project, not its filename or directory alone, to assi
 
 If a file genuinely fits two roles, pick the category matching its primary effect at runtime, and note the ambiguity inline (e.g., `web/CLAUDE.md → agent-meta (also touches docs)`).
 
-### Step 3 — Decide commit count
+### Step 3 — Produce the Commit Plan
 
-Count the distinct categories produced in Step 2.
+Build the **Commit Plan** — the canonical, ordered list of commit units this invocation will create. Every downstream guard (Pre-commit invariant, Post-commit self-check) compares against this plan, not against the raw category count.
 
-- **N == 1** → one commit.
-- **N >= 2** → **N commits, one per category.** Merging across categories is allowed ONLY when a Same-intent exception (closed whitelist below) literally applies.
+Construction (apply in order):
 
-Push status (already pushed or not) MUST NOT influence this splitting decision. If force push becomes necessary after history rewriting, follow the Amend section's confirmation pattern (display the warning, ask the user, then `git push --force-with-lease`).
+1. Start from the file → category mapping in Step 2. The initial baseline is **one commit unit per distinct category**.
+2. **Apply Same-intent exceptions** (closed whitelist below). Each matched pattern merges its participating categories into one unit, reducing unit count.
+3. **Apply Tie-breaking within a category** (rules below). Each split increases unit count for that category.
 
-After Step 3, display the resulting plan:
+The Commit Plan is a list of units, each carrying (a) its files, (b) its source category(ies), and (c) a draft message. The number of commits this invocation creates MUST equal the number of units in the plan.
+
+Push status (already pushed or not) MUST NOT influence the plan. If force push becomes necessary after history rewriting, follow the Amend section's confirmation pattern (display the warning, ask the user, then `git push --force-with-lease`).
+
+Display the plan:
 
 ```
 **Commit Plan**
@@ -151,7 +156,35 @@ When all files share a category but the diff is still large, use these checks to
 - One reason drives this unit, not a mix of motivations.
 - Splitting would make root-cause isolation easier on future regressions.
 
-Do not split purely along layer boundaries (frontend vs. backend) when both are required for one valid end-to-end change. Do split when each layer is independently verifiable, revertable, and cherry-pickable.
+Do not split purely along layer boundaries (frontend vs. backend) when both are required for one valid end-to-end change. Do split when each layer is independently verifiable, revertible, and cherry-pickable.
+
+### Worked examples (use as test cases when editing this skill)
+
+These cases show that **commit count can differ from raw category count** depending on exceptions and tie-breaking. Always derive guards and self-checks from the Commit Plan, never from category count alone.
+
+**Example A — straightforward split**
+
+Files: `src/api.ts` (app-runtime), `README.md` (docs).
+Categories: 2. Exceptions: none. Tie-breaking: none.
+Commit Plan: 2 units → 2 commits.
+
+**Example B — Same-intent exception merges categories (commits < categories)**
+
+Files: `src/auth.ts` (app-runtime), `tests/auth.test.ts` (test).
+Categories: 2. Exception #3 (production code + validating tests) applies.
+Commit Plan: 1 unit (app-runtime ⊕ test) → 1 commit.
+
+**Example C — Tie-breaking expands one category (commits > categories)**
+
+Files: `src/feature_x.ts`, `src/feature_y.ts` — both `app-runtime`, unrelated motivations.
+Categories: 1. Tie-breaking: 2 independently revertible units.
+Commit Plan: 2 units → 2 commits.
+
+**Example D — combined**
+
+Files: `src/auth.ts`, `tests/auth.test.ts`, `src/feature_x.ts`, `README.md`.
+Categories: 3 (app-runtime, test, docs). Exception #3 merges (`auth.ts` ⊕ `auth.test.ts`); `feature_x.ts` and `README.md` stay separate.
+Commit Plan: 3 units → 3 commits (categories=3, but composition differs).
 
 ## Commit Message Convention
 
@@ -239,13 +272,13 @@ For each commit unit produced by Intent Classification:
 
 1. **Stage**: add only the files mapped to this unit. Stage them by name; never use `git add -A` or `git add .`.
 
-2. **Pre-commit invariant** — verify staged files belong to a single category:
+2. **Pre-commit invariant** — verify staged files match the current commit unit in the Commit Plan:
 
    ```bash
    git diff --staged --name-only
    ```
 
-   Cross-check against your Step 2 mapping. If files from more than one category appear (and no Same-intent exception applies), `git restore --staged <wrong-files>` and re-stage correctly. Do not commit until staged files are single-category.
+   The staged set MUST equal the file list of the unit being processed. Extra or missing files mean re-stage (`git restore --staged <wrong-files>` and re-add). For units formed by a Same-intent exception, the staged set may legitimately span multiple categories — the invariant is plan-unit equality, not category singularity. Do not commit until the staged set matches the current unit exactly.
 
 3. **Compose the message** per the Convention section above. Use a multi-line body when 3+ files are involved or the reasoning is non-obvious.
 
@@ -253,7 +286,7 @@ For each commit unit produced by Intent Classification:
 
 After all units are committed:
 
-5. **Self-check**: confirm the number of new commits equals the distinct category count from Step 3 of Intent Classification (accounting for Same-intent exceptions you applied). If they don't match, report the mismatch explicitly and stop — do not silently continue to subsequent steps such as PR creation. Recovery options:
+5. **Self-check**: confirm the number of new commits equals the number of units in the Commit Plan from Step 3. Use the final plan after Same-intent exceptions and tie-breaking — never compare against the raw category count, which can over- or under-state the expected commit count. If they don't match, report the mismatch explicitly and stop — do not silently continue to subsequent steps such as PR creation. Recovery options:
    - If unpushed: `git reset --soft HEAD~N` and re-run from Intent Classification.
    - If pushed: warn the user and ask for confirmation before history rewriting + `git push --force-with-lease`, mirroring the Amend section's confirmation pattern.
 
