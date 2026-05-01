@@ -21,6 +21,7 @@
 - `/commit` Intent Grouping 단계 추가 (commit skill v1.5.0) — staging 전 변경 파일을 6종 카테고리(`infra-deploy`/`agent-meta`/`app-runtime`/`build-tooling`/`docs`/`test`)로 그룹핑하고, 2+ 카테고리 시 카테고리당 별도 commit 강제. Push 상태(이미 push 여부)가 분할 결정에 영향 주지 않도록 명시. Force push가 필요한 경우 Amend 섹션과 동일한 confirmation 패턴 적용
 - `/commit` Same-intent exception 명시 — schema+code, function signature+call-sites, production code+validating tests는 같은 commit으로 유지
 - `/commit` `.gitignore` 카테고리 명시 — secret/credential 가드 패턴이 포함된 `.gitignore`는 `agent-meta` 카테고리로 분류 (단순 build ignore는 `build-tooling`)
+- `/commit` Intent Classification 강제력 강화 — 분류 단계를 메시지 작성 전(Amend 다음, Convention 앞)으로 이동, 파일→카테고리 매핑 enumeration을 카테고리 수와 무관하게 항상 출력하도록 무조건 강제, Same-intent exceptions를 closed whitelist로 고정, 자의적 통합을 유발하는 anti-patterns 목록 신설(주제 일관성/feature session/PR 설명에 의존 등). Task 단계에 pre-commit invariant(`git diff --staged --name-only` 단일 카테고리 검증) 및 post-commit self-check(commit 수 = 카테고리 수) 추가하여 사용자 개입 없는 autonomous flow에서도 분류 누락 방지
 
 **Docs**
 - README.md / README.ko.md / CLAUDE.md에 Codex(Skills CLI) 동기화 절차 및 stale skill cleanup 안내 추가 — `npx skills`가 자동 갱신·rename 추적을 하지 않아 옛 디렉터리(`~/.codex/skills/{old-name}/`)가 잔존하는 문제(예: `review` → `review-reply` rename 후 옛 `review` skill이 동시 노출되는 현상) 대응
