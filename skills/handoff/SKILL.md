@@ -87,11 +87,11 @@ git log --oneline -5
 git stash list
 ```
 
-Use this to populate the handoff `상황` section:
-- Current branch name
-- Uncommitted changes (count and nature)
-- Recent commits (what was done this session)
-- Stashed work (if any)
+Use these as data inputs for the `상황` section, applying the **Next-action relevance** filter from the Core Principles — include each item only when it gates the next action:
+- Current branch name — always (the next session needs to know where to start)
+- Uncommitted changes (count and nature) — only when the next session must continue from them
+- Recent commits — only when a specific commit is a precondition for the next action; do NOT dump the full `git log` output as a session recap
+- Stashed work — only when the next session must restore it
 
 ---
 
