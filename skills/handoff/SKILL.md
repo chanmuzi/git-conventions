@@ -8,9 +8,11 @@ version: "1.0.0"
 allowed-tools: Bash(git *), Read, Glob, Grep
 ---
 
-## Core Principle
+## Core Principles
 
-> **Never repeat artifact content.** If a spec, plan, or document exists, reference its path. The handoff prompt contains only: (1) pointers to existing artifacts, (2) session context not captured elsewhere, (3) a directive for the next session's first action.
+**1. Next-action relevance.** Include only information the next session needs to act. Completed work from this session belongs in the handoff **only if it is a precondition** for the next task. The question to ask for every bullet: *"If I remove this, where does the next session get stuck?"* — if nothing breaks, drop it. The handoff is not a session recap.
+
+**2. Reference, never repeat.** If a spec, plan, or document exists, reference its path. The handoff prompt contains only: (1) pointers to existing artifacts, (2) session context not captured elsewhere, (3) a directive for the next session's first action.
 
 ## Parse Arguments
 
@@ -53,13 +55,17 @@ Store detected sentinels for use in the skill recommendation step.
 
 **Layer 2 — Conversation Context Analysis**
 
-Analyze the current conversation to understand what this session is about. This is the **primary context source** — it always runs and is never a fallback.
+Analyze the current conversation to identify **what the next session needs to act**, not to summarize what this session did. This is the **primary context source** — it always runs and is never a fallback.
 
-Extract:
-- What task was the user working on?
-- What key decisions were made?
-- What was completed, and what remains?
-- What direction was agreed upon?
+Extract from the **next-session perspective**:
+- The starting state the next session must enter from (entry preconditions)
+- Decisions or constraints the next session must respect
+- Open questions or trade-offs that block the next first action
+
+**Exclusion criteria — drop these even if they happened in this session:**
+- Completed side work whose outcome does not gate the next task (e.g., a merged PR on an unrelated feature, a renamed component, branding/styling tweaks)
+- Closed or abandoned threads (e.g., issues marked NOT_PLANNED, dropped alternatives) that the next task does not depend on
+- Recap-style "we did X, Y, Z" enumerations — keep only items that are entry preconditions for the first next action
 
 The output of this layer scopes all subsequent layers — Layer 3 (Git) and Layer 4 (Artifact Search) are filtered through this understanding.
 
@@ -81,11 +87,11 @@ git log --oneline -5
 git stash list
 ```
 
-Use this to populate the handoff `상황` section:
-- Current branch name
-- Uncommitted changes (count and nature)
-- Recent commits (what was done this session)
-- Stashed work (if any)
+Use these as data inputs for the `상황` section, applying the **Next-action relevance** filter from the Core Principles — include each item only when it gates the next action:
+- Current branch name — always (the next session needs to know where to start)
+- Uncommitted changes (count and nature) — only when the next session must continue from them
+- Recent commits — only when a specific commit is a precondition for the next action; do NOT dump the full `git log` output as a session recap
+- Stashed work — only when the next session must restore it
 
 ---
 
@@ -145,7 +151,7 @@ Below the directive, add structured context by selecting from the section pool. 
 
 | Section | Purpose | When to include |
 |---------|---------|-----------------|
-| `상황` | Current state, background, git metadata | **Always** |
+| `상황` | Entry preconditions for the next action — minimum facts the next session needs to start, plus git metadata | **Always** |
 | `원인` | Diagnosed root cause of a problem | Bug/issue where root cause was identified |
 | `진행 상황` | Completed vs remaining work | Work is partially done |
 | `판단 필요 사항` | Options and criteria for a pending decision | Direction not yet determined |
@@ -159,6 +165,13 @@ Below the directive, add structured context by selecting from the section pool. 
 - Omit empty sections entirely.
 - Artifact paths from Layer 4 belong in `참고`. Never copy artifact content inline — reference by path only.
 - Git state (branch, status) is included in `상황` as inline info, not as a standalone section.
+
+**Anti-patterns — do not do these:**
+- ❌ Listing this session's PR/commit details (renames, color tweaks, branding, side refactors) when they are not preconditions for the next task.
+- ❌ Treating `상황` as a session recap (*"we merged X, decided Y, closed Z"*) instead of entry preconditions for the next action.
+- ❌ Citing closed or NOT_PLANNED side issues that the next task does not depend on.
+- ❌ Including `git log --oneline -5` items in `상황` or `참고` when those commits are not entry preconditions.
+- ❌ Padding `참고` with PRs/issues that the next session has no reason to open.
 
 ### Scenario Patterns
 
@@ -256,7 +269,20 @@ Based on sentinel detection (Layer 1) + context type (Layers 2-4):
 - Good: `/autopilot으로 spec 참고하여 Step 4부터 진행`
 - Bad: `Step 4부터 진행 (추천: /autopilot)`
 
-## Confirmation Flow
+## Pre-output Self-check
+
+Before showing the draft (or before final output when `-y` / artifact-present path skips confirmation), apply the next-action relevance test to every bullet across all sections.
+
+For each bullet, ask:
+
+> *"If this bullet is removed, where does the next session get stuck?"*
+
+- **Concrete answer** (e.g., "would not know which branch to start from", "would re-investigate a constraint already decided", "would miss the file that gates the first action") → keep.
+- **Vague answer or "they would still proceed fine"** → drop. The bullet is session recap, not handoff context.
+
+Apply the same check to `참고`: every PR / issue / file path must be something the next session will actually consult to perform its first action — not a session-history dump.
+
+If a section ends up empty after pruning, omit it entirely.
 
 ```
 Conversation analyzed → Relevant artifact found? ──yes──→ Output directly
