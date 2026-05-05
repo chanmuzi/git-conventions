@@ -182,7 +182,7 @@ PR 모드에서 findings는 GitHub Review API를 통해 diff의 특정 라인에
 
 ### `/handoff` — 세션 Handoff 프롬프트
 
-현재 세션의 작업 컨텍스트를 다음 세션으로 이관하기 위한 copy-ready handoff 프롬프트를 생성합니다. 아티팩트, git 상태, 대화 컨텍스트를 자동 감지하고 **참조 우선(reference-not-repeat)** 원칙에 따라 구성합니다.
+현재 세션의 작업 컨텍스트를 다음 세션으로 이관하기 위한 copy-ready handoff 프롬프트를 생성합니다. 아티팩트, git 상태, 대화 컨텍스트를 자동 감지하고 두 가지 원칙에 따라 구성합니다: **다음 액션 관련성(next-action relevance)** — 다음 세션이 행동하기 위해 필요한 정보만 포함하고 세션 회고는 배제, **참조 우선(reference-not-repeat)** — 아티팩트 내용을 반복하지 않고 경로만 참조.
 
 ```
 /handoff                   # 자동 감지 후 handoff 프롬프트 생성

@@ -16,6 +16,7 @@
 - `/code-review` Context-Aware Scope Adjustment — 대화 맥락 기반 리뷰 범위 자동 결정 및 변경사항 없을 때 코드베이스 리뷰 fallback
 
 **Changed**
+- `/handoff` Next-action relevance 원칙 추가 — 이번 세션에서 완료된 작업이 다음 작업의 entry precondition이 아니면 handoff에서 제외하도록 강제. Layer 2(Conversation Context Analysis)를 "이번 세션 회고"가 아닌 "다음 세션이 행동하기 위해 필요한 정보 추출" 관점으로 재정의하고, exclusion criteria(무관한 머지된 PR/리네임/브랜딩 변경, NOT_PLANNED 사이드 이슈, 회고형 enumeration)를 명시. `상황` 섹션 정의를 "current state, background"에서 "entry preconditions"로 정밀화. Anti-patterns 5종 도입 및 출력 직전 self-check 단계("이 bullet 빼면 다음 세션이 어디서 막히는가") 추가. README.md/README.ko.md handoff 섹션에 두 원칙(next-action relevance + reference-not-repeat) 명시
 - `/commit` 커밋 분리 기준 구체화 — `logical unit` 추상 표현을 `revert`/`cherry-pick` 기준과 의존성 휴리스틱으로 보강
 - `/commit` README 설명 보강 — 필요 시 독립적인 commit unit으로 분리한다는 동작을 명시
 - `/commit` Intent Grouping 단계 추가 (commit skill v1.5.0) — staging 전 변경 파일을 6종 카테고리(`infra-deploy`/`agent-meta`/`app-runtime`/`build-tooling`/`docs`/`test`)로 그룹핑하고, 2+ 카테고리 시 카테고리당 별도 commit 강제. Push 상태(이미 push 여부)가 분할 결정에 영향 주지 않도록 명시. Force push가 필요한 경우 Amend 섹션과 동일한 confirmation 패턴 적용

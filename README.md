@@ -182,7 +182,7 @@ When the [Codex plugin](https://github.com/openai/codex) is installed (`claude p
 
 ### `/handoff` — Session Handoff Prompt
 
-Generates a copy-ready handoff prompt that transfers work context to a new session. Auto-detects artifacts, git state, and conversation context, then structures a concise prompt following the **reference-not-repeat** principle.
+Generates a copy-ready handoff prompt that transfers work context to a new session. Auto-detects artifacts, git state, and conversation context, then structures a concise prompt following two principles: **next-action relevance** (include only what the next session needs to act, drop session recap) and **reference-not-repeat** (cite artifact paths instead of copying content).
 
 ```
 /handoff                   # Auto-detect and generate handoff prompt
