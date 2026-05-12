@@ -203,7 +203,7 @@ PR 모드에서 findings는 GitHub Review API를 통해 diff의 특정 라인에
 
 ## 언어 동작
 
-모든 커맨드의 출력(커밋 메시지, PR 제목/본문)은 프로젝트의 `CLAUDE.md`에 설정된 언어로 작성됩니다. 설정이 없으면 사용자의 대화 언어를 따릅니다. 기술 용어는 원어 그대로 유지합니다.
+모든 커맨드의 출력(커밋 메시지, PR 제목/본문, 이슈 제목/본문)은 프로젝트의 `CLAUDE.md`에 설정된 언어로 작성됩니다. 설정이 없으면 사용자의 대화 언어를 따릅니다. 기술 용어는 원어 그대로 유지합니다.
 
 ## Convention 요약
 
@@ -212,6 +212,7 @@ PR 모드에서 findings는 GitHub Review API를 통해 diff의 특정 라인에
 | Commit | `{type}: {설명}` (소문자) | `feat: 멀티턴 컨텍스트 유지 기능 추가` |
 | Branch | `{type}/{kebab-case}` (영어) | `feat/multiturn-context-persistence` |
 | PR 제목 | `{Type}: {설명}` (대문자) | `Feat: 멀티턴 컨텍스트 유지 기능 추가` |
+| Issue 제목 | `{설명}` (type prefix 없음) | `E2E 실험에서 non-default retrieval index snapshot 지원` |
 | Release PR | `Release: dev → main 통합 (vX.Y.Z)` | `Release: dev → main 통합 (v0.4.1)` |
 
 ## CLAUDE.md 연동

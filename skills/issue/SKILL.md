@@ -58,8 +58,9 @@ Parse `$ARGUMENTS` and conversation context:
 
 ## Issue Templates
 
-Write all template content in the language configured in the project's CLAUDE.md.
+Write the issue title and body in the language configured in the project's CLAUDE.md.
 If no language is configured, follow the user's conversational language.
+Keep technical terms in their original form when translation would reduce clarity.
 Examples below are in Korean.
 
 ### Bug Report
@@ -144,6 +145,7 @@ Examples below are in Korean.
 3. Gather relevant context from the conversation — code references, error messages, related PRs.
 4. Select the matching template and draft the issue title and body.
    - Title: concise, descriptive. No type prefix — the label handles categorization.
+   - Title language: follow the same language rule as the body. For Korean projects, keep technical terms as-is but use Korean sentence structure (e.g., `E2E 실험에서 non-default retrieval index snapshot 지원`).
    - Fill in template sections from available context. Omit optional sections with no content.
 5. Determine labels:
    - **Type label**: always assign based on issue type.
