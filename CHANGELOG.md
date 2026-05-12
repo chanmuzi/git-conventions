@@ -16,6 +16,7 @@
 - `/code-review` Context-Aware Scope Adjustment — 대화 맥락 기반 리뷰 범위 자동 결정 및 변경사항 없을 때 코드베이스 리뷰 fallback
 
 **Changed**
+- `/issue` 제목 언어 규칙 명시 — issue title도 body와 동일하게 프로젝트 `CLAUDE.md` 언어를 따르도록 강제하고, 기술 용어는 원문 유지 + 문장 구조는 설정 언어를 따르는 예시 추가
 - `/handoff` Next-action relevance 원칙 추가 — 이번 세션에서 완료된 작업이 다음 작업의 entry precondition이 아니면 handoff에서 제외하도록 강제. Layer 2(Conversation Context Analysis)를 "이번 세션 회고"가 아닌 "다음 세션이 행동하기 위해 필요한 정보 추출" 관점으로 재정의하고, exclusion criteria(무관한 머지된 PR/리네임/브랜딩 변경, NOT_PLANNED 사이드 이슈, 회고형 enumeration)를 명시. `상황` 섹션 정의를 "current state, background"에서 "entry preconditions"로 정밀화. Anti-patterns 5종 도입 및 출력 직전 self-check 단계("이 bullet 빼면 다음 세션이 어디서 막히는가") 추가. Layer 3(Git State Detection) 가이드를 next-action relevance 필터 적용으로 정리 — branch/uncommitted/recent commits/stashed를 무조건 포함이 아닌 entry precondition일 때만 선택하도록 표현 보강 (Copilot 리뷰 반영). README.md/README.ko.md handoff 섹션에 두 원칙(next-action relevance + reference-not-repeat) 명시
 - `/commit` 커밋 분리 기준 구체화 — `logical unit` 추상 표현을 `revert`/`cherry-pick` 기준과 의존성 휴리스틱으로 보강
 - `/commit` README 설명 보강 — 필요 시 독립적인 commit unit으로 분리한다는 동작을 명시

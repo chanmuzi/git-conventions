@@ -203,7 +203,7 @@ Generates a copy-ready handoff prompt that transfers work context to a new sessi
 
 ## Language Behavior
 
-All commands write output (commit messages, PR titles/body) in the language configured in your project's `CLAUDE.md`. If no language is set, the user's conversational language is used. Technical terms are kept in their original form.
+All commands write output (commit messages, PR titles/body, issue titles/body) in the language configured in your project's `CLAUDE.md`. If no language is set, the user's conversational language is used. Technical terms are kept in their original form.
 
 ## Conventions at a Glance
 
@@ -212,6 +212,7 @@ All commands write output (commit messages, PR titles/body) in the language conf
 | Commit | `{type}: {desc}` (lowercase) | `feat: 멀티턴 컨텍스트 유지 기능 추가` |
 | Branch | `{type}/{kebab-case}` (English) | `feat/multiturn-context-persistence` |
 | PR Title | `{Type}: {desc}` (capitalized) | `Feat: 멀티턴 컨텍스트 유지 기능 추가` |
+| Issue Title | `{desc}` (no type prefix) | `E2E 실험에서 non-default retrieval index snapshot 지원` |
 | Release PR | `Release: dev → main 통합 (vX.Y.Z)` | `Release: dev → main 통합 (v0.4.1)` |
 
 ## Integration with CLAUDE.md
