@@ -60,7 +60,7 @@ Parse `$ARGUMENTS` and conversation context:
 
 Write the issue title and body in the language configured in the project's CLAUDE.md.
 If no language is configured, follow the user's conversational language.
-Keep technical terms in their original form when translation would reduce clarity.
+Keep technical terms in their original form.
 Examples below are in Korean.
 
 ### Bug Report
